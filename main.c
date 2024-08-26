@@ -57,6 +57,7 @@ void free_redirection(t_redirection *redirection)
         free_command(redirection->command);
         free_command(redirection->left_brace);
         free_command(redirection->right_brace);
+		free(redirection->full_cmd);
         free(redirection);
     }
 }
@@ -325,6 +326,25 @@ void set_order(t_redirection *command, char *str)
     }
 	free(rev);
 }
+void set_cmd(t_redirection *command)
+{
+	int i;
+	char *cmd;
+	char *tmp;
+
+	if(command->command)
+	{
+		tmp = ft_strdup(command->command->command[0]);
+	}
+	i = 1;
+	while(command->command->command[i])
+	{
+		cmd = ft_strjoin(tmp,command->command->command[i]);
+		i++;
+	}
+	command->full_cmd = ft_strdup(cmd);
+	free(cmd);
+}
 
 void parse_redirection(char *str, t_redirection *command)
 {
@@ -347,8 +367,10 @@ void parse_redirection(char *str, t_redirection *command)
             parse_command(str, &i, command);
         }
     }
+	set_cmd(command);
     set_order(command, str);
-}
+	printf("%s\n", command->full_cmd);
+	}
 
 void open_redirection_files(t_redirection *command)
 {
