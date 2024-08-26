@@ -341,7 +341,7 @@ int	env_validate(char *ptr)
 char *set_env(char *name, int flag, char ***envp)
 {
 	int	i;
-	
+
 	if (flag < 0)
 		return (name);
 	else
@@ -439,7 +439,7 @@ void	ft_unset(char **ptr, char **envp)
 {
 	int	i;
 	int	k;
-	
+
 	i = 1;
 	while (ptr[i] != NULL)
 	{
