@@ -326,24 +326,37 @@ void set_order(t_redirection *command, char *str)
     }
 	free(rev);
 }
-void set_cmd(t_redirection *command)
-{
-	int i;
-	char *cmd;
-	char *tmp;
 
-	if(command->command)
-	{
-		tmp = ft_strdup(command->command->command[0]);
-	}
-	i = 1;
-	while(command->command->command[i])
-	{
-		cmd = ft_strjoin(tmp,command->command->command[i]);
-		i++;
-	}
-	command->full_cmd = ft_strdup(cmd);
-	free(cmd);
+char *set_command(t_command *command)
+{
+    if (!command || !command->command)
+        return NULL;
+
+    int total_length = 0;
+    int i = 0;
+
+    while (command->command[i])
+    {
+        total_length += strlen(command->command[i]) + 1;
+        i++;
+    }
+
+    char *result = malloc(total_length + 1);
+    if (!result)
+    {
+        perror("malloc");
+        return NULL;
+    }
+    result[0] = '\0';
+    i = 0;
+    while (command->command[i])
+    {
+        strcat(result, command->command[i]);
+        if (command->command[i + 1])
+            strcat(result, " ");
+        i++;
+    }
+    return result;
 }
 
 void parse_redirection(char *str, t_redirection *command)
@@ -367,10 +380,9 @@ void parse_redirection(char *str, t_redirection *command)
             parse_command(str, &i, command);
         }
     }
-	set_cmd(command);
+	command->full_cmd = set_command(command->command);
     set_order(command, str);
-	printf("%s\n", command->full_cmd);
-	}
+}
 
 void open_redirection_files(t_redirection *command)
 {
