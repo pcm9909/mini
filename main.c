@@ -351,9 +351,9 @@ char *set_command(t_command *command)
     i = 0;
     while (command->command[i])
     {
-        strcat(result, command->command[i]);
+        ft_strlcat(result, command->command[i], sizeof(command->command[i]));
         if (command->command[i + 1])
-            strcat(result, " ");
+            ft_strlcat(result, " ", sizeof(" "));
         i++;
     }
     return result;
