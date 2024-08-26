@@ -380,6 +380,7 @@ void parse_redirection(char *str, t_redirection *command)
             parse_command(str, &i, command);
         }
     }
+	printf("\n%s\n%s\n%s\n", command->command->command[0],command->command->command[1],command->command->command[2]);
 	command->full_cmd = set_command(command->command);
     set_order(command, str);
 }
