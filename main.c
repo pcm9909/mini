@@ -351,9 +351,9 @@ char *set_command(t_command *command)
     i = 0;
     while (command->command[i])
     {
-        ft_strlcat(result, command->command[i], sizeof(command->command[i]));
+        ft_strlcat(result, command->command[i], total_length + 1);
         if (command->command[i + 1])
-            ft_strlcat(result, " ", sizeof(" "));
+            ft_strlcat(result, " ", total_length + 1);
         i++;
     }
     return result;
@@ -380,8 +380,8 @@ void parse_redirection(char *str, t_redirection *command)
             parse_command(str, &i, command);
         }
     }
-	printf("\n%s\n%s\n%s\n", command->command->command[0],command->command->command[1],command->command->command[2]);
 	command->full_cmd = set_command(command->command);
+	printf("\n%s\n", command->full_cmd);
     set_order(command, str);
 }
 
