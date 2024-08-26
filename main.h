@@ -7,6 +7,9 @@
 #include <readline/readline.h>
 #include <sys/wait.h>
 #include <readline/history.h>
+#include <errno.h>
+#include <signal.h>
+#include <termios.h>
 
 typedef struct s_command
 {

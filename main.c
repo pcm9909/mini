@@ -2,6 +2,499 @@
 
 char *local;
 
+void	error_end(int er)
+{
+	errno = er;
+	if (errno == EOPNOTSUPP)
+	{
+		perror("command not found");
+		exit(127);
+	}
+	perror("Error");
+	exit(1);
+}
+
+static void	check_err(int n, int tar, int status, int type)
+{
+	if (type)
+	{
+		if (n == tar)
+			error_end(status);
+	}
+	else if (type == 0)
+	{
+		if (n != tar)
+			error_end(status);
+	}
+	else
+	{
+		if (n < tar)
+			error_end(status);
+	}
+}
+
+char	*ft_strdup2(const char *s, int len)
+{
+	char	*mem;
+	char	*ptr;
+	char	*f;
+
+	mem = NULL;
+	mem = (char *)malloc(sizeof(char) * (len + 1));
+	if (mem == NULL)
+		return (mem);
+	if (!s)
+	{
+		mem[0] = 0;
+		return (mem);
+	}
+	f = (char *)s;
+	ptr = mem;
+	while (*s)
+		*(ptr++) = *(char *)(s++);
+	*ptr = 0;
+	free(f);
+	return (mem);
+}
+
+char	**extract_path(char *envp[])
+{
+	char	**tmp;
+	char	**re;
+
+	tmp = NULL;
+	while (*envp)
+	{
+		if (!ft_strncmp(*envp, "PATH=", 5))
+			break ;
+		envp++;
+	}
+	if (*envp)
+	{
+		tmp = ft_split((*envp) + 5, ':');
+		re = tmp;
+		while (*re)
+		{
+			ft_strlcat(*re, "/", 999);
+			re++;
+		}
+	}
+	return (tmp);
+}
+
+char	**make_arg(char *argv)
+{
+	char	**re;
+	char	*tmp;
+
+	re = ft_split(argv, ' ');
+	if (!re)
+		return (NULL);
+	tmp = ft_strdup2(re[0], 100);
+	re[0] = tmp;
+	return (re);
+}
+
+void	f_all(char **target)
+{
+	char	**tmp;
+
+	tmp = target;
+	while (*target)
+	{
+		free(*target);
+		target++;
+	}
+	free(tmp);
+}
+
+void	access_test(char *path, char **ar, char *envp[], int *flag)
+{
+	char	*tmp;
+
+	tmp = ft_strjoin(path, ar[0]);
+	if (!access(tmp, X_OK))
+	{
+		free(ar[0]);
+		ar[0] = ft_strdup(tmp);
+		*flag = execve(tmp, ar, envp);
+	}
+	free(tmp);
+}
+
+int	execute(char *argv, char *envp[])
+{
+	char	**path;
+	char	**ar;
+	int		flag;
+	int		i;
+
+	i = 0;
+	flag = -1;
+	path = extract_path(envp);
+	ar = make_arg(argv);
+	while (path[i])
+	{
+		access_test(path[i], ar, envp, &flag);
+		i++;
+	}
+	access_test("", ar, envp, &flag);
+	f_all(ar);
+	f_all(path);
+	return (flag);
+}
+
+char	*extract_name(char *envp[])
+{
+	char	*tmp;
+	char	**re;
+
+	tmp = NULL;
+	while (*envp)
+	{
+		if (!ft_strncmp(*envp, "USER=", 5))
+			break ;
+		envp++;
+	}
+	tmp = (*envp);
+	return (tmp+5);
+}
+
+char	*extract_location(char *envp[])
+{
+	char	*tmp;
+	char	**re;
+
+	tmp = NULL;
+	while (*envp)
+	{
+		if (!ft_strncmp(*envp, "SESSION_MANAGER=", 16))
+			break ;
+		envp++;
+	}
+	tmp = (*envp);
+	return (ft_substr(tmp, 22, ft_strchr(tmp, '.') - tmp - 22));
+}
+
+char	*extract_home(char *envp[])
+{
+	char	*tmp;
+	char	**re;
+
+	tmp = NULL;
+	while (*envp)
+	{
+		if (!ft_strncmp(*envp, "HOME=", 5))
+			break ;
+		envp++;
+	}
+	tmp = (*envp);
+	return (tmp+5);
+}
+
+void	sg(int signal)
+{
+	if (signal == SIGINT)
+	{
+		rl_on_new_line();
+		rl_redisplay();
+		printf("^C\n");
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+	else if (signal == SIGTERM)
+	{
+		printf("exit\n");
+		exit(0);
+	}
+	else if (signal == SIGQUIT)
+	{
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+		return ;
+	}
+}
+
+void	input_sig(struct termios *old)
+{
+	tcgetattr(0, old);
+	old->c_lflag &= ~(512);
+	tcsetattr(0, TCSANOW, old);
+	signal(SIGINT, sg);
+	signal(SIGTERM, sg);
+	signal(SIGQUIT, sg);
+}
+
+void	end_sig(struct termios *old)
+{
+	tcgetattr(0, old);
+	old->c_lflag |= 512;
+	tcsetattr(0, TCSANOW, old);
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+}
+
+void	all_free(char **ptr)
+{
+	while (*ptr != NULL)
+	{
+		free(*ptr);
+		ptr++;
+	}
+	free(ptr);
+}
+
+char **update_envp(char **envp, int type, char *new)
+{
+	int	i;
+	char	**ptr;
+
+	i = 0;
+	ptr = envp;
+	while (*ptr != NULL)
+	{
+		i++;
+		ptr++;
+	}
+	ptr = (char **)malloc((i + 5) * sizeof(char *));
+	i = 0;
+	while (envp[i] != NULL)
+	{
+		ptr[i] = ft_strdup(envp[i]);
+		i++;
+	}
+	ptr[i++] = new;
+	ptr[i] = NULL;
+	if (type == 1)
+		all_free(envp);
+	return (ptr);
+}
+
+int	double_ptr_size(char **ptr)
+{
+	int	i;
+
+	i = 0;
+	while (ptr[i] != NULL)
+		i++;
+	return (i);
+}
+
+int	search_env(char **envp, char *name, int flag) // free
+{
+	int	i;
+	char	*re;
+	char	*tmp;
+
+	i = 0;
+	if (ft_strchr(name, '=') && flag == 1)
+		re = ft_substr(name, 0, ft_strchr(name, '=') - name);
+	else
+		re = name;
+	while (*envp)
+	{
+		if (ft_strchr(*envp, '='))
+			tmp = ft_substr(*envp, 0, ft_strchr(*envp, '=') - *envp);
+		else
+			tmp = *envp;
+		if (!ft_strncmp(tmp, re, ft_strlen(re)))
+			break ;
+		envp++;
+		i++;
+	}
+	return (i);
+}
+
+int	is_validname(char *ptr)
+{
+	while (*ptr && *ptr != '=')
+	{
+		if (!ft_isalnum(*ptr) && *ptr != '_')
+			return (0);
+		ptr++;
+	}
+	return (1);
+}
+
+int	env_validate(char *ptr)
+{
+	if ((ft_isalpha(*ptr) || *ptr == '_') && is_validname(ptr))
+	{
+		if (ft_strchr(ptr, '='))
+		{
+			if ((ft_strchr(ptr, '=') + 1)[0] == '\0')
+				return (1);
+			if (ft_strchr(ptr, '=') != ft_strrchr(ptr, '='))
+				return (1);
+			return (1);
+		}
+		else
+			return (0);
+	}
+	else
+		return (-1);
+}
+
+char *set_env(char *name, int flag, char ***envp)
+{
+	int	i;
+	
+	if (flag < 0)
+		return (name);
+	else
+	{
+		i = search_env(*envp, name, 1);
+		if ((*envp)[i] != NULL)
+		{
+			if (!ft_strchr(name, '='))
+				return (NULL);
+			free((*envp)[i]);
+			(*envp)[i] =  name;
+		}
+		else
+			*envp = update_envp(*envp, 0, name);
+	}
+	return (NULL);
+}
+
+void	print_envp(char **envp, int flag)
+{
+	while (*envp != NULL)
+	{
+		if (flag == 1)
+		{
+			if (env_validate(*envp) == 1)
+			{
+				ft_putstr_fd("declare -x ", 1);
+				write(1, *envp, ft_strchr(*envp, '=') - *envp);
+				write(1, "=\"", 2);
+				ft_putstr_fd(ft_strchr(*envp, '=') + 1, 1);
+				write(1, "\"\n", 2);
+			}
+			else if (env_validate(*envp) == 0)
+				printf("declare -x %s\n", *envp);
+		}
+		else
+		{
+			if (env_validate(*envp) == 1)
+				printf("%s\n", *envp);
+		}
+		envp++;
+	}
+	exit(0);
+}
+
+void	ft_export(char **ptr, char ***envp)
+{
+	int	i;
+	int	flag;
+	char	*rax;
+
+	i = 1;
+	flag = 0;
+	while (ptr[i] != NULL)
+	{
+		rax = set_env(ptr[i], env_validate(ptr[i]), envp);
+		if (flag == 0 && rax != NULL)
+		{
+			printf("minishell: export: `%s': not a valid identifier\n", rax);
+			flag = 1;
+		}
+		i++;
+	}
+	exit(flag);
+}
+
+int	only_digit(char *ptr)
+{
+	while (*ptr)
+	{
+		if (!ft_isdigit(*ptr))
+			return (0);
+		ptr++;
+	}
+	return (1);
+}
+
+void	ft_exit(char **ptr)
+{
+	printf("exit\n");
+	if (ptr[1] == NULL)
+		exit(0);
+	else if (!only_digit(ptr[1]))
+	{
+		printf("minishell: exit: %s: numeric argument required\n", ptr[1]);
+		exit(2);
+	}
+	else if (ptr[2] != NULL)
+		printf("minishell: exit: too many arguments\n");
+	else
+		exit((unsigned char)ft_atoi(ptr[1]));
+}
+
+void	ft_unset(char **ptr, char **envp)
+{
+	int	i;
+	int	k;
+	
+	i = 1;
+	while (ptr[i] != NULL)
+	{
+		k = search_env(envp, ptr[i], 0);
+		free(envp[k]);
+		envp[k] = ft_strdup("");
+		i++;
+	}
+}
+
+void	ft_echo(char *ptr, char **envp)
+{
+	int	flag;
+	int	i;
+	int	k;
+	char	*tmp;
+
+	i = 1;
+	flag = 0;
+	ptr = ptr + 4;
+	while (*ptr == ' ')
+		ptr++;
+	while (!ft_strncmp(ptr, "-n ", 3))
+	{
+		flag = 1;
+		ptr+=3;
+	}
+	while (*ptr)
+	{
+		if (*ptr == '$')
+		{
+			ptr++;
+			if (*ptr == '?')
+				printf("%d", 0); // 종료상태 넣어야함
+			else
+			{
+				i = 0;
+				while (ptr[i] != ' ' && ptr[i] != '\0')
+					i++;
+				k = search_env(envp, ft_substr(ptr, 0, i), 0);
+				ptr = &ptr[i];
+				if (envp[k] != NULL)
+					printf("%s", ft_strchr(envp[k], '=') + 1);
+			}
+		}
+		else
+		{
+			printf("%c", *ptr);
+			ptr++;
+		}
+	}
+	if (flag == 0)
+		printf("\n");
+}
+
 int is_whitespace(int c)
 {
     return ((c >= 9 && c <= 13) || c == 32);
@@ -326,24 +819,36 @@ void set_order(t_redirection *command, char *str)
     }
 	free(rev);
 }
-void set_cmd(t_redirection *command)
+char *set_command(t_command *command)
 {
-	int i;
-	char *cmd;
-	char *tmp;
+    if (!command || !command->command)
+        return NULL;
 
-	if(command->command)
-	{
-		tmp = ft_strdup(command->command->command[0]);
-	}
-	i = 1;
-	while(command->command->command[i])
-	{
-		cmd = ft_strjoin(tmp,command->command->command[i]);
-		i++;
-	}
-	command->full_cmd = ft_strdup(cmd);
-	free(cmd);
+    int total_length = 0;
+    int i = 0;
+
+    while (command->command[i])
+    {
+        total_length += ft_strlen(command->command[i]) + 1;
+        i++;
+    }
+
+    char *result = malloc(total_length + 1);
+    if (!result)
+    {
+        perror("malloc");
+        return NULL;
+    }
+    result[0] = '\0';
+    i = 0;
+    while (command->command[i])
+    {
+        ft_strlcat(result, command->command[i], sizeof(command->command[i]));
+        if (command->command[i + 1])
+            ft_strlcat(result, " ", sizeof(" "));
+        i++;
+    }
+    return result;
 }
 
 void parse_redirection(char *str, t_redirection *command)
@@ -367,10 +872,9 @@ void parse_redirection(char *str, t_redirection *command)
             parse_command(str, &i, command);
         }
     }
-	set_cmd(command);
+	command->full_cmd = set_command(command->command);
     set_order(command, str);
-	printf("%s\n", command->full_cmd);
-	}
+}
 
 void open_redirection_files(t_redirection *command)
 {
@@ -554,6 +1058,10 @@ void exe(t_redirection *command, char **cmd, char **envp)
 void execute_command(t_redirection *command, char **envp, int input_fd, int output_fd)
 {
     pid_t pid;
+	char	*tmp_pwd;
+	char	**cd;
+	int	i;
+	char	**cd_path;
 
     pid = fork();
     if (pid == -1)
@@ -576,8 +1084,102 @@ void execute_command(t_redirection *command, char **envp, int input_fd, int outp
             close(output_fd);
         }
         open_redirection_files(command);
-        exe(command, command->command->command, envp);
-        exit(EXIT_FAILURE); // execve가 실패한 경우
+		printf("%s\n", command->full_cmd);
+		if (command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))//!ft_strncmp(cin, "cd", 4))
+		{
+			tmp_pwd = getcwd(NULL, BUFSIZ);
+			cd = ft_split(command->full_cmd, ' '); //free
+			if (cd[1] == NULL)
+			{
+				free(tmp_pwd);
+				tmp_pwd = ft_strdup(extract_home(envp));
+			}
+			else if(cd[2] != NULL)
+			{
+				printf("minishell: cd: too many arguments\n"); //표준에러로 바꾸는게 날거같긴함
+				exit(1);
+			}
+			else
+			{
+				if(!ft_strncmp(cd[1], "/", 1)) //boom
+				{
+					free(tmp_pwd);
+					tmp_pwd = ft_strdup("/");
+				}
+				i = 0;
+				cd_path = ft_split(cd[1], '/');
+				while (cd_path[i] != NULL)
+				{
+					if (i == 0 && !ft_strncmp(cd_path[i], "~", 4))
+					{
+						free(tmp_pwd);
+						tmp_pwd = ft_strdup(extract_home(envp)); // free
+					}
+					else
+					{
+						if (!ft_strncmp(cd_path[i], "..", 5))
+						{
+							if (ft_strrchr(tmp_pwd, '/') == tmp_pwd)
+								*(ft_strrchr(tmp_pwd, '/') + 1) = '\0';
+							else
+								*(ft_strrchr(tmp_pwd, '/')) = '\0';
+						}
+						else
+						{
+							tmp_pwd = ft_strjoin(tmp_pwd, "/"); //free 해야함
+							tmp_pwd = ft_strjoin(tmp_pwd, cd_path[i]); //free 해야함
+						}
+					}
+					i++;
+				}
+			}
+			if (chdir(tmp_pwd) == -1)
+			{
+				printf("minishell: cd: %s: No such file or directory\n", cd[1]);
+				exit(1);
+			}
+		}
+		else if(!ft_strncmp(command->full_cmd, "export ",7) || !ft_strncmp(command->full_cmd, "export", 8))
+		{
+			cd = ft_split(command->full_cmd, ' ');
+			if (cd[1] == NULL)
+				print_envp(envp, 1);
+			else
+				ft_export(cd, &envp);
+		}
+		else if (!ft_strncmp(command->full_cmd, "env",5) || !ft_strncmp(command->full_cmd, "env ", 4))
+		{
+			print_envp(envp, 0);
+			exit(0);
+		}
+		else if (!ft_strncmp(command->full_cmd, "exit",5) || !ft_strncmp(command->full_cmd, "exit ", 5))
+		{
+			cd = ft_split(command->full_cmd, ' ');
+			ft_exit(cd);
+		}
+		else if (!ft_strncmp(command->full_cmd, "unset", 6) || !ft_strncmp(command->full_cmd, "unset ", 6))
+		{
+			cd = ft_split(command->full_cmd, ' ');
+			ft_unset(cd, envp);
+			exit(0);
+		}
+		else if (!ft_strncmp(command->full_cmd, "pwd", 6) || !ft_strncmp(command->full_cmd, "pwd " , 4))
+		{
+			tmp_pwd = getcwd(NULL, BUFSIZ);
+			printf("%s\n", tmp_pwd);
+			free(tmp_pwd);
+			exit(0);
+		}
+		else if (!ft_strncmp(command->full_cmd, "echo", 6) || !ft_strncmp(command->full_cmd, "echo " , 5))
+		{
+			ft_echo(command->full_cmd, envp);
+			exit(0);
+		}
+		else
+		{
+        	exe(command, command->command->command, envp);
+        	exit(EXIT_FAILURE); // execve가 실패한 경우
+		}
     }
 }
 
@@ -611,16 +1213,45 @@ char *umm(char *str)
     return NULL;
 }
 
-int main(int argc, char **argv, char **envp)
+int main(int argc, char **argv, char *env[])
 {
     char *str;
+	char	*cin;
+	pid_t	pid;
+	int	status;
+	char	*cwd;
+	char	*pwd;
+	char	*tmp_pwd;
+	char	**cd;
+	char	**cd_path;
+	char	**envp;
+	int i;
+	struct termios	old;
+
+	envp = update_envp(env, 0, NULL);
     while (1)
     {
         pid_t pid;
         pid = fork();
         if (pid == 0)
         {
-            str = readline("command : ");
+			pwd = getcwd(NULL, BUFSIZ);
+			if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp))))
+			{
+				cwd = pwd + ft_strlen(extract_home(envp));
+				cwd = ft_strjoin("~", cwd);
+			}
+			else
+				cwd = pwd;
+			cwd = ft_strjoin(cwd, "$ ");
+			cwd = ft_strjoin(":", cwd);
+			cwd = ft_strjoin(extract_location(envp), cwd);
+			cwd = ft_strjoin("@", cwd);
+			cwd = ft_strjoin(extract_name(envp), cwd);
+			//free 해야함
+			input_sig(&old);
+            str = readline(cwd);
+			//end_sig(&old);
             if (ft_strlen(str))
                 add_history(str);
             if (str)
@@ -697,6 +1328,7 @@ int main(int argc, char **argv, char **envp)
             else
             {
                 free(str);
+				printf("exit\n");
                 exit(EXIT_SUCCESS);
             }
         }
