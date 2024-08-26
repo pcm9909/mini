@@ -337,7 +337,7 @@ char *set_command(t_command *command)
 
     while (command->command[i])
     {
-        total_length += strlen(command->command[i]) + 1;
+        total_length += ft_strlen(command->command[i]) + 1;
         i++;
     }
 
