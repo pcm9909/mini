@@ -384,7 +384,7 @@ void	print_envp(char **envp, int flag)
 		}
 		envp++;
 	}
-	exit(0);
+	//exit(0);
 }
 
 void	ft_export(char **ptr, char ***envp)
@@ -405,7 +405,7 @@ void	ft_export(char **ptr, char ***envp)
 		}
 		i++;
 	}
-	exit(flag);
+	//exit(flag);
 }
 
 int	only_digit(char *ptr)
@@ -843,13 +843,14 @@ char *set_command(t_command *command)
     i = 0;
     while (command->command[i])
     {
-        ft_strlcat(result, command->command[i], sizeof(command->command[i]));
+        ft_strlcat(result, command->command[i], total_length + 1);
         if (command->command[i + 1])
-            ft_strlcat(result, " ", sizeof(" "));
+            ft_strlcat(result, " ", total_length + 1);
         i++;
     }
     return result;
 }
+
 
 void parse_redirection(char *str, t_redirection *command)
 {
@@ -1063,125 +1064,129 @@ void execute_command(t_redirection *command, char **envp, int input_fd, int outp
 	int	i;
 	char	**cd_path;
 
-    pid = fork();
-    if (pid == -1)
-    {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    }
 
-    if (pid == 0)
-    {
-        // Child process
-        if (input_fd != 0)
-        {
-            dup2(input_fd, 0);
-            close(input_fd);
-        }
-        if (output_fd != 1)
-        {
-            dup2(output_fd, 1);
-            close(output_fd);
-        }
-        open_redirection_files(command);
-		printf("%s\n", command->full_cmd);
-		if (command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))//!ft_strncmp(cin, "cd", 4))
+	printf("%s\n", command->full_cmd);
+	if (command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))//!ft_strncmp(cin, "cd", 4))
+	{
+		tmp_pwd = getcwd(NULL, BUFSIZ);
+		cd = ft_split(command->full_cmd, ' '); //free
+		if (cd[1] == NULL)
 		{
-			tmp_pwd = getcwd(NULL, BUFSIZ);
-			cd = ft_split(command->full_cmd, ' '); //free
-			if (cd[1] == NULL)
-			{
-				free(tmp_pwd);
-				tmp_pwd = ft_strdup(extract_home(envp));
-			}
-			else if(cd[2] != NULL)
-			{
-				printf("minishell: cd: too many arguments\n"); //표준에러로 바꾸는게 날거같긴함
-				exit(1);
-			}
-			else
-			{
-				if(!ft_strncmp(cd[1], "/", 1)) //boom
-				{
-					free(tmp_pwd);
-					tmp_pwd = ft_strdup("/");
-				}
-				i = 0;
-				cd_path = ft_split(cd[1], '/');
-				while (cd_path[i] != NULL)
-				{
-					if (i == 0 && !ft_strncmp(cd_path[i], "~", 4))
-					{
-						free(tmp_pwd);
-						tmp_pwd = ft_strdup(extract_home(envp)); // free
-					}
-					else
-					{
-						if (!ft_strncmp(cd_path[i], "..", 5))
-						{
-							if (ft_strrchr(tmp_pwd, '/') == tmp_pwd)
-								*(ft_strrchr(tmp_pwd, '/') + 1) = '\0';
-							else
-								*(ft_strrchr(tmp_pwd, '/')) = '\0';
-						}
-						else
-						{
-							tmp_pwd = ft_strjoin(tmp_pwd, "/"); //free 해야함
-							tmp_pwd = ft_strjoin(tmp_pwd, cd_path[i]); //free 해야함
-						}
-					}
-					i++;
-				}
-			}
-			if (chdir(tmp_pwd) == -1)
-			{
-				printf("minishell: cd: %s: No such file or directory\n", cd[1]);
-				exit(1);
-			}
-		}
-		else if(!ft_strncmp(command->full_cmd, "export ",7) || !ft_strncmp(command->full_cmd, "export", 8))
-		{
-			cd = ft_split(command->full_cmd, ' ');
-			if (cd[1] == NULL)
-				print_envp(envp, 1);
-			else
-				ft_export(cd, &envp);
-		}
-		else if (!ft_strncmp(command->full_cmd, "env",5) || !ft_strncmp(command->full_cmd, "env ", 4))
-		{
-			print_envp(envp, 0);
-			exit(0);
-		}
-		else if (!ft_strncmp(command->full_cmd, "exit",5) || !ft_strncmp(command->full_cmd, "exit ", 5))
-		{
-			cd = ft_split(command->full_cmd, ' ');
-			ft_exit(cd);
-		}
-		else if (!ft_strncmp(command->full_cmd, "unset", 6) || !ft_strncmp(command->full_cmd, "unset ", 6))
-		{
-			cd = ft_split(command->full_cmd, ' ');
-			ft_unset(cd, envp);
-			exit(0);
-		}
-		else if (!ft_strncmp(command->full_cmd, "pwd", 6) || !ft_strncmp(command->full_cmd, "pwd " , 4))
-		{
-			tmp_pwd = getcwd(NULL, BUFSIZ);
-			printf("%s\n", tmp_pwd);
 			free(tmp_pwd);
-			exit(0);
+			tmp_pwd = ft_strdup(extract_home(envp));
 		}
-		else if (!ft_strncmp(command->full_cmd, "echo", 6) || !ft_strncmp(command->full_cmd, "echo " , 5))
+		else if(cd[2] != NULL)
 		{
-			ft_echo(command->full_cmd, envp);
-			exit(0);
+			printf("minishell: cd: too many arguments\n"); //표준에러로 바꾸는게 날거같긴함
+			//exit(1);
 		}
 		else
 		{
-        	exe(command, command->command->command, envp);
-        	exit(EXIT_FAILURE); // execve가 실패한 경우
+			if(!ft_strncmp(cd[1], "/", 1)) //boom
+			{
+				free(tmp_pwd);
+				tmp_pwd = ft_strdup("/");
+			}
+			i = 0;
+			cd_path = ft_split(cd[1], '/');
+			while (cd_path[i] != NULL)
+			{
+				if (i == 0 && !ft_strncmp(cd_path[i], "~", 4))
+				{
+					free(tmp_pwd);
+					tmp_pwd = ft_strdup(extract_home(envp)); // free
+				}
+				else
+				{
+					if (!ft_strncmp(cd_path[i], "..", 5))
+					{
+						if (ft_strrchr(tmp_pwd, '/') == tmp_pwd)
+							*(ft_strrchr(tmp_pwd, '/') + 1) = '\0';
+						else
+							*(ft_strrchr(tmp_pwd, '/')) = '\0';
+					}
+					else
+					{
+						tmp_pwd = ft_strjoin(tmp_pwd, "/"); //free 해야함
+						tmp_pwd = ft_strjoin(tmp_pwd, cd_path[i]); //free 해야함
+					}
+				}
+				i++;
+			}
 		}
-    }
+		if (chdir(tmp_pwd) == -1)
+		{
+			printf("minishell: cd: %s: No such file or directory\n", cd[1]);
+			//exit(1);
+		}
+	}
+	else if(!ft_strncmp(command->full_cmd, "export ",7) || !ft_strncmp(command->full_cmd, "export", 8))
+	{
+		cd = ft_split(command->full_cmd, ' ');
+		if (cd[1] == NULL)
+			print_envp(envp, 1);
+		else
+			ft_export(cd, &envp);
+	}
+	else if (!ft_strncmp(command->full_cmd, "env",5) || !ft_strncmp(command->full_cmd, "env ", 4))
+	{
+		print_envp(envp, 0);
+		// exit(0);
+	}
+	else if (!ft_strncmp(command->full_cmd, "exit",5) || !ft_strncmp(command->full_cmd, "exit ", 5))
+	{
+		cd = ft_split(command->full_cmd, ' ');
+		ft_exit(cd);
+	}
+	else if (!ft_strncmp(command->full_cmd, "unset", 6) || !ft_strncmp(command->full_cmd, "unset ", 6))
+	{
+		cd = ft_split(command->full_cmd, ' ');
+		ft_unset(cd, envp);
+		// exit(0);
+	}
+	else if (!ft_strncmp(command->full_cmd, "pwd", 6) || !ft_strncmp(command->full_cmd, "pwd " , 4))
+	{
+		tmp_pwd = getcwd(NULL, BUFSIZ);
+		printf("%s\n", tmp_pwd);
+		free(tmp_pwd);
+		// exit(0);
+	}
+	else if (!ft_strncmp(command->full_cmd, "echo", 6) || !ft_strncmp(command->full_cmd, "echo " , 5))
+	{
+		ft_echo(command->full_cmd, envp);
+		// exit(0);
+	}
+	else
+	{
+		pid = fork();
+		if (pid == -1)
+		{
+			perror("fork");
+			exit(EXIT_FAILURE);
+		}
+
+		if (pid == 0)
+		{
+			// Child process
+			if (input_fd != 0)
+			{
+				dup2(input_fd, 0);
+				close(input_fd);
+			}
+			if (output_fd != 1)
+			{
+				dup2(output_fd, 1);
+				close(output_fd);
+			}
+			open_redirection_files(command);
+			exe(command, command->command->command, envp);
+		}
+		else
+			waitpid(pid,NULL,0);
+	// exit(EXIT_FAILURE); // execve가 실패한 경우
+	}
 }
+
 
 char *umm(char *str)
 {
@@ -1231,10 +1236,10 @@ int main(int argc, char **argv, char *env[])
 	envp = update_envp(env, 0, NULL);
     while (1)
     {
-        pid_t pid;
-        pid = fork();
-        if (pid == 0)
-        {
+        // pid_t pid;
+        // pid = fork();
+        // if (pid == 0)
+        // {
 			pwd = getcwd(NULL, BUFSIZ);
 			if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp))))
 			{
@@ -1250,7 +1255,8 @@ int main(int argc, char **argv, char *env[])
 			cwd = ft_strjoin(extract_name(envp), cwd);
 			//free 해야함
 			input_sig(&old);
-            str = readline(cwd);
+            // 이게 원본 str = readline(cwd);
+			str = readline("command : ");
 			//end_sig(&old);
             if (ft_strlen(str))
                 add_history(str);
@@ -1323,7 +1329,7 @@ int main(int argc, char **argv, char *env[])
                 free(command);
                 free(split);
                 free(str);
-                exit(EXIT_SUCCESS);
+                //exit(EXIT_SUCCESS);
             }
             else
             {
@@ -1332,8 +1338,5 @@ int main(int argc, char **argv, char *env[])
                 exit(EXIT_SUCCESS);
             }
         }
-        else
-            waitpid(pid, NULL, 0);
-    }
     return 0;
 }
