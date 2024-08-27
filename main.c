@@ -877,11 +877,22 @@ void parse_redirection(char *str, t_redirection *command)
     set_order(command, str);
 }
 
+void handle_double_left_brace(t_redirection *command);
+void handle_left_brace(t_redirection *command);
+void handle_right_brace(t_redirection *command);
+void handle_double_right_brace(t_redirection *command);
+
 void open_redirection_files(t_redirection *command)
 {
-    int i = 0;
-    int fd;
+    handle_double_left_brace(command);
+    handle_left_brace(command);
+    handle_right_brace(command);
+    handle_double_right_brace(command);
+}
 
+void handle_double_left_brace(t_redirection *command)
+{
+    int i = 0;
     while (command->double_left_brace->command && command->double_left_brace->command[i])
     {
         int pipe_fd[2];
@@ -937,7 +948,12 @@ void open_redirection_files(t_redirection *command)
         }
         i++;
     }
-    i = 0;
+}
+
+void handle_left_brace(t_redirection *command)
+{
+    int i = 0;
+    int fd;
     while (command->left_brace->command && command->left_brace->command[i])
     {
         int pipe_fd[2];
@@ -991,8 +1007,12 @@ void open_redirection_files(t_redirection *command)
         }
         i++;
     }
+}
 
-    i = 0;
+void handle_right_brace(t_redirection *command)
+{
+    int i = 0;
+    int fd;
     while (command->right_brace->command && command->right_brace->command[i])
     {
         fd = open(command->right_brace->command[i], O_CREAT | O_TRUNC | O_WRONLY, 0644);
@@ -1007,8 +1027,12 @@ void open_redirection_files(t_redirection *command)
         }
         i++;
     }
+}
 
-    i = 0;
+void handle_double_right_brace(t_redirection *command)
+{
+    int i = 0;
+    int fd;
     while (command->double_right_brace->command && command->double_right_brace->command[i])
     {
         fd = open(command->double_right_brace->command[i], O_CREAT | O_APPEND | O_WRONLY, 0644);
@@ -1056,137 +1080,176 @@ void exe(t_redirection *command, char **cmd, char **envp)
     free(path);
 }
 
+void handle_cd_command(t_redirection *command, char **envp);
+void handle_export_command(t_redirection *command, char **envp);
+void handle_env_command(t_redirection *command, char **envp);
+void handle_exit_command(t_redirection *command);
+void handle_unset_command(t_redirection *command, char **envp);
+void handle_pwd_command();
+void handle_echo_command(t_redirection *command, char **envp);
+void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
+
 void execute_command(t_redirection *command, char **envp, int input_fd, int output_fd)
 {
-    pid_t pid;
-	char	*tmp_pwd;
-	char	**cd;
-	int	i;
-	char	**cd_path;
-
-
-	printf("%s\n", command->full_cmd);
-	if (command->full_cmd && command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))//!ft_strncmp(cin, "cd", 4))
-	{
-		tmp_pwd = getcwd(NULL, BUFSIZ);
-		cd = ft_split(command->full_cmd, ' '); //free
-		if (cd[1] == NULL)
-		{
-			free(tmp_pwd);
-			tmp_pwd = ft_strdup(extract_home(envp));
-		}
-		else if(cd[2] != NULL)
-		{
-			printf("minishell: cd: too many arguments\n"); //표준에러로 바꾸는게 날거같긴함
-			//exit(1);
-		}
-		else
-		{
-			if(!ft_strncmp(cd[1], "/", 1)) //boom
-			{
-				free(tmp_pwd);
-				tmp_pwd = ft_strdup("/");
-			}
-			i = 0;
-			cd_path = ft_split(cd[1], '/');
-			while (cd_path[i] != NULL)
-			{
-				if (i == 0 && !ft_strncmp(cd_path[i], "~", 4))
-				{
-					free(tmp_pwd);
-					tmp_pwd = ft_strdup(extract_home(envp)); // free
-				}
-				else
-				{
-					if (!ft_strncmp(cd_path[i], "..", 5))
-					{
-						if (ft_strrchr(tmp_pwd, '/') == tmp_pwd)
-							*(ft_strrchr(tmp_pwd, '/') + 1) = '\0';
-						else
-							*(ft_strrchr(tmp_pwd, '/')) = '\0';
-					}
-					else
-					{
-						tmp_pwd = ft_strjoin(tmp_pwd, "/"); //free 해야함
-						tmp_pwd = ft_strjoin(tmp_pwd, cd_path[i]); //free 해야함
-					}
-				}
-				i++;
-			}
-		}
-		if (chdir(tmp_pwd) == -1)
-		{
-			printf("minishell: cd: %s: No such file or directory\n", cd[1]);
-			//exit(1);
-		}
-	}
-	else if(!ft_strncmp(command->full_cmd, "export ",7) || !ft_strncmp(command->full_cmd, "export", 8))
-	{
-		cd = ft_split(command->full_cmd, ' ');
-		if (cd[1] == NULL)
-			print_envp(envp, 1);
-		else
-			ft_export(cd, &envp);
-	}
-	else if (!ft_strncmp(command->full_cmd, "env",5) || !ft_strncmp(command->full_cmd, "env ", 4))
-	{
-		print_envp(envp, 0);
-		// exit(0);
-	}
-	else if (!ft_strncmp(command->full_cmd, "exit",5) || !ft_strncmp(command->full_cmd, "exit ", 5))
-	{
-		cd = ft_split(command->full_cmd, ' ');
-		ft_exit(cd);
-	}
-	else if (!ft_strncmp(command->full_cmd, "unset", 6) || !ft_strncmp(command->full_cmd, "unset ", 6))
-	{
-		cd = ft_split(command->full_cmd, ' ');
-		ft_unset(cd, envp);
-		// exit(0);
-	}
-	else if (!ft_strncmp(command->full_cmd, "pwd", 6) || !ft_strncmp(command->full_cmd, "pwd " , 4))
-	{
-		tmp_pwd = getcwd(NULL, BUFSIZ);
-		printf("%s\n", tmp_pwd);
-		free(tmp_pwd);
-		// exit(0);
-	}
-	else if (!ft_strncmp(command->full_cmd, "echo", 6) || !ft_strncmp(command->full_cmd, "echo " , 5))
-	{
-		ft_echo(command->full_cmd, envp);
-		// exit(0);
-	}
-	else
-	{
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork");
-			exit(EXIT_FAILURE);
-		}
-
-		if (pid == 0)
-		{
-			// Child process
-			if (input_fd != 0)
-			{
-				dup2(input_fd, 0);
-				close(input_fd);
-			}
-			if (output_fd != 1)
-			{
-				dup2(output_fd, 1);
-				close(output_fd);
-			}
-			open_redirection_files(command);
-			exe(command, command->command->command, envp);
-		}
-		else
-			waitpid(pid,NULL,0);
-	// exit(EXIT_FAILURE); // execve가 실패한 경우
-	}
+    printf("%s\n", command->full_cmd);
+    if (command->full_cmd && command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))
+    {
+        handle_cd_command(command, envp);
+    }
+    else if (!ft_strncmp(command->full_cmd, "export ", 7) || !ft_strncmp(command->full_cmd, "export", 8))
+    {
+        handle_export_command(command, envp);
+    }
+    else if (!ft_strncmp(command->full_cmd, "env", 5) || !ft_strncmp(command->full_cmd, "env ", 4))
+    {
+        handle_env_command(command, envp);
+    }
+    else if (!ft_strncmp(command->full_cmd, "exit", 5) || !ft_strncmp(command->full_cmd, "exit ", 5))
+    {
+        handle_exit_command(command);
+    }
+    else if (!ft_strncmp(command->full_cmd, "unset", 6) || !ft_strncmp(command->full_cmd, "unset ", 6))
+    {
+        handle_unset_command(command, envp);
+    }
+    else if (!ft_strncmp(command->full_cmd, "pwd", 6) || !ft_strncmp(command->full_cmd, "pwd ", 4))
+    {
+        handle_pwd_command();
+    }
+    else if (!ft_strncmp(command->full_cmd, "echo", 6) || !ft_strncmp(command->full_cmd, "echo ", 5))
+    {
+        handle_echo_command(command, envp);
+    }
+    else
+    {
+        execute_external_command(command, envp, input_fd, output_fd);
+    }
 }
 
+void handle_cd_command(t_redirection *command, char **envp)
+{
+    char *tmp_pwd = getcwd(NULL, BUFSIZ);
+    char **cd = ft_split(command->full_cmd, ' ');
+    char **cd_path;
+    int i;
+
+    if (cd[1] == NULL)
+    {
+        free(tmp_pwd);
+        tmp_pwd = ft_strdup(extract_home(envp));
+    }
+    else if (cd[2] != NULL)
+    {
+        printf("minishell: cd: too many arguments\n");
+    }
+    else
+    {
+        if (!ft_strncmp(cd[1], "/", 1))
+        {
+            free(tmp_pwd);
+            tmp_pwd = ft_strdup("/");
+        }
+        i = 0;
+        cd_path = ft_split(cd[1], '/');
+        while (cd_path[i] != NULL)
+        {
+            if (i == 0 && !ft_strncmp(cd_path[i], "~", 4))
+            {
+                free(tmp_pwd);
+                tmp_pwd = ft_strdup(extract_home(envp));
+            }
+            else
+            {
+                if (!ft_strncmp(cd_path[i], "..", 5))
+                {
+                    if (ft_strrchr(tmp_pwd, '/') == tmp_pwd)
+                        *(ft_strrchr(tmp_pwd, '/') + 1) = '\0';
+                    else
+                        *(ft_strrchr(tmp_pwd, '/')) = '\0';
+                }
+                else
+                {
+                    tmp_pwd = ft_strjoin(tmp_pwd, "/");
+                    tmp_pwd = ft_strjoin(tmp_pwd, cd_path[i]);
+                }
+            }
+            i++;
+        }
+    }
+    if (chdir(tmp_pwd) == -1)
+    {
+        printf("minishell: cd: %s: No such file or directory\n", cd[1]);
+    }
+}
+
+void handle_export_command(t_redirection *command, char **envp)
+{
+    char **cd = ft_split(command->full_cmd, ' ');
+    if (cd[1] == NULL)
+        print_envp(envp, 1);
+    else
+        ft_export(cd, &envp);
+}
+
+void handle_env_command(t_redirection *command, char **envp)
+{
+    print_envp(envp, 0);
+}
+
+void handle_exit_command(t_redirection *command)
+{
+    char **cd = ft_split(command->full_cmd, ' ');
+    ft_exit(cd);
+}
+
+void handle_unset_command(t_redirection *command, char **envp)
+{
+    char **cd = ft_split(command->full_cmd, ' ');
+    ft_unset(cd, envp);
+}
+
+void handle_pwd_command()
+{
+    char *tmp_pwd = getcwd(NULL, BUFSIZ);
+    printf("%s\n", tmp_pwd);
+    free(tmp_pwd);
+}
+
+void handle_echo_command(t_redirection *command, char **envp)
+{
+    ft_echo(command->full_cmd, envp);
+}
+
+void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd)
+{
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid == 0)
+    {
+        // Child process
+        if (input_fd != 0)
+        {
+            dup2(input_fd, 0);
+            close(input_fd);
+        }
+        if (output_fd != 1)
+        {
+            dup2(output_fd, 1);
+            close(output_fd);
+        }
+        open_redirection_files(command);
+        exe(command, command->command->command, envp);
+    }
+    else
+    {
+        waitpid(pid, NULL, 0);
+    }
+}
 
 char *umm(char *str)
 {
@@ -1218,17 +1281,21 @@ char *umm(char *str)
     return NULL;
 }
 
-char **initialize_environment(char *env[]) {
+char **initialize_environment(char *env[])
+{
     return update_envp(env, 0, NULL);
 }
 
-char *build_prompt(char **envp) {
+char *build_prompt(char **envp)
+{
     char *pwd = getcwd(NULL, BUFSIZ);
     char *cwd;
     if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp)))) {
         cwd = pwd + ft_strlen(extract_home(envp));
         cwd = ft_strjoin("~", cwd);
-    } else {
+    }
+	else
+	{
         cwd = pwd;
     }
     cwd = ft_strjoin(cwd, "$ ");
@@ -1239,7 +1306,8 @@ char *build_prompt(char **envp) {
     return cwd;
 }
 
-void process_input(char *str, char **envp) {
+void process_input(char *str, char **envp)
+{
     str = umm(str);
     char **split = ft_split(str, '|');
     int cnt = cnt_cmd(split);
@@ -1247,18 +1315,23 @@ void process_input(char *str, char **envp) {
     int input_fd = 0;
     int pipe_fd[2];
 
-    for (int i = 0; i < cnt; i++) {
+    for (int i = 0; i < cnt; i++)
+	{
         initialize_redirection(&command[i]);
         parse_redirection(split[i], command[i]);
     }
 
-    for (int i = 0; i < cnt; i++) {
+    for (int i = 0; i < cnt; i++)
+	{
         if (i < cnt - 1) {
-            if (pipe(pipe_fd) == -1) {
+            if (pipe(pipe_fd) == -1)
+			{
                 perror("pipe");
                 exit(EXIT_FAILURE);
             }
-        } else {
+        }
+		else
+		{
             pipe_fd[0] = 0;
             pipe_fd[1] = 1;
         }
@@ -1272,15 +1345,18 @@ void process_input(char *str, char **envp) {
         input_fd = pipe_fd[0];
     }
 
-    for (int i = 0; i < cnt; i++) {
+    for (int i = 0; i < cnt; i++)
+	{
         wait(NULL);
     }
 
-    for (int i = 0; i < cnt; i++) {
+    for (int i = 0; i < cnt; i++)
+	{
         free_redirection(command[i]);
     }
 
-    for (int i = 0; split[i]; i++) {
+    for (int i = 0; split[i]; i++)
+	{
         free(split[i]);
     }
     free(command);
@@ -1288,28 +1364,33 @@ void process_input(char *str, char **envp) {
     free(str);
 }
 
-void cleanup(char *str) {
+void cleanup(char *str)
+{
     free(str);
     printf("exit\n");
     exit(EXIT_SUCCESS);
 }
 
-int main(int argc, char **argv, char *env[]) {
+int main(int argc, char **argv, char *env[])
+{
     char *str;
     char **envp;
     struct termios old;
 
     envp = initialize_environment(env);
-
-    while (1) {
+    while (1)
+	{
         char *cwd = build_prompt(envp);
         input_sig(&old);
         str = readline(cwd);
         if (ft_strlen(str))
             add_history(str);
-        if (str) {
+        if (str)
+		{
             process_input(str, envp);
-        } else {
+        }
+		else
+		{
             cleanup(str);
         }
     }
