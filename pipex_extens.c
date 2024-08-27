@@ -18,6 +18,10 @@ static char	*check_path(char *cmd)
 		else
 			return (NULL);
 	}
+	if (cmd[0] == '.' && cmd[1] == '/')
+	{
+		return (cmd);
+	}
 	return (NULL);
 }
 
@@ -33,8 +37,8 @@ static char	*search_path(char *cmd, char *path)
 	i = 0;
 	while (paths[i])
 	{
-		tmp = ft_strjoin(paths[i], "/");
-		cmd_path = ft_strjoin(tmp, cmd);
+		tmp = ft_strjoin_with_free(paths[i], "/");
+		cmd_path = ft_strjoin_with_free(tmp, cmd);
 		if (access(cmd_path, X_OK) != -1)
 			break ;
 		free(cmd_path);
