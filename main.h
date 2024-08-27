@@ -65,3 +65,17 @@ char **initialize_environment(char *env[]);
 char	*extract_home(char *envp[]);
 
 void	all_free(char **ptr);
+
+char **update_envp(char **envp, int type, char *new);
+char **initialize_environment(char *env[]);
+int	double_ptr_size(char **ptr);
+int	search_env(char **envp, char *name, int flag); // free
+int	is_validname(char *ptr);
+int	env_validate(char *ptr);
+char *set_env(char *name, int flag, char ***envp);
+void	print_envp(char **envp, int flag);
+void	ft_export(char **ptr, char ***envp);
+int	only_digit(char *ptr);
+void	ft_exit(char **ptr);
+void	ft_unset(char **ptr, char **envp);
+void	ft_echo(char *ptr, char **envp);

@@ -4,7 +4,6 @@ void execute_external_command(t_redirection *command, char **envp, int input_fd,
 
 void execute_command(t_redirection *command, char **envp, int input_fd, int output_fd)
 {
-    printf("%s\n", command->full_cmd);
     if (command->full_cmd && command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))
     {
         handle_cd_command(command, envp);

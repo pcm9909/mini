@@ -658,8 +658,6 @@ void	all_free(char **ptr)
 	free(ptr);
 }
 
-
-
 char *build_prompt(char **envp)
 {
     char *pwd = getcwd(NULL, BUFSIZ);
@@ -679,7 +677,6 @@ char *build_prompt(char **envp)
     cwd = ft_strjoin(extract_name(envp), cwd);
     return cwd;
 }
-
 void process_input(char *str, char **envp)
 {
     str = umm(str);
@@ -688,54 +685,85 @@ void process_input(char *str, char **envp)
     t_redirection **command = (malloc(sizeof(t_redirection *) * cnt));
     int input_fd = 0;
     int pipe_fd[2];
+    pid_t *pids = malloc(sizeof(pid_t) * cnt);
 
     for (int i = 0; i < cnt; i++)
-	{
+    {
         initialize_redirection(&command[i]);
         parse_redirection(split[i], command[i]);
     }
 
     for (int i = 0; i < cnt; i++)
-	{
+    {
         if (i < cnt - 1) {
             if (pipe(pipe_fd) == -1)
-			{
+            {
                 perror("pipe");
                 exit(EXIT_FAILURE);
             }
         }
-		else
-		{
+        else
+        {
             pipe_fd[0] = 0;
             pipe_fd[1] = 1;
         }
-        execute_command(command[i], envp, input_fd, pipe_fd[1]);
 
-        if (input_fd != 0)
-            close(input_fd);
-        if (pipe_fd[1] != 1)
-            close(pipe_fd[1]);
+        pids[i] = fork();
+        if (pids[i] == -1)
+        {
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
 
-        input_fd = pipe_fd[0];
+        if (pids[i] == 0)
+        {
+            // Child process
+            if (i > 0)
+            {
+                dup2(input_fd, 0);
+                close(input_fd);
+            }
+            if (i < cnt - 1)
+            {
+                dup2(pipe_fd[1], 1);
+                close(pipe_fd[1]);
+            }
+            execute_command(command[i], envp, input_fd, pipe_fd[1]);
+            exit(EXIT_SUCCESS);
+        }
+        else
+        {
+            // Parent process
+            if (i > 0)
+            {
+                close(input_fd);
+            }
+            if (i < cnt - 1)
+            {
+                close(pipe_fd[1]);
+            }
+            input_fd = pipe_fd[0];
+        }
     }
 
     for (int i = 0; i < cnt; i++)
-	{
-        wait(NULL);
+    {
+        waitpid(pids[i], NULL, 0);
     }
 
     for (int i = 0; i < cnt; i++)
-	{
+    {
         free_redirection(command[i]);
     }
 
     for (int i = 0; split[i]; i++)
-	{
+    {
         free(split[i]);
     }
     free(command);
     free(split);
     free(str);
+    free(pids);
 }
 
 void cleanup(char *str)
@@ -751,22 +779,22 @@ int main(int argc, char **argv, char *env[])
     char **envp;
     struct termios old;
 
-    envp = initialize_environment(env);
-    while (1)
+	envp = initialize_environment(env);
+	while (1)
 	{
-        char *cwd = build_prompt(envp);
-        input_sig(&old);
-        str = readline(cwd);
-        if (ft_strlen(str))
-            add_history(str);
-        if (str)
+		char *cwd = build_prompt(envp);
+		input_sig(&old);
+		str = readline("command : ");
+		if (ft_strlen(str))
+			add_history(str);
+		if (str)
 		{
-            process_input(str, envp);
-        }
+			process_input(str, envp);
+		}
 		else
 		{
-            cleanup(str);
-        }
-    }
+			cleanup(str);
+		}
+	}
     return 0;
 }

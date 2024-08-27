@@ -41,7 +41,7 @@ int	double_ptr_size(char **ptr)
 	return (i);
 }
 
-static int	search_env(char **envp, char *name, int flag) // free
+int	search_env(char **envp, char *name, int flag) // free
 {
 	int	i;
 	char	*re;
@@ -66,7 +66,7 @@ static int	search_env(char **envp, char *name, int flag) // free
 	return (i);
 }
 
-static int	is_validname(char *ptr)
+int	is_validname(char *ptr)
 {
 	while (*ptr && *ptr != '=')
 	{
@@ -77,7 +77,7 @@ static int	is_validname(char *ptr)
 	return (1);
 }
 
-static int	env_validate(char *ptr)
+int	env_validate(char *ptr)
 {
 	if ((ft_isalpha(*ptr) || *ptr == '_') && is_validname(ptr))
 	{
@@ -96,7 +96,7 @@ static int	env_validate(char *ptr)
 		return (-1);
 }
 
-static char *set_env(char *name, int flag, char ***envp)
+char *set_env(char *name, int flag, char ***envp)
 {
 	int	i;
 
@@ -118,7 +118,7 @@ static char *set_env(char *name, int flag, char ***envp)
 	return (NULL);
 }
 
-static void	print_envp(char **envp, int flag)
+void	print_envp(char **envp, int flag)
 {
 	while (*envp != NULL)
 	{
@@ -145,7 +145,7 @@ static void	print_envp(char **envp, int flag)
 	//exit(0);
 }
 
-static void	ft_export(char **ptr, char ***envp)
+void	ft_export(char **ptr, char ***envp)
 {
 	int	i;
 	int	flag;
@@ -166,7 +166,7 @@ static void	ft_export(char **ptr, char ***envp)
 	//exit(flag);
 }
 
-static int	only_digit(char *ptr)
+int	only_digit(char *ptr)
 {
 	while (*ptr)
 	{
@@ -177,7 +177,7 @@ static int	only_digit(char *ptr)
 	return (1);
 }
 
-static void	ft_exit(char **ptr)
+void	ft_exit(char **ptr)
 {
 	printf("exit\n");
 	if (ptr[1] == NULL)
@@ -193,7 +193,7 @@ static void	ft_exit(char **ptr)
 		exit((unsigned char)ft_atoi(ptr[1]));
 }
 
-static void	ft_unset(char **ptr, char **envp)
+void	ft_unset(char **ptr, char **envp)
 {
 	int	i;
 	int	k;
@@ -208,7 +208,7 @@ static void	ft_unset(char **ptr, char **envp)
 	}
 }
 
-static void	ft_echo(char *ptr, char **envp)
+void	ft_echo(char *ptr, char **envp)
 {
 	int	flag;
 	int	i;
