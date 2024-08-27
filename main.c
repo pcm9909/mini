@@ -1218,125 +1218,100 @@ char *umm(char *str)
     return NULL;
 }
 
-int main(int argc, char **argv, char *env[])
-{
-    char *str;
-	char	*cin;
-	pid_t	pid;
-	int	status;
-	char	*cwd;
-	char	*pwd;
-	char	*tmp_pwd;
-	char	**cd;
-	char	**cd_path;
-	char	**envp;
-	int i;
-	struct termios	old;
+char **initialize_environment(char *env[]) {
+    return update_envp(env, 0, NULL);
+}
 
-	envp = update_envp(env, 0, NULL);
-    while (1)
-    {
-        // pid_t pid;
-        // pid = fork();
-        // if (pid == 0)
-        // {
-			pwd = getcwd(NULL, BUFSIZ);
-			if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp))))
-			{
-				cwd = pwd + ft_strlen(extract_home(envp));
-				cwd = ft_strjoin("~", cwd);
-			}
-			else
-				cwd = pwd;
-			cwd = ft_strjoin(cwd, "$ ");
-			cwd = ft_strjoin(":", cwd);
-			cwd = ft_strjoin(extract_location(envp), cwd);
-			cwd = ft_strjoin("@", cwd);
-			cwd = ft_strjoin(extract_name(envp), cwd);
-			//free 해야함
-			input_sig(&old);
-            // 이게 원본 str = readline(cwd);
-			str = readline("command : ");
-			//end_sig(&old);
-            if (ft_strlen(str))
-                add_history(str);
-            if (str)
-            {
-                str = umm(str);
-                char **split = ft_split(str, '|');
-                int cnt = cnt_cmd(split);
-                int i = 0;
-                t_redirection **command = (malloc(sizeof(t_redirection *) * cnt));
-                int input_fd = 0;
-                int pipe_fd[2];
+char *build_prompt(char **envp) {
+    char *pwd = getcwd(NULL, BUFSIZ);
+    char *cwd;
+    if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp)))) {
+        cwd = pwd + ft_strlen(extract_home(envp));
+        cwd = ft_strjoin("~", cwd);
+    } else {
+        cwd = pwd;
+    }
+    cwd = ft_strjoin(cwd, "$ ");
+    cwd = ft_strjoin(":", cwd);
+    cwd = ft_strjoin(extract_location(envp), cwd);
+    cwd = ft_strjoin("@", cwd);
+    cwd = ft_strjoin(extract_name(envp), cwd);
+    return cwd;
+}
 
-                if (split)
-                {
-                    while (split[i])
-                    {
-                        initialize_redirection(&command[i]);
-                        if (str == NULL)
-                            exit(EXIT_FAILURE);
-                        parse_redirection(split[i], command[i]);
-                        i++;
-                    }
-                }
+void process_input(char *str, char **envp) {
+    str = umm(str);
+    char **split = ft_split(str, '|');
+    int cnt = cnt_cmd(split);
+    t_redirection **command = (malloc(sizeof(t_redirection *) * cnt));
+    int input_fd = 0;
+    int pipe_fd[2];
 
-                for (i = 0; i < cnt; i++)
-                {
-                    if (i < cnt - 1)
-                    {
-                        if (pipe(pipe_fd) == -1)
-                        {
-                            perror("pipe");
-                            exit(EXIT_FAILURE);
-                        }
-                    }
-                    else
-                    {
-                        pipe_fd[0] = 0;
-                        pipe_fd[1] = 1;
-                    }
-                    execute_command(command[i], envp, input_fd, pipe_fd[1]);
+    for (int i = 0; i < cnt; i++) {
+        initialize_redirection(&command[i]);
+        parse_redirection(split[i], command[i]);
+    }
 
-                    if (input_fd != 0)
-                        close(input_fd);
-                    if (pipe_fd[1] != 1)
-                        close(pipe_fd[1]);
-
-                    input_fd = pipe_fd[0];
-                }
-
-                for (i = 0; i < cnt; i++)
-                {
-                    wait(NULL);
-                }
-
-                for (i = 0; i < cnt; i++)
-                {
-                    free_redirection(command[i]);
-                }
-
-                if (split)
-                {
-					i = 0;
-                    while (split[i])
-                    {
-                        free(split[i]);
-                        i++;
-                    }
-                }
-                free(command);
-                free(split);
-                free(str);
-                //exit(EXIT_SUCCESS);
+    for (int i = 0; i < cnt; i++) {
+        if (i < cnt - 1) {
+            if (pipe(pipe_fd) == -1) {
+                perror("pipe");
+                exit(EXIT_FAILURE);
             }
-            else
-            {
-                free(str);
-				printf("exit\n");
-                exit(EXIT_SUCCESS);
-            }
+        } else {
+            pipe_fd[0] = 0;
+            pipe_fd[1] = 1;
         }
+        execute_command(command[i], envp, input_fd, pipe_fd[1]);
+
+        if (input_fd != 0)
+            close(input_fd);
+        if (pipe_fd[1] != 1)
+            close(pipe_fd[1]);
+
+        input_fd = pipe_fd[0];
+    }
+
+    for (int i = 0; i < cnt; i++) {
+        wait(NULL);
+    }
+
+    for (int i = 0; i < cnt; i++) {
+        free_redirection(command[i]);
+    }
+
+    for (int i = 0; split[i]; i++) {
+        free(split[i]);
+    }
+    free(command);
+    free(split);
+    free(str);
+}
+
+void cleanup(char *str) {
+    free(str);
+    printf("exit\n");
+    exit(EXIT_SUCCESS);
+}
+
+int main(int argc, char **argv, char *env[]) {
+    char *str;
+    char **envp;
+    struct termios old;
+
+    envp = initialize_environment(env);
+
+    while (1) {
+        char *cwd = build_prompt(envp);
+        input_sig(&old);
+        str = readline(cwd);
+        if (ft_strlen(str))
+            add_history(str);
+        if (str) {
+            process_input(str, envp);
+        } else {
+            cleanup(str);
+        }
+    }
     return 0;
 }
