@@ -38,4 +38,6 @@ char *ft_strrev(char *str);
 
 void free_command_list(char ***command);
 
+char	*ft_strjoin_with_free(char const *s1, char const *s2);
+
 	// void free_redirection(t_redirection **redirection);
