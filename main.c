@@ -914,8 +914,8 @@ void open_redirection_files(t_redirection *command)
                     input = NULL;
                     break;
                 }
-                str = ft_strjoin(str, input);
-                str = ft_strjoin(str, "\n");
+                str = ft_strjoin_with_free(str, input);
+                str = ft_strjoin_with_free(str, "\n");
                 add_history(str);
                 free(input);
                 input = readline(">");
@@ -1066,7 +1066,7 @@ void execute_command(t_redirection *command, char **envp, int input_fd, int outp
 
 
 	printf("%s\n", command->full_cmd);
-	if (command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))//!ft_strncmp(cin, "cd", 4))
+	if (command->full_cmd && command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))//!ft_strncmp(cin, "cd", 4))
 	{
 		tmp_pwd = getcwd(NULL, BUFSIZ);
 		cd = ft_split(command->full_cmd, ' '); //free
@@ -1208,7 +1208,7 @@ char *umm(char *str)
 
         if (str[len] == '|')
         {
-            tmp = ft_strjoin(str, readline(">"));
+            tmp = ft_strjoin_with_free(str, readline(">"));
             add_history(tmp);
         }
         else
