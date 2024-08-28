@@ -54,8 +54,6 @@ void print(t_redirection *cmd)
 	}
 }
 
-
-
 char *ft_strrev(char *str)
 {
 	int i = 0;

@@ -457,10 +457,12 @@ void parse_command(char *str, int *i, t_redirection *command)
     if (str[*i] == '"')
     {
         content = handle_double_quotes(str, i);
+		return;
     }
     else if (str[*i] == '\'')
     {
         content = handle_single_quotes(str, i);
+		return;
     }
     else
     {
@@ -586,12 +588,6 @@ void parse_redirection(char *str, t_redirection *command)
     set_order(command, str);
 }
 
-// void handle_double_left_brace(t_redirection *command);
-// void handle_left_brace(t_redirection *command);
-// void handle_right_brace(t_redirection *command);
-// void handle_double_right_brace(t_redirection *command);
-
-
 int cnt_cmd(char **split)
 {
     int i = 0;
@@ -606,17 +602,6 @@ int cnt_cmd(char **split)
     }
     return i;
 }
-
-
-
-// void handle_cd_command(t_redirection *command, char **envp);
-// void handle_export_command(t_redirection *command, char **envp);
-// void handle_env_command(t_redirection *command, char **envp);
-// void handle_exit_command(t_redirection *command);
-// void handle_unset_command(t_redirection *command, char **envp);
-// void handle_pwd_command();
-// void handle_echo_command(t_redirection *command, char **envp);
-// void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
 
 char *umm(char *str)
 {
@@ -785,6 +770,7 @@ int main(int argc, char **argv, char *env[])
 		char *cwd = build_prompt(envp);
 		input_sig(&old);
 		str = readline("command : ");
+		end_sig(&old);
 		if (ft_strlen(str))
 			add_history(str);
 		if (str)

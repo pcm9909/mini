@@ -8,7 +8,6 @@ char *handle_single_quotes(const char *str, int *i)
     if (str[*i] != '\'')
     {
         fprintf(stderr, "Error: Unmatched single quote\n");
-        exit(EXIT_FAILURE);
     }
     char *content = ft_substr(str, start, *i - start);
     (*i)++;
@@ -27,7 +26,6 @@ char *handle_double_quotes(const char *str, int *i)
     if (str[*i] != '"')
     {
         fprintf(stderr, "Error: Unmatched double quote\n");
-        exit(EXIT_FAILURE);
     }
     char *content = ft_substr(str, start, *i - start);
     (*i)++;
