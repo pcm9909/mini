@@ -451,30 +451,32 @@ void parse_command(char *str, int *i, t_redirection *command)
 {
     int j;
     char *content;
+	char *temp;
 
-    while (is_whitespace(str[*i]))
-        (*i)++;
-    if (str[*i] == '"')
+    while (str[*i])
     {
-        content = handle_double_quotes(str, i);
-		return;
-    }
-    else if (str[*i] == '\'')
-    {
-        content = handle_single_quotes(str, i);
-		return;
-    }
-    else
-    {
-        j = *i;
-        while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
+        while (is_whitespace(str[*i]))
             (*i)++;
-        if (j == *i)
-            return;
-        content = ft_substr(str, j, *i - j);
+        if (str[*i] == '"')
+        {
+            content = handle_double_quotes(str, i);
+        }
+        else if (str[*i] == '\'')
+        {
+            content = handle_single_quotes(str, i);
+        }
+        else
+        {
+            j = *i;
+            while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<' && str[*i] != '"' && str[*i] != '\'')
+                (*i)++;
+            if (j == *i)
+                return;
+            content = ft_substr(str, j, *i - j);
+        }
+        command->command->command = append_command(&command->command->command, content);
+        free(content);
     }
-    command->command->command = append_command(&command->command->command, content);
-    free(content);
 }
 
 char *ft_find_single_redirect(char *str, char c)
