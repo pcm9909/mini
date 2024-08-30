@@ -220,23 +220,33 @@ void	ft_echo(char *ptr, char **envp)
 	ptr = ptr + 4;
 	while (*ptr == ' ')
 		ptr++;
-	while (!ft_strncmp(ptr, "-n ", 3))
+	while (!ft_strncmp(ptr, "-n", 2))
 	{
 		flag = 1;
-		ptr+=3;
+		ptr+=2;
+		while(*ptr == 'n')
+			ptr++;
+		ptr++;
 	}
+
 	while (*ptr)
 	{
 		if (*ptr == '$')
 		{
 			ptr++;
 			if (*ptr == '?')
+			{
+				ptr++;
 				printf("%d", 0); // 종료상태 넣어야함
+			}
 			else
 			{
 				i = 0;
 				while (ptr[i] != ' ' && ptr[i] != '\0')
+				{
 					i++;
+					ptr++;
+				}
 				k = search_env(envp, ft_substr(ptr, 0, i), 0);
 				ptr = &ptr[i];
 				if (envp[k] != NULL)
