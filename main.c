@@ -211,7 +211,6 @@ void	sg(int signal)
 	else if (signal == SIGQUIT)
 	{
 		rl_on_new_line();
-		rl_replace_line("", 0);
 		rl_redisplay();
 		return ;
 	}
@@ -698,7 +697,7 @@ void process_input(char *str, char **envp)
         if (i < cnt - 1) {
             if (pipe(pipe_fd) == -1)
             {
-                perror("pipe");
+                perror("pipe\n");
                 exit(EXIT_FAILURE);
             }
         }
@@ -711,7 +710,7 @@ void process_input(char *str, char **envp)
         pids[i] = fork();
         if (pids[i] == -1)
         {
-            perror("fork");
+            perror("fork\n");
             exit(EXIT_FAILURE);
         }
 
@@ -784,7 +783,8 @@ int main(int argc, char **argv, char *env[])
 	{
 		char *cwd = build_prompt(envp);
 		input_sig(&old);
-		str = readline("command : ");
+		str = readline(cwd);
+		//end_sig(&old);
 		if (ft_strlen(str))
 			add_history(str);
 		if (str)
