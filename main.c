@@ -236,6 +236,16 @@ void	end_sig(struct termios *old)
 	signal(SIGQUIT, SIG_DFL);
 }
 
+void	none_sig(struct termios *old)
+{
+	tcgetattr(0, old);
+	old->c_lflag &= ~512;
+	tcsetattr(0, TCSANOW, old);
+	signal(SIGINT, SIG_IGN);
+	signal(SIGTERM, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+}
+
 
 int is_whitespace(int c)
 {
@@ -685,6 +695,7 @@ void process_input(char *str, char **envp)
     int input_fd = 0;
     int pipe_fd[2];
     pid_t *pids = malloc(sizeof(pid_t) * cnt);
+	struct termios old;
 
     for (int i = 0; i < cnt; i++)
     {
@@ -694,6 +705,7 @@ void process_input(char *str, char **envp)
 
     for (int i = 0; i < cnt; i++)
     {
+		//none_sig(&old);
         if (i < cnt - 1) {
             if (pipe(pipe_fd) == -1)
             {
@@ -706,7 +718,6 @@ void process_input(char *str, char **envp)
             pipe_fd[0] = 0;
             pipe_fd[1] = 1;
         }
-
         pids[i] = fork();
         if (pids[i] == -1)
         {
@@ -716,6 +727,7 @@ void process_input(char *str, char **envp)
 
         if (pids[i] == 0)
         {
+			end_sig(&old);
             // Child process
             if (i > 0)
             {
@@ -728,6 +740,7 @@ void process_input(char *str, char **envp)
                 close(pipe_fd[1]);
             }
             execute_command(command[i], envp, input_fd, pipe_fd[1]);
+			//none_sig(&old);
             exit(EXIT_SUCCESS);
         }
         else
@@ -775,8 +788,9 @@ void cleanup(char *str)
 int main(int argc, char **argv, char *env[])
 {
     char *str;
-    char **envp;
-    struct termios old;
+	char **envp;
+	pid_t	pid;
+	struct termios old;
 
 	envp = initialize_environment(env);
 	while (1)
@@ -784,6 +798,7 @@ int main(int argc, char **argv, char *env[])
 		char *cwd = build_prompt(envp);
 		input_sig(&old);
 		str = readline(cwd);
+		none_sig(&old);
 		//end_sig(&old);
 		if (ft_strlen(str))
 			add_history(str);

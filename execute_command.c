@@ -64,15 +64,15 @@ static void exe(t_redirection *command, char **cmd, char **envp)
 
 void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd)
 {
-    pid_t pid = fork();
+    /*pid_t pid = fork();
     if (pid == -1)
     {
         perror("fork");
         exit(EXIT_FAILURE);
-    }
+    }*/
 
-    if (pid == 0)
-    {
+    //if (pid == 0)
+    //{
         // Child process
         if (input_fd != 0)
         {
@@ -86,9 +86,9 @@ void execute_external_command(t_redirection *command, char **envp, int input_fd,
         }
         open_redirection_files(command);
         exe(command, command->command->command, envp);
-    }
+    /*}
     else
     {
         waitpid(pid, NULL, 0);
-    }
+    }*/
 }
