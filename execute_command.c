@@ -74,16 +74,16 @@ void execute_external_command(t_redirection *command, char **envp, int input_fd,
     //if (pid == 0)
     //{
         // Child process
-        if (input_fd != 0)
-        {
-            dup2(input_fd, 0);
-            close(input_fd);
-        }
-        if (output_fd != 1)
-        {
-            dup2(output_fd, 1);
-            close(output_fd);
-        }
+        // if (input_fd != 0)
+        // {
+        //     dup2(input_fd, 0);
+        //     close(input_fd);
+        // }
+        // if (output_fd != 1)
+        // {
+        //     dup2(output_fd, 1);
+        //     close(output_fd);
+        // }
         open_redirection_files(command);
         exe(command, command->command->command, envp);
     /*}

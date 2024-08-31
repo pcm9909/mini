@@ -14,7 +14,7 @@ void	error_end(int er)
 	exit(1);
 }
 
-static void	check_err(int n, int tar, int status, int type)
+void	check_err(int n, int tar, int status, int type)
 {
 	if (type)
 	{
@@ -216,33 +216,51 @@ void	sg(int signal)
 	}
 }
 
+void	sg2(int signal)
+{
+	if (signal == SIGINT)
+	{
+		printf("sex!!!");
+		/*rl_on_new_line();
+		rl_redisplay();
+		printf("\n");
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();*/
+	}
+	else if (signal == SIGTERM)
+	{
+		printf("exit\n");
+		exit(0);
+	}
+	else if (signal == SIGQUIT)
+	{
+		rl_on_new_line();
+		rl_redisplay();
+		return ;
+	}
+}
+
 void	input_sig(struct termios *old)
 {
 	tcgetattr(0, old);
 	old->c_lflag &= ~(512);
 	tcsetattr(0, TCSANOW, old);
 	signal(SIGINT, sg);
-	signal(SIGTERM, sg);
 	signal(SIGQUIT, sg);
 }
 
 void	end_sig(struct termios *old)
 {
 	tcgetattr(0, old);
-	old->c_lflag |= 512;
 	tcsetattr(0, TCSANOW, old);
-	signal(SIGINT, SIG_DFL);
-	signal(SIGTERM, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
+	signal(SIGINT, sg2);
+	signal(SIGQUIT, sg2);
 }
 
 void	none_sig(struct termios *old)
 {
-	tcgetattr(0, old);
-	old->c_lflag &= ~512;
-	tcsetattr(0, TCSANOW, old);
 	signal(SIGINT, SIG_IGN);
-	signal(SIGTERM, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
 }
 
@@ -705,7 +723,6 @@ void process_input(char *str, char **envp)
 
     for (int i = 0; i < cnt; i++)
     {
-		//none_sig(&old);
         if (i < cnt - 1) {
             if (pipe(pipe_fd) == -1)
             {
@@ -740,7 +757,6 @@ void process_input(char *str, char **envp)
                 close(pipe_fd[1]);
             }
             execute_command(command[i], envp, input_fd, pipe_fd[1]);
-			//none_sig(&old);
             exit(EXIT_SUCCESS);
         }
         else
@@ -760,7 +776,12 @@ void process_input(char *str, char **envp)
 
     for (int i = 0; i < cnt; i++)
     {
-        waitpid(pids[i], NULL, 0);
+		int statloc;
+        waitpid(pids[i], &statloc, 0);
+		if (WTERMSIG(statloc) == 2)
+			printf("\n");
+		else if(WTERMSIG(statloc) == 3)
+			printf("Quit (core dumped)\n");
     }
 
     for (int i = 0; i < cnt; i++)
@@ -799,7 +820,6 @@ int main(int argc, char **argv, char *env[])
 		input_sig(&old);
 		str = readline(cwd);
 		none_sig(&old);
-		//end_sig(&old);
 		if (ft_strlen(str))
 			add_history(str);
 		if (str)

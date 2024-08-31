@@ -79,3 +79,5 @@ int	only_digit(char *ptr);
 void	ft_exit(char **ptr);
 void	ft_unset(char **ptr, char **envp);
 void	ft_echo(char *ptr, char **envp);
+void	check_err(int n, int tar, int status, int type);
+int	execute(char *argv, char *envp[]);
