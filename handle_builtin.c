@@ -309,13 +309,13 @@ void handle_cd_command(t_redirection *command, char **envp)
     }
 }
 
-void handle_export_command(t_redirection *command, char **envp)
+void handle_export_command(t_redirection *command, char ***envp)
 {
     char **cd = ft_split(command->full_cmd, ' ');
     if (cd[1] == NULL)
-        print_envp(envp, 1);
-    else
-        ft_export(cd, &envp);
+        print_envp(*envp, 1);
+    //else
+    //    ft_export(cd, envp);
 }
 
 void handle_env_command(t_redirection *command, char **envp)

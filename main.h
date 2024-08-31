@@ -41,7 +41,7 @@ void free_command_list(char ***command);
 char	*ft_strjoin_with_free(char const *s1, char const *s2);
 
 void handle_cd_command(t_redirection *command, char **envp);
-void handle_export_command(t_redirection *command, char **envp);
+void handle_export_command(t_redirection *command, char ***envp);
 void handle_env_command(t_redirection *command, char **envp);
 void handle_exit_command(t_redirection *command);
 void handle_unset_command(t_redirection *command, char **envp);
@@ -54,7 +54,7 @@ void handle_right_brace(t_redirection *command);
 void handle_double_right_brace(t_redirection *command);
 	// void free_redirection(t_redirection **redirection);
 
-void execute_command(t_redirection *command, char **envp, int input_fd, int output_fd);
+void execute_command(t_redirection *command, char ***envp, int input_fd, int output_fd);
 void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
 
 char *handle_single_quotes(const char *str, int *i);

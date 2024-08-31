@@ -704,8 +704,9 @@ char *build_prompt(char **envp)
     cwd = ft_strjoin(extract_name(envp), cwd);
     return cwd;
 }
-void process_input(char *str, char **envp)
+void process_input(char *str, char ***envp)
 {
+	static int	exit_code;
     str = umm(str);
     char **split = ft_split(str, '|');
     int cnt = cnt_cmd(split);
@@ -771,6 +772,12 @@ void process_input(char *str, char **envp)
                 close(pipe_fd[1]);
             }
             input_fd = pipe_fd[0];
+			if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
+			{
+				char **cd = ft_split(command[i]->full_cmd, ' ');
+				if (cd[1] != NULL)
+					ft_export(cd, envp);
+			}
         }
     }
 
@@ -778,10 +785,17 @@ void process_input(char *str, char **envp)
     {
 		int statloc;
         waitpid(pids[i], &statloc, 0);
-		if (WTERMSIG(statloc) == 2)
-			printf("\n");
-		else if(WTERMSIG(statloc) == 3)
-			printf("Quit (core dumped)\n");
+		//printf("statloc : %d\n",WIFEXITED(statloc));
+		if (WIFEXITED(statloc))
+			exit_code = WEXITSTATUS(statloc);
+		if (WIFSIGNALED(statloc))
+		{
+			exit_code = 128 + WTERMSIG(statloc);
+			if (WTERMSIG(statloc) == 2)
+				printf("\n");
+			else if(WTERMSIG(statloc) == 3)
+				printf("Quit (core dumped)\n");
+		}
     }
 
     for (int i = 0; i < cnt; i++)
@@ -824,7 +838,7 @@ int main(int argc, char **argv, char *env[])
 			add_history(str);
 		if (str)
 		{
-			process_input(str, envp);
+			process_input(str, &envp);
 		}
 		else
 		{
