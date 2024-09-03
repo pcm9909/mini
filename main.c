@@ -772,12 +772,6 @@ void process_input(char *str, char ***envp)
                 close(pipe_fd[1]);
             }
             input_fd = pipe_fd[0];
-			if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
-			{
-				char **cd = ft_split(command[i]->full_cmd, ' ');
-				if (cd[1] != NULL)
-					ft_export(cd, envp);
-			}
         }
     }
 
@@ -796,6 +790,12 @@ void process_input(char *str, char ***envp)
 			else if(WTERMSIG(statloc) == 3)
 				printf("Quit (core dumped)\n");
 		}
+		if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
+			{
+				char **cd = ft_split(command[i]->full_cmd, ' ');
+				if (cd[1] != NULL)
+					exit_code = ft_export(cd, envp);
+			}
     }
 
     for (int i = 0; i < cnt; i++)
@@ -811,6 +811,7 @@ void process_input(char *str, char ***envp)
     free(split);
     free(str);
     free(pids);
+	printf("exit_code : %d\n",exit_code);
 }
 
 void cleanup(char *str)

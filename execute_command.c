@@ -57,7 +57,10 @@ static void exe(t_redirection *command, char **cmd, char **envp)
     if (execve(cmd_path, cmd, envp))
     {
         if (cmd)
+		{
             printf("%s: command not found\n", cmd[0]);
+			exit(127);
+		}
     }
     free(path);
 }
