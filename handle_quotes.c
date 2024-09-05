@@ -1,7 +1,5 @@
 #include "main.h"
 
-
-
 char *handle_single_quotes(const char *str, int *i)
 {
     int start = ++(*i);
@@ -33,4 +31,3 @@ char *handle_double_quotes(const char *str, int *i)
     (*i)++;
     return content;
 }
-
