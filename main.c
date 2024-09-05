@@ -14,7 +14,7 @@ void	error_end(int er)
 	exit(1);
 }
 
-static void	check_err(int n, int tar, int status, int type)
+void	check_err(int n, int tar, int status, int type)
 {
 	if (type)
 	{
@@ -211,7 +211,31 @@ void	sg(int signal)
 	else if (signal == SIGQUIT)
 	{
 		rl_on_new_line();
+		rl_redisplay();
+		return ;
+	}
+}
+
+void	sg2(int signal)
+{
+	if (signal == SIGINT)
+	{
+		printf("sex!!!");
+		/*rl_on_new_line();
+		rl_redisplay();
+		printf("\n");
+		rl_on_new_line();
 		rl_replace_line("", 0);
+		rl_redisplay();*/
+	}
+	else if (signal == SIGTERM)
+	{
+		printf("exit\n");
+		exit(0);
+	}
+	else if (signal == SIGQUIT)
+	{
+		rl_on_new_line();
 		rl_redisplay();
 		return ;
 	}
@@ -223,18 +247,21 @@ void	input_sig(struct termios *old)
 	old->c_lflag &= ~(512);
 	tcsetattr(0, TCSANOW, old);
 	signal(SIGINT, sg);
-	signal(SIGTERM, sg);
 	signal(SIGQUIT, sg);
 }
 
 void	end_sig(struct termios *old)
 {
 	tcgetattr(0, old);
-	old->c_lflag |= 512;
 	tcsetattr(0, TCSANOW, old);
-	signal(SIGINT, SIG_DFL);
-	signal(SIGTERM, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
+	signal(SIGINT, sg2);
+	signal(SIGQUIT, sg2);
+}
+
+void	none_sig(struct termios *old)
+{
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
 }
 
 
@@ -733,8 +760,9 @@ char *build_prompt(char **envp)
     cwd = ft_strjoin(extract_name(envp), cwd);
     return cwd;
 }
-void process_input(char *str, char **envp)
+void process_input(char *str, char ***envp)
 {
+	static int	exit_code;
     str = umm(str);
     char **split = ft_split(str, '|');
     int cnt = cnt_cmd(split);
@@ -742,6 +770,7 @@ void process_input(char *str, char **envp)
     int input_fd = 0;
     int pipe_fd[2];
     pid_t *pids = malloc(sizeof(pid_t) * cnt);
+	struct termios old;
 
     for (int i = 0; i < cnt; i++)
     {
@@ -755,7 +784,7 @@ void process_input(char *str, char **envp)
 		{
             if (pipe(pipe_fd) == -1)
             {
-                perror("pipe");
+                perror("pipe\n");
                 exit(EXIT_FAILURE);
             }
         }
@@ -764,16 +793,16 @@ void process_input(char *str, char **envp)
             pipe_fd[0] = 0;
             pipe_fd[1] = 1;
         }
-
         pids[i] = fork();
         if (pids[i] == -1)
         {
-            perror("fork");
+            perror("fork\n");
             exit(EXIT_FAILURE);
         }
 
         if (pids[i] == 0)
         {
+			end_sig(&old);
             // Child process
             if (i > 0)
             {
@@ -805,7 +834,25 @@ void process_input(char *str, char **envp)
 
     for (int i = 0; i < cnt; i++)
     {
-        waitpid(pids[i], NULL, 0);
+		int statloc;
+        waitpid(pids[i], &statloc, 0);
+		//printf("statloc : %d\n",WIFEXITED(statloc));
+		if (WIFEXITED(statloc))
+			exit_code = WEXITSTATUS(statloc);
+		if (WIFSIGNALED(statloc))
+		{
+			exit_code = 128 + WTERMSIG(statloc);
+			if (WTERMSIG(statloc) == 2)
+				printf("\n");
+			else if(WTERMSIG(statloc) == 3)
+				printf("Quit (core dumped)\n");
+		}
+		if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
+			{
+				char **cd = ft_split(command[i]->full_cmd, ' ');
+				if (cd[1] != NULL)
+					exit_code = ft_export(cd, envp);
+			}
     }
 
     for (int i = 0; i < cnt; i++)
@@ -821,6 +868,7 @@ void process_input(char *str, char **envp)
     free(split);
     free(str);
     free(pids);
+	printf("exit_code : %d\n",exit_code);
 }
 
 void cleanup(char *str)
@@ -833,21 +881,22 @@ void cleanup(char *str)
 int main(int argc, char **argv, char *env[])
 {
     char *str;
-    char **envp;
-    struct termios old;
+	char **envp;
+	pid_t	pid;
+	struct termios old;
 
 	envp = initialize_environment(env);
 	while (1)
 	{
 		char *cwd = build_prompt(envp);
 		input_sig(&old);
-		str = readline("command : ");
-		end_sig(&old);
+		str = readline(cwd);
+		none_sig(&old);
 		if (ft_strlen(str))
 			add_history(str);
 		if (str)
 		{
-			process_input(str, envp);
+			process_input(str, &envp);
 		}
 		else
 		{

@@ -41,7 +41,7 @@ void free_command_list(char ***command);
 char	*ft_strjoin_with_free(char const *s1, char const *s2);
 
 void handle_cd_command(t_redirection *command, char **envp);
-void handle_export_command(t_redirection *command, char **envp);
+void handle_export_command(t_redirection *command, char ***envp);
 void handle_env_command(t_redirection *command, char **envp);
 void handle_exit_command(t_redirection *command);
 void handle_unset_command(t_redirection *command, char **envp);
@@ -54,7 +54,7 @@ void handle_right_brace(t_redirection *command);
 void handle_double_right_brace(t_redirection *command);
 	// void free_redirection(t_redirection **redirection);
 
-void execute_command(t_redirection *command, char **envp, int input_fd, int output_fd);
+void execute_command(t_redirection *command, char ***envp, int input_fd, int output_fd);
 void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
 
 char *handle_single_quotes(const char *str, int *i);
@@ -74,8 +74,10 @@ int	is_validname(char *ptr);
 int	env_validate(char *ptr);
 char *set_env(char *name, int flag, char ***envp);
 void	print_envp(char **envp, int flag);
-void	ft_export(char **ptr, char ***envp);
+int	ft_export(char **ptr, char ***envp);
 int	only_digit(char *ptr);
 void	ft_exit(char **ptr);
 void	ft_unset(char **ptr, char **envp);
 void	ft_echo(char *ptr, char **envp);
+void	check_err(int n, int tar, int status, int type);
+int	execute(char *argv, char *envp[]);
