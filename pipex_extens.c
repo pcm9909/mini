@@ -11,6 +11,8 @@ static void	check_cmd(char *cmd_path)
 
 static char	*check_path(char *cmd)
 {
+	if(!cmd)
+		return (NULL);
 	if (cmd[0] == '/')
 	{
 		if (access(cmd, X_OK) != -1)
