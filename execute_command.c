@@ -1,9 +1,11 @@
 #include "main.h"
 
 void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
+static void open_redirection_files(t_redirection *command);
 
 void execute_command(t_redirection *command, char ***envp, int input_fd, int output_fd)
 {
+	open_redirection_files(command);
     if (command->full_cmd && command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))
     {
         handle_cd_command(command, *envp);
@@ -87,7 +89,7 @@ void execute_external_command(t_redirection *command, char **envp, int input_fd,
         //     dup2(output_fd, 1);
         //     close(output_fd);
         // }
-        open_redirection_files(command);
+		open_redirection_files(command);
         exe(command, command->command->command, envp);
     /*}
     else

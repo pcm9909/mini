@@ -775,7 +775,7 @@ void process_input(char *str, char ***envp)
     for (int i = 0; i < cnt; i++)
     {
         initialize_redirection(&command[i]);
-        parse_redirection(split[i], command[i], envp);
+        parse_redirection(split[i], command[i], *envp);
     }
 
     for (int i = 0; i < cnt; i++)
