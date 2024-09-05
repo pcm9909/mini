@@ -89,6 +89,7 @@ void execute_external_command(t_redirection *command, char **envp, int input_fd,
         //     dup2(output_fd, 1);
         //     close(output_fd);
         // }
+        //open_redirection_files(command);
         exe(command, command->command->command, envp);
     /*}
     else
