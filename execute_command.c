@@ -56,6 +56,17 @@ static void exe(t_redirection *command, char **cmd, char **envp)
     {
         cmd_path = get_cmd_path(cmd[0], path);
     }
+	if(ft_strlen(cmd_path) == 0)
+	{
+		//$에 아무것도 없는 것이 들어올 경우
+		exit(0);
+	}
+	// < 뒤에 아무것도 없거나 <> 인경우
+	// if( 1)
+	// {
+	// 	exit(2);
+	// }
+	write(1, &command->left_brace->exist, sizeof(int));
     if (execve(cmd_path, cmd, envp))
     {
         if (cmd)

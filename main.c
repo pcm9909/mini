@@ -415,8 +415,8 @@ void parse_left_redirection(const char *str, int *i, t_redirection *command)
     j = *i;
     if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
     {
-        printf("zsh: parse error near `%c'\n", str[*i]);
-        exit(258);
+        printf("bash: parse error near `%c'\n", str[*i]);
+        //exit(258);
     }
     while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
         (*i)++;
@@ -449,8 +449,8 @@ void parse_right_redirection(char *str, int *i, t_redirection *command)
         (*i)++;
     if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
     {
-        printf("zsh: parse error near `%c'\n", str[*i]);
-        exit(258);
+        printf("bash: parse error near `%c'\n", str[*i]);
+        //exit(258);
     }
     j = *i;
     while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
@@ -613,51 +613,64 @@ void parse_command_fix(char *str, int *i, t_redirection *command, char **envp)
 	char *envp_val;
 
     content = ft_strdup("");
-
-	if (str[*i] == '"')
+	while(str[*i] && str[*i] != ' ')
 	{
-		(*i)++;
-		j = (*i);
-		while (str[*i] && str[*i] != '"' && str[*i] != '$' && !is_whitespace(str[*i]))
-			(*i)++;
-		temp = ft_substr(str, j, *i - j);
-		if (str[*i] == '$')
+		if (str[*i] == '"')
 		{
-			envp_val = handle_dollor(str, i, envp);
-			temp = ft_strjoin_with_free(temp, envp_val);
-			free(envp_val);
+			(*i)++;
+			j = (*i);
+			while (str[*i] && str[*i] != '"' && str[*i] != '$')
+				(*i)++;
+			if (str[*i] == '$')
+			{
+				temp = ft_substr(str, j, *i -j);
+				(*i)++;
+				j = (*i);
+				while (str[*i] && str[*i] != '\'' && str[*i] != '"')
+					(*i)++;
+				char *env_var = ft_substr(str, j, *i - j);
+				temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
+				free(env_var);
+			}
+			temp = ft_substr(str, j, *i - j);
+			(*i)++;
 		}
-	}
-	else if (str[*i] == '\'')
-	{
-		(*i)++;
-		j = (*i);
-		while (str[*i] && str[*i] != '\'' && !is_whitespace(str[*i]))
+		else if (str[*i] == '\'')
+		{
 			(*i)++;
-		temp = ft_substr(str, j, *i - j);
-		(*i)++;
-	}
-	else if (str[*i] == '$')
-	{
-		(*i)++;
-		j = (*i);
-		while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]))
+			j = (*i);
+			while (str[*i] && str[*i] != '\'')
+				(*i)++;
+			temp = ft_substr(str, j, *i - j);
 			(*i)++;
-		char *env_var = ft_substr(str, j, *i - j);
-		temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
-		free(env_var);
-	}
-	else
-	{
-		j = (*i);
-		while (str[*i] && str[*i] != '\'' && str[*i] != '"' && str[*i] != '$' && !is_whitespace(str[*i]))
+		}
+		else if (str[*i] == '$')
+		{
 			(*i)++;
-		if((*i) == j)
-			return ;
-		temp = ft_substr(str, j, *i - j);
+			j = (*i);
+			while (str[*i] && str[*i] != '\'' && str[*i] != '"')
+				(*i)++;
+			char *env_var = ft_substr(str, j, *i - j);
+			temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
+			free(env_var);
+		}
+		else
+		{
+			j = (*i);
+			while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]) && str[*i] != '$')
+				(*i)++;
+			if((*i) == j)
+				return ;
+			temp = ft_substr(str, j, *i - j);
+			if(!temp)
+				return ;
+		}
+		char *new_content = ft_strjoin_with_free(content, temp);
+		free(temp);
+		content = new_content;
 	}
-    command->command->command = append_command(&command->command->command, temp);
-    free(temp);
+    command->command->command = append_command(&command->command->command, content);
+    free(content);
 }
 
 void parse_redirection(char *str, t_redirection *command, char **envp)
@@ -681,7 +694,7 @@ void parse_redirection(char *str, t_redirection *command, char **envp)
             parse_command_fix(str, &i, command, envp);
         }
     }
-	//print(command);
+	print(command);
 	command->full_cmd = set_command(command->command);
     set_order(command, str);
 }
