@@ -420,8 +420,8 @@ void parse_left_redirection(const char *str, int *i, t_redirection *command)
     j = *i;
     if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
     {
-        printf("zsh: parse error near `%c'\n", str[*i]);
-        exit(258);
+        printf("bash: parse error near `%c'\n", str[*i]);
+        //exit(258);
     }
     while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
         (*i)++;
@@ -454,8 +454,8 @@ void parse_right_redirection(char *str, int *i, t_redirection *command)
         (*i)++;
     if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
     {
-        printf("zsh: parse error near `%c'\n", str[*i]);
-        exit(258);
+        printf("bash: parse error near `%c'\n", str[*i]);
+        //exit(258);
     }
     j = *i;
     while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
@@ -623,7 +623,7 @@ void parse_command_fix(char *str, int *i, t_redirection *command, char **envp)
 	{
 		(*i)++;
 		j = (*i);
-		while (str[*i] && str[*i] != '"' && str[*i] != '$' && !is_whitespace(str[*i]))
+		while (str[*i] && str[*i] != '"' && str[*i] != '$')
 			(*i)++;
 		temp = ft_substr(str, j, *i - j);
 		if (str[*i] == '$')
@@ -637,7 +637,7 @@ void parse_command_fix(char *str, int *i, t_redirection *command, char **envp)
 	{
 		(*i)++;
 		j = (*i);
-		while (str[*i] && str[*i] != '\'' && !is_whitespace(str[*i]))
+		while (str[*i] && str[*i] != '\'')
 			(*i)++;
 		temp = ft_substr(str, j, *i - j);
 		(*i)++;
