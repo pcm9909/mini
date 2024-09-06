@@ -873,6 +873,9 @@ void process_input(char *str, char ***envp)
 
 void cleanup(char *str)
 {
+	struct termios old;
+
+	end_sig(&old);
     free(str);
     printf("exit\n");
     exit(EXIT_SUCCESS);
