@@ -220,13 +220,7 @@ void	sg2(int signal)
 {
 	if (signal == SIGINT)
 	{
-		printf("sex!!!");
-		/*rl_on_new_line();
-		rl_redisplay();
-		printf("\n");
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();*/
+		return ;
 	}
 	else if (signal == SIGTERM)
 	{
@@ -253,6 +247,7 @@ void	input_sig(struct termios *old)
 void	end_sig(struct termios *old)
 {
 	tcgetattr(0, old);
+	old->c_lflag |= (512);
 	tcsetattr(0, TCSANOW, old);
 	signal(SIGINT, sg2);
 	signal(SIGQUIT, sg2);
@@ -681,7 +676,7 @@ void parse_redirection(char *str, t_redirection *command, char **envp)
             parse_command_fix(str, &i, command, envp);
         }
     }
-	print(command);
+	//print(command);
 	command->full_cmd = set_command(command->command);
     set_order(command, str);
 }
@@ -775,7 +770,7 @@ void process_input(char *str, char ***envp)
     for (int i = 0; i < cnt; i++)
     {
         initialize_redirection(&command[i]);
-        parse_redirection(split[i], command[i], envp);
+        parse_redirection(split[i], command[i], *envp);
     }
 
     for (int i = 0; i < cnt; i++)

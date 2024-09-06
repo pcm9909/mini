@@ -58,7 +58,7 @@ int	search_env(char **envp, char *name, int flag) // free
 			tmp = ft_substr(*envp, 0, ft_strchr(*envp, '=') - *envp);
 		else
 			tmp = *envp;
-		if (!ft_strncmp(tmp, re, ft_strlen(re)))
+		if (!ft_strncmp(tmp, re, ft_strlen(re) + 1))
 			break ;
 		envp++;
 		i++;
