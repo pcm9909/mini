@@ -1,6 +1,6 @@
 #include "main.h"
 
-char *local;
+//char *local;
 
 void	error_end(int er)
 {
@@ -481,7 +481,7 @@ void parse_command(char *str, int *i, t_redirection *command, char **envp)
             (*i)++;
         if (str[*i] == '"')
         {
-            content = handle_double_quotes(str, i);
+            content = handle_double_quotes(str, i, envp);
         }
         else if (str[*i] == '\'')
         {
@@ -603,65 +603,102 @@ char *handle_dollor(char *str, int *i, char **envp)
 
 	return temp;
 }
-
+//
 void parse_command_fix(char *str, int *i, t_redirection *command, char **envp)
 {
     int j;
     char *temp;
-	char *dump;
     char *content;
-	char *envp_val;
+    char *envp_val;
 
     content = ft_strdup("");
 
-	if (str[*i] == '"')
-	{
-		(*i)++;
-		j = (*i);
-		// "안에 내용을 먼저 읽고 내용검사하는 것으로 수정할 것"
-		while (str[*i] && str[*i] != '"' && str[*i] != '$')
-			(*i)++;
-		temp = ft_substr(str, j, *i - j);
-		if (str[*i] == '$')
-		{
-			envp_val = handle_dollor(str, i, envp);
-			temp = ft_strjoin_with_free(temp, envp_val);
-			free(envp_val);
-		}
-	}
-	else if (str[*i] == '\'')
-	{
-		(*i)++;
-		j = (*i);
-		while (str[*i] && str[*i] != '\'')
-		{
-			(*i)++;
-			//닫히지 않은 괄호 체크하는 로직으로 체크하기
-		}
-		temp = ft_substr(str, j, *i - j);
-		(*i)++;
-	}
-	else if (str[*i] == '$')
-	{
-		(*i)++;
-		j = (*i);
-		while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]))
-			(*i)++;
-		char *env_var = ft_substr(str, j, *i - j);
-		temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
-		free(env_var);
-	}
-	else
-	{
-		j = (*i);
-		while (str[*i] && str[*i] != '\'' && str[*i] != '"' && str[*i] != '$' && !is_whitespace(str[*i]))
-			(*i)++;
-		if((*i) == j)
-			return ;
-		temp = ft_substr(str, j, *i - j);
-	}
-    command->command->command = append_command(&command->command->command, temp);
-    free(temp);
+    if (str[*i] == '"')
+    {
+        (*i)++;
+        j = (*i);
+        while (str[*i] && str[*i] != '"')
+            (*i)++;
+        if (str[*i] != '"')
+        {
+            fprintf(stderr, "Error: closing double quote not found\n");
+            free(content);
+            return;
+        }
+        temp = ft_substr(str, j, *i - j);
+        (*i)++;
+        int k = 0;
+        while (temp[k])
+        {
+            if (temp[k] == '$')
+            {
+                int start = k + 1;
+                while (temp[k] && !is_whitespace(temp[k]) && temp[k] != '$')
+                    k++;
+                char *env_var = ft_substr(temp, start, k - start);
+                envp_val = ft_strdup(envp[search_env(envp, env_var, 1)]);
+                char *new_temp = ft_strjoin_with_free(ft_substr(temp, 0, start - 1), envp_val);
+                new_temp = ft_strjoin_with_free(new_temp, ft_strdup(temp + k));
+                free(temp);
+                temp = new_temp;
+                free(env_var);
+                free(envp_val);
+            }
+            else
+            {
+                k++;
+            }
+        }
+        content = ft_strjoin_with_free(content, temp);
+        free(temp);
+    }
+    else if (str[*i] == '\'')
+    {
+        (*i)++;
+        j = (*i);
+        while (str[*i] && str[*i] != '\'')
+            (*i)++;
+        if (str[*i] != '\'')
+        {
+            fprintf(stderr, "Error: closing single quote not found\n");
+            free(content);
+            return;
+        }
+        temp = ft_substr(str, j, *i - j);
+        content = ft_strjoin_with_free(content, temp);
+        free(temp);
+        (*i)++;
+    }
+    else
+    {
+        j = (*i);
+        while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]))
+        {
+            if (str[*i] == '$')
+            {
+                (*i)++;
+                int start = (*i);
+                while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]))
+                    (*i)++;
+                char *env_var = ft_substr(str, start, *i - start);
+                temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
+                content = ft_strjoin_with_free(content, temp);
+                free(env_var);
+                free(temp);
+            }
+            else
+            {
+                (*i)++;
+            }
+        }
+        if ((*i) == j)
+            return;
+        temp = ft_substr(str, j, *i - j);
+        content = ft_strjoin_with_free(content, temp);
+        free(temp);
+    }
+    command->command->command = append_command(&command->command->command, content);
+    free(content);
 }
 
 void parse_redirection(char *str, t_redirection *command, char **envp)
@@ -682,7 +719,7 @@ void parse_redirection(char *str, t_redirection *command, char **envp)
         }
         else
         {
-            parse_command_fix(str, &i, command, envp);
+            parse_command(str, &i, command, envp);
         }
     }
 	print(command);
@@ -767,79 +804,78 @@ char *build_prompt(char **envp)
 void process_input(char *str, char ***envp)
 {
 	static int	exit_code;
-    str = umm(str);
-    char **split = ft_split(str, '|');
-    int cnt = cnt_cmd(split);
-    t_redirection **command = (malloc(sizeof(t_redirection *) * cnt));
-    int input_fd = 0;
-    int pipe_fd[2];
-    pid_t *pids = malloc(sizeof(pid_t) * cnt);
+	str = umm(str);
+	char **split = ft_split(str, '|');
+	int cnt = cnt_cmd(split);
+	t_redirection **command = (malloc(sizeof(t_redirection *) * cnt));
+	int input_fd = 0;
+	int pipe_fd[2];
+	pid_t *pids = malloc(sizeof(pid_t) * cnt);
 	struct termios old;
 
-    for (int i = 0; i < cnt; i++)
-    {
-        initialize_redirection(&command[i]);
-        parse_redirection(split[i], command[i], *envp);
-    }
+	for (int i = 0; i < cnt; i++)
+	{
+		initialize_redirection(&command[i]);
+		parse_redirection(split[i], command[i], *envp);
+	}
 
-    for (int i = 0; i < cnt; i++)
-    {
-        if (i < cnt - 1)
+	for (int i = 0; i < cnt; i++)
+	{
+		if (i < cnt - 1)
 		{
-            if (pipe(pipe_fd) == -1)
-            {
-                perror("pipe\n");
-                exit(EXIT_FAILURE);
-            }
-        }
-        else
-        {
-            pipe_fd[0] = 0;
-            pipe_fd[1] = 1;
-        }
-        pids[i] = fork();
-        if (pids[i] == -1)
-        {
-            perror("fork\n");
-            exit(EXIT_FAILURE);
-        }
+			if (pipe(pipe_fd) == -1)
+			{
+				perror("pipe\n");
+				exit(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+			pipe_fd[0] = 0;
+			pipe_fd[1] = 1;
+		}
+		pids[i] = fork();
+		if (pids[i] == -1)
+		{
+			perror("fork\n");
+			exit(EXIT_FAILURE);
+		}
 
-        if (pids[i] == 0)
-        {
+		if (pids[i] == 0)
+		{
 			end_sig(&old);
-            // Child process
-            if (i > 0)
-            {
-                dup2(input_fd, 0);
-                close(input_fd);
-            }
-            if (i < cnt - 1)
-            {
-                dup2(pipe_fd[1], 1);
-                close(pipe_fd[1]);
-            }
-            execute_command(command[i], envp, input_fd, pipe_fd[1]);
-            exit(EXIT_SUCCESS);
-        }
-        else
-        {
-            // Parent process
-            if (i > 0)
-            {
-                close(input_fd);
-            }
-            if (i < cnt - 1)
-            {
-                close(pipe_fd[1]);
-            }
-            input_fd = pipe_fd[0];
-        }
-    }
-
-    for (int i = 0; i < cnt; i++)
-    {
+			// Child process
+			if (i > 0)
+			{
+				dup2(input_fd, 0);
+				close(input_fd);
+			}
+			if (i < cnt - 1)
+			{
+				dup2(pipe_fd[1], 1);
+				close(pipe_fd[1]);
+			}
+			execute_command(command[i], envp, input_fd, pipe_fd[1]);
+			exit(EXIT_SUCCESS);
+		}
+		else
+		{
+			// Parent process
+			if (i > 0)
+			{
+				close(input_fd);
+			}
+			if (i < cnt - 1)
+			{
+				close(pipe_fd[1]);
+			}
+			input_fd = pipe_fd[0];
+		}
+	}
+	for (int i = 0; i < cnt; i++)
+	{
 		int statloc;
-        waitpid(pids[i], &statloc, 0);
+		waitpid(pids[i], &statloc, 0);
 		//printf("statloc : %d\n",WIFEXITED(statloc));
 		if (WIFEXITED(statloc))
 			exit_code = WEXITSTATUS(statloc);
@@ -852,50 +888,48 @@ void process_input(char *str, char ***envp)
 				printf("Quit (core dumped)\n");
 		}
 		if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
-			{
-				char **cd = ft_split(command[i]->full_cmd, ' ');
-				if (cd[1] != NULL)
-					exit_code = ft_export(cd, envp);
-			}
-    }
-
-    for (int i = 0; i < cnt; i++)
-    {
-        free_redirection(command[i]);
-    }
-
-    for (int i = 0; split[i]; i++)
-    {
-        free(split[i]);
-    }
-    free(command);
-    free(split);
-    free(str);
-    free(pids);
-	printf("exit_code : %d\n",exit_code);
+		{
+			char **cd = ft_split(command[i]->full_cmd, ' ');
+			if (cd[1] != NULL)
+				exit_code = ft_export(cd, envp);
+		}
+	}
+	for (int i = 0; i < cnt; i++)
+	{
+		free_redirection(command[i]);
+	}
+	for (int i = 0; split[i]; i++)
+	{
+		free(split[i]);
+	}
+	free(command);
+	free(split);
+	free(str);
+	free(pids);
+	printf("exit_code : %d\n", exit_code);
 }
 
-void cleanup(char *str)
+void	cleanup(char *str)
 {
-	struct termios old;
+	struct termios	old;
 
 	end_sig(&old);
-    free(str);
-    printf("exit\n");
-    exit(EXIT_SUCCESS);
+	free(str);
+	printf("exit\n");
+	exit(EXIT_SUCCESS);
 }
 
-int main(int argc, char **argv, char *env[])
+int	main(int argc, char **argv, char *env[])
 {
-    char *str;
-	char **envp;
-	pid_t	pid;
-	struct termios old;
+	char			*str;
+	char			**envp;
+	struct termios	old;
+	char			*cwd;
 
 	envp = initialize_environment(env);
 	while (1)
 	{
-		char *cwd = build_prompt(envp);
+		cwd = build_prompt(envp);
 		input_sig(&old);
 		str = readline(cwd);
 		none_sig(&old);
@@ -910,5 +944,5 @@ int main(int argc, char **argv, char *env[])
 			cleanup(str);
 		}
 	}
-    return 0;
+	return (0);
 }
