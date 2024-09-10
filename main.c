@@ -613,64 +613,55 @@ void parse_command_fix(char *str, int *i, t_redirection *command, char **envp)
 	char *envp_val;
 
     content = ft_strdup("");
-	while(str[*i] && str[*i] != ' ')
+
+	if (str[*i] == '"')
 	{
-		if (str[*i] == '"')
+		(*i)++;
+		j = (*i);
+		// "안에 내용을 먼저 읽고 내용검사하는 것으로 수정할 것"
+		while (str[*i] && str[*i] != '"' && str[*i] != '$')
+			(*i)++;
+		temp = ft_substr(str, j, *i - j);
+		if (str[*i] == '$')
 		{
-			(*i)++;
-			j = (*i);
-			while (str[*i] && str[*i] != '"' && str[*i] != '$')
-				(*i)++;
-			if (str[*i] == '$')
-			{
-				temp = ft_substr(str, j, *i -j);
-				(*i)++;
-				j = (*i);
-				while (str[*i] && str[*i] != '\'' && str[*i] != '"')
-					(*i)++;
-				char *env_var = ft_substr(str, j, *i - j);
-				temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
-				free(env_var);
-			}
-			temp = ft_substr(str, j, *i - j);
-			(*i)++;
+			envp_val = handle_dollor(str, i, envp);
+			temp = ft_strjoin_with_free(temp, envp_val);
+			free(envp_val);
 		}
-		else if (str[*i] == '\'')
-		{
-			(*i)++;
-			j = (*i);
-			while (str[*i] && str[*i] != '\'')
-				(*i)++;
-			temp = ft_substr(str, j, *i - j);
-			(*i)++;
-		}
-		else if (str[*i] == '$')
-		{
-			(*i)++;
-			j = (*i);
-			while (str[*i] && str[*i] != '\'' && str[*i] != '"')
-				(*i)++;
-			char *env_var = ft_substr(str, j, *i - j);
-			temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
-			free(env_var);
-		}
-		else
-		{
-			j = (*i);
-			while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]) && str[*i] != '$')
-				(*i)++;
-			if((*i) == j)
-				return ;
-			temp = ft_substr(str, j, *i - j);
-			if(!temp)
-				return ;
-		}
-		char *new_content = ft_strjoin_with_free(content, temp);
-		free(temp);
-		content = new_content;
 	}
-    command->command->command = append_command(&command->command->command, content);
-    free(content);
+	else if (str[*i] == '\'')
+	{
+		(*i)++;
+		j = (*i);
+		while (str[*i] && str[*i] != '\'')
+		{
+			(*i)++;
+			//닫히지 않은 괄호 체크하는 로직으로 체크하기
+		}
+		temp = ft_substr(str, j, *i - j);
+		(*i)++;
+	}
+	else if (str[*i] == '$')
+	{
+		(*i)++;
+		j = (*i);
+		while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]))
+			(*i)++;
+		char *env_var = ft_substr(str, j, *i - j);
+		temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
+		free(env_var);
+	}
+	else
+	{
+		j = (*i);
+		while (str[*i] && str[*i] != '\'' && str[*i] != '"' && str[*i] != '$' && !is_whitespace(str[*i]))
+			(*i)++;
+		if((*i) == j)
+			return ;
+		temp = ft_substr(str, j, *i - j);
+	}
+    command->command->command = append_command(&command->command->command, temp);
+    free(temp);
 }
 
 void parse_redirection(char *str, t_redirection *command, char **envp)
