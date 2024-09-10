@@ -694,7 +694,7 @@ void parse_redirection(char *str, t_redirection *command, char **envp)
             parse_command_fix(str, &i, command, envp);
         }
     }
-	print(command);
+	//print(command);
 	command->full_cmd = set_command(command->command);
     set_order(command, str);
 }
@@ -756,21 +756,31 @@ void	all_free(char **ptr)
 
 char *build_prompt(char **envp)
 {
-    char *pwd = getcwd(NULL, BUFSIZ);
-    char *cwd;
+    char 	*pwd = getcwd(NULL, BUFSIZ);
+    char 	*cwd;
+	char	*tmp;
+
     if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp)))) {
         cwd = pwd + ft_strlen(extract_home(envp));
-        cwd = ft_strjoin("~", cwd);
+        tmp = ft_strjoin("~", cwd);
     }
 	else
 	{
-        cwd = pwd;
+        tmp = ft_strdup(pwd);
     }
-    cwd = ft_strjoin(cwd, "$ ");
-    cwd = ft_strjoin(":", cwd);
-    cwd = ft_strjoin(extract_location(envp), cwd);
-    cwd = ft_strjoin("@", cwd);
-    cwd = ft_strjoin(extract_name(envp), cwd);
+    cwd = ft_strjoin(tmp, "$ ");
+	free(tmp);
+	free(pwd);
+    tmp = ft_strjoin(":", cwd);
+	free(cwd);
+	pwd = extract_location(envp);
+    cwd = ft_strjoin(pwd, tmp);
+	free(pwd);
+	free(tmp);
+    tmp = ft_strjoin("@", cwd);
+	free(cwd);
+    cwd = ft_strjoin(extract_name(envp), tmp);
+	free(tmp);
     return cwd;
 }
 void process_input(char *str, char ***envp)
@@ -884,12 +894,13 @@ void process_input(char *str, char ***envp)
 	printf("exit_code : %d\n",exit_code);
 }
 
-void cleanup(char *str)
+void cleanup(char *str, char *cwd)
 {
 	struct termios old;
 
 	end_sig(&old);
     free(str);
+	free(cwd);
     printf("exit\n");
     exit(EXIT_SUCCESS);
 }
@@ -916,8 +927,9 @@ int main(int argc, char **argv, char *env[])
 		}
 		else
 		{
-			cleanup(str);
+			cleanup(str, cwd);
 		}
+		free(cwd);
 	}
     return 0;
 }

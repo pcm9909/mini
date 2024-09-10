@@ -266,10 +266,12 @@ void	ft_echo(char *ptr, char **envp)
 void handle_cd_command(t_redirection *command, char **envp)
 {
     char *tmp_pwd = getcwd(NULL, BUFSIZ);
-    char **cd = ft_split(command->full_cmd, ' ');
+	char	*tmp;
+    char **cd;
     char **cd_path;
     int i;
 
+	cd = ft_split(command->full_cmd, ' ');
     if (cd[1] == NULL)
     {
         free(tmp_pwd);
@@ -307,18 +309,23 @@ void handle_cd_command(t_redirection *command, char **envp)
                 }
                 else
                 {
-                    tmp_pwd = ft_strjoin(tmp_pwd, "/");
-                    tmp_pwd = ft_strjoin(tmp_pwd, cd_path[i]);
+                    tmp = ft_strjoin(tmp_pwd, "/");
+					free(tmp_pwd);
+                    tmp_pwd = ft_strjoin(tmp, cd_path[i]);
+					free(tmp);
                 }
             }
             i++;
         }
+		all_free(cd_path);
     }
     if (chdir(tmp_pwd) == -1)
     {
         printf("minishell: cd: %s: No such file or directory\n", cd[1]);
 		exit(1);
     }
+	all_free(cd);
+	free(tmp_pwd);
 }
 
 void handle_export_command(t_redirection *command, char ***envp)

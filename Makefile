@@ -1,3 +1,3 @@
 all:
 	make -C libft/
-	cc *.c libft/libft.a -lreadline -g -o minishell
+	clang *.c libft/libft.a -lreadline -g -fsanitize=address -o minishell

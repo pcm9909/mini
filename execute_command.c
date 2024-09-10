@@ -50,12 +50,12 @@ static void open_redirection_files(t_redirection *command)
 
 static void exe(t_redirection *command, char **cmd, char **envp)
 {
-    char *cmd_path = NULL;
-    char *path = get_path(envp);
-    if (cmd)
-    {
-        cmd_path = get_cmd_path(cmd[0], path);
-    }
+	char *cmd_path = NULL;
+	char *path = get_path(envp);
+	if (cmd)
+	{
+		cmd_path = get_cmd_path(cmd[0], path);
+	}
 	if(ft_strlen(cmd_path) == 0)
 	{
 		//$에 아무것도 없는 것이 들어올 경우
@@ -66,26 +66,26 @@ static void exe(t_redirection *command, char **cmd, char **envp)
 	// {
 	// 	exit(2);
 	// }
-	write(1, &command->left_brace->exist, sizeof(int));
-    if (execve(cmd_path, cmd, envp))
-    {
-        if (cmd)
-        {
+	//write(1, &command->left_brace->exist, sizeof(int));
+	if (execve(cmd_path, cmd, envp))
+	{
+		if (cmd)
+		{
 			write(2, cmd[0], ft_strlen(cmd[0]));
 			write(2, ": command not found\n", ft_strlen(": command not found\n"));
 		}
-    }
-    free(path);
+	}
+	free(path);
 }
 
 void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd)
 {
-    /*pid_t pid = fork();
-    if (pid == -1)
-    {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    }*/
+	/*pid_t pid = fork();
+	if (pid == -1)
+	{
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}*/
 
     //if (pid == 0)
     //{
@@ -101,7 +101,7 @@ void execute_external_command(t_redirection *command, char **envp, int input_fd,
         //     close(output_fd);
         // }
         //open_redirection_files(command);
-        exe(command, command->command->command, envp);
+    	exe(command, command->command->command, envp);
     /*}
     else
     {
