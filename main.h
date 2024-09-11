@@ -30,6 +30,7 @@ typedef struct s_redirection
 	char				*full_cmd;
 	struct s_command	*right_brace;
 	struct s_command	*double_right_brace;
+	bool				executable;
 }				t_redirection;
 
 void	print(t_redirection *cmd);
@@ -83,5 +84,38 @@ void	ft_unset(char **ptr, char **envp);
 void	ft_echo(char *ptr, char **envp);
 void	check_err(int n, int tar, int status, int type);
 int		execute(char *argv, char *envp[]);
+int		is_whitespace(int c);
+char 	*handle_command(const char *str, int *i, char **envp);
+
+void	sg(int signal);
+void	sg2(int signal);
+void	input_sig(struct termios *old);
+void	end_sig(struct termios *old);
+void	none_sig(struct termios *old);
+
+void parse_left_redirection(const char *str, int *i, t_redirection *command);
+void parse_right_redirection(char *str, int *i, t_redirection *command);
+void parse_redirection(char *str, t_redirection *command, char **envp);
+char *set_command(t_command *command);
+void set_order(t_redirection *command, char *str);
+char *ft_find_single_redirect(char *str, char c);
+void parse_command(char *str, int *i, t_redirection *command, char **envp);
+
+
+char **append_command(char ***cmd, const char *str);
+
+
+void	free_redirection(t_redirection *redirection);
+void	free_command(t_command *cmd);
+void	all_free(char **ptr);
+
+char *build_prompt(char **envp);
+char	*extract_home(char *envp[]);
+char	*extract_location(char *envp[]);
+char	*extract_name(char *envp[]);
+char	**extract_path(char *envp[]);
+
+int is_whitespace(int c);
+int cnt_cmd(char **split);
 
 #endif
