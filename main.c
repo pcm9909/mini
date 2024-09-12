@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 20:30:33 by jakim            ###   ########.fr       */
+/*   Updated: 2024/09/12 21:08:33 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,7 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, char ***en
 			cd = ft_split(command[i]->full_cmd, ' ');
 			if (cd[1] != NULL)
 				*exit_code = ft_export(cd, envp);
+			all_free(cd);
 		}
 		i++;
 	}

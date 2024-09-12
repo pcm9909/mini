@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:48:26 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 20:45:43 by jakim            ###   ########.fr       */
+/*   Updated: 2024/09/12 20:56:04 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -347,6 +347,7 @@ void	handle_export_command(t_redirection *command, char ***envp)
 	cd = ft_split(command->full_cmd, ' ');
 	if (cd[1] == NULL)
 		print_envp(*envp, 1);
+	all_free(cd);
 }
 
 void	handle_env_command(t_redirection *command, char **envp)
