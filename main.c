@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 17:57:52 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/12 17:58:29 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,7 +232,6 @@ void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], pid_t *pids,
 	}
 	else
     {
-        // 부모 프로세스에서 사용하지 않는 파일 디스크립터 닫기
         if (i > 0)
         {
             close(input_fd);
