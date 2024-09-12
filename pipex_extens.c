@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipex_extens.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/12 14:50:47 by chunpark          #+#    #+#             */
+/*   Updated: 2024/09/12 14:50:48 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
 static void	check_cmd(char *cmd_path)
@@ -11,7 +23,7 @@ static void	check_cmd(char *cmd_path)
 
 static char	*check_path(char *cmd)
 {
-	if(!cmd)
+	if (!cmd)
 		return (NULL);
 	if (cmd[0] == '/')
 	{

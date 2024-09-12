@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   handle_builtin.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/12 14:48:26 by chunpark          #+#    #+#             */
+/*   Updated: 2024/09/12 20:12:22 by jakim            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
-char **update_envp(char **envp, int type, char *new)
+char	**update_envp(char **envp, int type, char *new)
 {
-	int	i;
+	int		i;
 	char	**ptr;
 
 	i = 0;
@@ -26,9 +38,9 @@ char **update_envp(char **envp, int type, char *new)
 	return (ptr);
 }
 
-char **initialize_environment(char *env[])
+char	**initialize_environment(char *env[])
 {
-    return update_envp(env, 0, NULL);
+	return (update_envp(env, 0, NULL));
 }
 
 int	double_ptr_size(char **ptr)
@@ -43,7 +55,7 @@ int	double_ptr_size(char **ptr)
 
 int	search_env(char **envp, char *name, int flag) // free
 {
-	int	i;
+	int		i;
 	char	*re;
 	char	*tmp;
 
@@ -96,7 +108,7 @@ int	env_validate(char *ptr)
 		return (-1);
 }
 
-char *set_env(char *name, int flag, char ***envp)
+char	*set_env(char *name, int flag, char ***envp)
 {
 	int	i;
 
@@ -110,7 +122,7 @@ char *set_env(char *name, int flag, char ***envp)
 			if (!ft_strchr(name, '='))
 				return (NULL);
 			free((*envp)[i]);
-			(*envp)[i] =  name;
+			(*envp)[i] = name;
 		}
 		else
 			*envp = update_envp(*envp, 0, name);
@@ -147,8 +159,8 @@ void	print_envp(char **envp, int flag)
 
 int	ft_export(char **ptr, char ***envp)
 {
-	int	i;
-	int	flag;
+	int		i;
+	int		flag;
 	char	*rax;
 
 	i = 1;
@@ -163,7 +175,7 @@ int	ft_export(char **ptr, char ***envp)
 		}
 		i++;
 	}
-	return(flag);
+	return (flag);
 }
 
 int	only_digit(char *ptr)
@@ -210,9 +222,9 @@ void	ft_unset(char **ptr, char **envp)
 
 void	ft_echo(char *ptr, char **envp)
 {
-	int	flag;
-	int	i;
-	int	k;
+	int		flag;
+	int		i;
+	int		k;
 	char	*tmp;
 
 	i = 1;
@@ -223,12 +235,11 @@ void	ft_echo(char *ptr, char **envp)
 	while (!ft_strncmp(ptr, "-n", 2))
 	{
 		flag = 1;
-		ptr+=2;
-		while(*ptr == 'n')
+		ptr += 2;
+		while (*ptr == 'n')
 			ptr++;
 		ptr++;
 	}
-
 	while (*ptr)
 	{
 		if (*ptr == '$')
@@ -263,23 +274,24 @@ void	ft_echo(char *ptr, char **envp)
 		printf("\n");
 }
 
-void handle_cd_command(t_redirection *command, char **envp)
+void	handle_cd_command(t_redirection *command, char **envp)
 {
-    char *tmp_pwd = getcwd(NULL, BUFSIZ);
+	char	*tmp_pwd;
 	char	*tmp;
-    char **cd;
-    char **cd_path;
-    int i;
+	char	**cd;
+	char	**cd_path;
+	int		i;
 
+	tmp_pwd = getcwd(NULL, BUFSIZ);
 	cd = ft_split(command->full_cmd, ' ');
-    if (cd[1] == NULL)
-    {
-        free(tmp_pwd);
-        tmp_pwd = ft_strdup(extract_home(envp));
-    }
-    else if (cd[2] != NULL)
-    {
-        printf("minishell: cd: too many arguments\n");
+	if (cd[1] == NULL)
+	{
+		free(tmp_pwd);
+		tmp_pwd = ft_strdup(extract_home(envp));
+	}
+	else if (cd[2] != NULL)
+	{
+		printf("minishell: cd: too many arguments\n");
 		exit(1);
     }
     else
@@ -309,7 +321,7 @@ void handle_cd_command(t_redirection *command, char **envp)
                 }
                 else
                 {
-                    tmp = ft_strjoin(tmp_pwd, "/");
+                	tmp = ft_strjoin(tmp_pwd, "/");
 					free(tmp_pwd);
                     tmp_pwd = ft_strjoin(tmp, cd_path[i]);
 					free(tmp);
@@ -328,38 +340,46 @@ void handle_cd_command(t_redirection *command, char **envp)
 	free(tmp_pwd);
 }
 
-void handle_export_command(t_redirection *command, char ***envp)
+void	handle_export_command(t_redirection *command, char ***envp)
 {
-    char **cd = ft_split(command->full_cmd, ' ');
-    if (cd[1] == NULL)
-        print_envp(*envp, 1);
+	char	**cd;
+
+	cd = ft_split(command->full_cmd, ' ');
+	if (cd[1] == NULL)
+		print_envp(*envp, 1);
 }
 
-void handle_env_command(t_redirection *command, char **envp)
+void	handle_env_command(t_redirection *command, char **envp)
 {
-    print_envp(envp, 0);
+	print_envp(envp, 0);
 }
 
-void handle_exit_command(t_redirection *command)
+void	handle_exit_command(t_redirection *command)
 {
-    char **cd = ft_split(command->full_cmd, ' ');
-    ft_exit(cd);
+	char	**cd;
+
+	cd = ft_split(command->full_cmd, ' ');
+	ft_exit(cd);
 }
 
-void handle_unset_command(t_redirection *command, char **envp)
+void	handle_unset_command(t_redirection *command, char **envp)
 {
-    char **cd = ft_split(command->full_cmd, ' ');
-    ft_unset(cd, envp);
+	char	**cd;
+
+	cd = ft_split(command->full_cmd, ' ');
+	ft_unset(cd, envp);
 }
 
-void handle_pwd_command()
+void	handle_pwd_command(void)
 {
-    char *tmp_pwd = getcwd(NULL, BUFSIZ);
-    printf("%s\n", tmp_pwd);
-    free(tmp_pwd);
+	char	*tmp_pwd;
+
+	tmp_pwd = getcwd(NULL, BUFSIZ);
+	printf("%s\n", tmp_pwd);
+	free(tmp_pwd);
 }
 
-void handle_echo_command(t_redirection *command, char **envp)
+void	handle_echo_command(t_redirection *command, char **envp)
 {
-    ft_echo(command->full_cmd, envp);
+	ft_echo(command->full_cmd, envp);
 }

@@ -1,677 +1,143 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
+/*   Updated: 2024/09/12 20:19:51 by jakim            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
-char *local;
-
-void	error_end(int er)
+t_command	*create_command(void)
 {
-	errno = er;
-	if (errno == EOPNOTSUPP)
+	t_command	*cmd;
+
+	cmd = malloc(sizeof(t_command));
+	if (!cmd)
 	{
-		perror("command not found");
-		exit(127);
+		perror("malloc");
+		exit(EXIT_FAILURE);
 	}
-	perror("Error");
-	exit(1);
+	cmd->command = NULL;
+	cmd->order = false;
+	return (cmd);
 }
 
-void	check_err(int n, int tar, int status, int type)
+void	initialize_redirection(t_redirection **redirection)
 {
-	if (type)
+	*redirection = malloc(sizeof(t_redirection));
+	if (!*redirection)
 	{
-		if (n == tar)
-			error_end(status);
+		perror("malloc");
+		exit(EXIT_FAILURE);
 	}
-	else if (type == 0)
-	{
-		if (n != tar)
-			error_end(status);
-	}
-	else
-	{
-		if (n < tar)
-			error_end(status);
-	}
+	(*redirection)->double_left_brace = create_command();
+	(*redirection)->double_right_brace = create_command();
+	(*redirection)->command = create_command();
+	(*redirection)->left_brace = create_command();
+	(*redirection)->right_brace = create_command();
 }
 
-char	*ft_strdup2(const char *s, int len)
+char	**allocate_and_copy(char **cmd, int size)
 {
-	char	*mem;
-	char	*ptr;
-	char	*f;
+	char	**new_cmd;
 
-	mem = NULL;
-	mem = (char *)malloc(sizeof(char) * (len + 1));
-	if (mem == NULL)
-		return (mem);
-	if (!s)
+	new_cmd = malloc(sizeof(char *) * size);
+	if (!new_cmd)
 	{
-		mem[0] = 0;
-		return (mem);
-	}
-	f = (char *)s;
-	ptr = mem;
-	while (*s)
-		*(ptr++) = *(char *)(s++);
-	*ptr = 0;
-	free(f);
-	return (mem);
-}
-
-char	**extract_path(char *envp[])
-{
-	char	**tmp;
-	char	**re;
-
-	tmp = NULL;
-	while (*envp)
-	{
-		if (!ft_strncmp(*envp, "PATH=", 5))
-			break ;
-		envp++;
-	}
-	if (*envp)
-	{
-		tmp = ft_split((*envp) + 5, ':');
-		re = tmp;
-		while (*re)
-		{
-			ft_strlcat(*re, "/", 999);
-			re++;
-		}
-	}
-	return (tmp);
-}
-
-char	**make_arg(char *argv)
-{
-	char	**re;
-	char	*tmp;
-
-	re = ft_split(argv, ' ');
-	if (!re)
+		perror("malloc");
 		return (NULL);
-	tmp = ft_strdup2(re[0], 100);
-	re[0] = tmp;
-	return (re);
-}
-
-void	f_all(char **target)
-{
-	char	**tmp;
-
-	tmp = target;
-	while (*target)
-	{
-		free(*target);
-		target++;
 	}
-	free(tmp);
-}
-
-void	access_test(char *path, char **ar, char *envp[], int *flag)
-{
-	char	*tmp;
-
-	tmp = ft_strjoin(path, ar[0]);
-	if (!access(tmp, X_OK))
+	for (int j = 0; j < size - 1; j++)
 	{
-		free(ar[0]);
-		ar[0] = ft_strdup(tmp);
-		*flag = execve(tmp, ar, envp);
-	}
-	free(tmp);
-}
-
-int	execute(char *argv, char *envp[])
-{
-	char	**path;
-	char	**ar;
-	int		flag;
-	int		i;
-
-	i = 0;
-	flag = -1;
-	path = extract_path(envp);
-	ar = make_arg(argv);
-	while (path[i])
-	{
-		access_test(path[i], ar, envp, &flag);
-		i++;
-	}
-	access_test("", ar, envp, &flag);
-	f_all(ar);
-	f_all(path);
-	return (flag);
-}
-
-char	*extract_name(char *envp[])
-{
-	char	*tmp;
-	char	**re;
-
-	tmp = NULL;
-	while (*envp)
-	{
-		if (!ft_strncmp(*envp, "USER=", 5))
-			break ;
-		envp++;
-	}
-	tmp = (*envp);
-	return (tmp+5);
-}
-
-char	*extract_location(char *envp[])
-{
-	char	*tmp;
-	char	**re;
-
-	tmp = NULL;
-	while (*envp)
-	{
-		if (!ft_strncmp(*envp, "SESSION_MANAGER=", 16))
-			break ;
-		envp++;
-	}
-	tmp = (*envp);
-	return (ft_substr(tmp, 22, ft_strchr(tmp, '.') - tmp - 22));
-}
-
-char	*extract_home(char *envp[])
-{
-	char	*tmp;
-	char	**re;
-
-	tmp = NULL;
-	while (*envp)
-	{
-		if (!ft_strncmp(*envp, "HOME=", 5))
-			break ;
-		envp++;
-	}
-	tmp = (*envp);
-	return (tmp+5);
-}
-
-void	sg(int signal)
-{
-	if (signal == SIGINT)
-	{
-		rl_on_new_line();
-		rl_redisplay();
-		printf("^C\n");
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-	else if (signal == SIGTERM)
-	{
-		printf("exit\n");
-		exit(0);
-	}
-	else if (signal == SIGQUIT)
-	{
-		rl_on_new_line();
-		rl_redisplay();
-		return ;
-	}
-}
-
-void	sg2(int signal)
-{
-	if (signal == SIGINT)
-	{
-		return ;
-	}
-	else if (signal == SIGTERM)
-	{
-		printf("exit\n");
-		exit(0);
-	}
-	else if (signal == SIGQUIT)
-	{
-		rl_on_new_line();
-		rl_redisplay();
-		return ;
-	}
-}
-
-void	input_sig(struct termios *old)
-{
-	tcgetattr(0, old);
-	old->c_lflag &= ~(512);
-	tcsetattr(0, TCSANOW, old);
-	signal(SIGINT, sg);
-	signal(SIGQUIT, sg);
-}
-
-void	end_sig(struct termios *old)
-{
-	tcgetattr(0, old);
-	old->c_lflag |= (512);
-	tcsetattr(0, TCSANOW, old);
-	signal(SIGINT, sg2);
-	signal(SIGQUIT, sg2);
-}
-
-void	none_sig(struct termios *old)
-{
-	signal(SIGINT, SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
-}
-
-
-int is_whitespace(int c)
-{
-    return ((c >= 9 && c <= 13) || c == 32);
-}
-
-t_command *create_command(void)
-{
-    t_command *cmd = malloc(sizeof(t_command));
-    if (!cmd)
-    {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    cmd->command = NULL;
-    cmd->order = false;
-    cmd->exist = false;
-    return cmd;
-}
-
-void free_command(t_command *cmd)
-{
-    if (cmd)
-    {
-        if (cmd->command)
-        {
-            free_command_list(&cmd->command);
-        }
-        free(cmd);
-    }
-}
-
-void initialize_redirection(t_redirection **redirection)
-{
-    *redirection = malloc(sizeof(t_redirection));
-    if (!*redirection)
-    {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    (*redirection)->double_left_brace = create_command();
-    (*redirection)->double_right_brace = create_command();
-    (*redirection)->command = create_command();
-    (*redirection)->left_brace = create_command();
-    (*redirection)->right_brace = create_command();
-}
-
-void free_redirection(t_redirection *redirection)
-{
-    if (redirection)
-    {
-        free_command(redirection->double_left_brace);
-        free_command(redirection->double_right_brace);
-        free_command(redirection->command);
-        free_command(redirection->left_brace);
-        free_command(redirection->right_brace);
-		free(redirection->full_cmd);
-        free(redirection);
-    }
-}
-
-char **allocate_and_copy(char **cmd, int size)
-{
-    char **new_cmd = malloc(sizeof(char *) * size);
-    if (!new_cmd)
-    {
-        perror("malloc");
-        return NULL;
-    }
-    for (int j = 0; j < size - 1; j++)
-    {
-        if (cmd[j] == NULL)
-        {
-            new_cmd[j] = NULL;
-        }
-        else
-        {
-            new_cmd[j] = ft_strdup(cmd[j]);
-            if (!new_cmd[j])
-            {
-                perror("ft_strdup");
-                for (int k = 0; k < j; k++)
-                {
-                    free(new_cmd[k]);
-                }
-                free(new_cmd);
-                return NULL;
-            }
-        }
-    }
-    return new_cmd;
-}
-
-char **append_command(char ***cmd, const char *str)
-{
-    int i = 0;
-    char **new_cmd;
-
-    if (*cmd == NULL)
-    {
-        new_cmd = malloc(sizeof(char *) * 2);
-        if (!new_cmd)
-        {
-            perror("malloc");
-            return NULL;
-        }
-        new_cmd[0] = ft_strdup(str);
-        new_cmd[1] = NULL;
-        return new_cmd;
-    }
-    while ((*cmd)[i])
-        i++;
-    new_cmd = allocate_and_copy(*cmd, i + 2);
-    if (!new_cmd)
-        return NULL;
-    new_cmd[i] = ft_strdup(str);
-    new_cmd[i + 1] = NULL;
-    for (int j = 0; j < i; j++)
-    {
-        free((*cmd)[j]);
-    }
-    free(*cmd);
-    return new_cmd;
-}
-
-void free_command_list(char ***command)
-{
-    if (*command)
-    {
-        int i = 0;
-        while ((*command)[i])
-        {
-            free((*command)[i]);
-            i++;
-        }
-        free(*command);
-        *command = NULL;
-    }
-}
-
-void parse_left_redirection(const char *str, int *i, t_redirection *command)
-{
-    int j, flag = 0;
-    char *content;
-
-    (*i)++;
-    if (str[*i] == '<')
-    {
-        (*i)++;
-        flag = 1;
-    }
-    while (is_whitespace(str[*i]))
-        (*i)++;
-    j = *i;
-    if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-    {
-        printf("bash: parse error near `%c'\n", str[*i]);
-        //exit(258);
-    }
-    while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
-        (*i)++;
-    content = ft_substr(str, j, *i - j);
-    if (flag == 1)
-    {
-        command->double_left_brace->exist = true;
-        command->double_left_brace->command = append_command(&command->double_left_brace->command, content);
-    }
-    else
-    {
-        command->left_brace->exist = true;
-        command->left_brace->command = append_command(&command->left_brace->command, content);
-    }
-    free(content);
-}
-
-void parse_right_redirection(char *str, int *i, t_redirection *command)
-{
-    int j, flag = 0;
-    char *content;
-
-    (*i)++;
-    if (str[*i] == '>')
-    {
-        (*i)++;
-        flag = 1;
-    }
-    while (is_whitespace(str[*i]))
-        (*i)++;
-    if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-    {
-        printf("bash: parse error near `%c'\n", str[*i]);
-        //exit(258);
-    }
-    j = *i;
-    while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
-        (*i)++;
-    content = ft_substr(str, j, *i - j);
-    if (flag == 1)
-    {
-        command->double_right_brace->exist = true;
-        command->double_right_brace->command = append_command(&command->double_right_brace->command, content);
-    }
-    else
-    {
-        command->right_brace->exist = true;
-        command->right_brace->command = append_command(&command->right_brace->command, content);
-    }
-    free(content);
-}
-
-void parse_command(char *str, int *i, t_redirection *command, char **envp)
-{
-    int j;
-    char *content;
-	char *temp;
-
-    while (str[*i])
-    {
-        while (is_whitespace(str[*i]))
-            (*i)++;
-        if (str[*i] == '"')
-        {
-            content = handle_double_quotes(str, i);
-        }
-        else if (str[*i] == '\'')
-        {
-            content = handle_single_quotes(str, i);
-        }
-        else
-        {
-            j = *i;
-            while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<' && str[*i] != '"' && str[*i] != '\'')
-                (*i)++;
-            if (j == *i)
-                return;
-            content = ft_substr(str, j, *i - j);
-        }
-        command->command->command = append_command(&command->command->command, content);
-        free(content);
-    }
-}
-
-char *ft_find_single_redirect(char *str, char c)
-{
-    int i = 0;
-
-    if (!str)
-        return NULL;
-    while (str[i])
-    {
-        if (str[i] == c)
-        {
-            if (str[i + 1] == c)
-            {
-                i++;
-            }
-            else
-            {
-                return &str[i];
-            }
-        }
-        i++;
-    }
-    return NULL;
-}
-
-void set_order(t_redirection *command, char *str)
-{
-    int dual;
-    int single;
-	char *rev;
-
-    dual = ft_strlen(ft_strnstr(str, "<<", sizeof(str)));
-    single = ft_strlen(ft_find_single_redirect(str, '<'));
-    if (dual > single)
-    {
-        command->double_left_brace->order = true;
-    }
-    else if (dual < single)
-    {
-        command->left_brace->order = true;
-    }
-	rev = ft_strrev(str);
-    dual = ft_strlen(ft_strnstr(rev, ">>", ft_strlen(str)));
-    single = ft_strlen(ft_find_single_redirect(rev, '>'));
-    if (dual > single)
-    {
-        command->double_right_brace->order = true;
-    }
-    else if (dual < single)
-    {
-        command->right_brace->order = true;
-    }
-	free(rev);
-}
-char *set_command(t_command *command)
-{
-    if (!command || !command->command)
-        return NULL;
-
-    int total_length = 0;
-    int i = 0;
-
-    while (command->command[i])
-    {
-        total_length += ft_strlen(command->command[i]) + 1;
-        i++;
-    }
-
-    char *result = malloc(total_length + 1);
-    if (!result)
-    {
-        perror("malloc");
-        return NULL;
-    }
-    result[0] = '\0';
-    i = 0;
-    while (command->command[i])
-    {
-        ft_strlcat(result, command->command[i], total_length + 1);
-        if (command->command[i + 1])
-            ft_strlcat(result, " ", total_length + 1);
-        i++;
-    }
-    return result;
-}
-
-char *handle_dollor(char *str, int *i, char **envp)
-{
-	char *temp;
-	int j;
-
-	j = (*i);
-	temp = ft_substr(str, j, *i -j);
-	(*i)++;
-	j = (*i);
-	while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]))
-		(*i)++;
-	char *env_var = ft_substr(str, j, *i - j);
-	temp = ft_strjoin_with_free(temp, envp[search_env(envp, env_var, 1)]);
-	free(env_var);
-
-	return temp;
-}
-
-void parse_command_fix(char *str, int *i, t_redirection *command, char **envp)
-{
-    int j;
-    char *temp;
-	char *dump;
-    char *content;
-	char *envp_val;
-
-    content = ft_strdup("");
-	while(str[*i] && str[*i] != ' ')
-	{
-		if (str[*i] == '"')
+		if (cmd[j] == NULL)
 		{
-			(*i)++;
-			j = (*i);
-			while (str[*i] && str[*i] != '"' && str[*i] != '$')
-				(*i)++;
-			if (str[*i] == '$')
-			{
-				temp = ft_substr(str, j, *i -j);
-				(*i)++;
-				j = (*i);
-				while (str[*i] && str[*i] != '\'' && str[*i] != '"')
-					(*i)++;
-				char *env_var = ft_substr(str, j, *i - j);
-				temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
-				free(env_var);
-			}
-			temp = ft_substr(str, j, *i - j);
-			(*i)++;
-		}
-		else if (str[*i] == '\'')
-		{
-			(*i)++;
-			j = (*i);
-			while (str[*i] && str[*i] != '\'')
-				(*i)++;
-			temp = ft_substr(str, j, *i - j);
-			(*i)++;
-		}
-		else if (str[*i] == '$')
-		{
-			(*i)++;
-			j = (*i);
-			while (str[*i] && str[*i] != '\'' && str[*i] != '"')
-				(*i)++;
-			char *env_var = ft_substr(str, j, *i - j);
-			temp = ft_strdup(envp[search_env(envp, env_var, 1)]);
-			free(env_var);
+			new_cmd[j] = NULL;
 		}
 		else
 		{
-			j = (*i);
-			while (str[*i] && str[*i] != '\'' && str[*i] != '"' && !is_whitespace(str[*i]) && str[*i] != '$')
-				(*i)++;
-			if((*i) == j)
-				return ;
-			temp = ft_substr(str, j, *i - j);
-			if(!temp)
-				return ;
+			new_cmd[j] = ft_strdup(cmd[j]);
+			if (!new_cmd[j])
+			{
+				perror("ft_strdup");
+				for (int k = 0; k < j; k++)
+				{
+					free(new_cmd[k]);
+				}
+				free(new_cmd);
+				return (NULL);
+			}
 		}
-		char *new_content = ft_strjoin_with_free(content, temp);
-		free(temp);
-		content = new_content;
 	}
-    command->command->command = append_command(&command->command->command, content);
-    free(content);
+	return (new_cmd);
 }
+
+char	**append_command(char ***cmd, const char *str)
+{
+	int		i;
+	char	**new_cmd;
+
+	i = 0;
+	if (*cmd == NULL)
+	{
+		new_cmd = malloc(sizeof(char *) * 2);
+		if (!new_cmd)
+		{
+			perror("malloc");
+			return (NULL);
+		}
+		new_cmd[0] = ft_strdup(str);
+		new_cmd[1] = NULL;
+		return (new_cmd);
+	}
+	while ((*cmd)[i])
+		i++;
+	new_cmd = allocate_and_copy(*cmd, i + 2);
+	if (!new_cmd)
+		return (NULL);
+	new_cmd[i] = ft_strdup(str);
+	new_cmd[i + 1] = NULL;
+	for (int j = 0; j < i; j++)
+	{
+		free((*cmd)[j]);
+	}
+	free(*cmd);
+	return (new_cmd);
+}
+
+char	*complement_cmd(char *str)
+{
+	char	*tmp;
+	int		len;
+
+	if (str)
+	{
+		len = ft_strlen(str);
+		if (len == 0)
+			return (str);
+		len--;
+		while (is_whitespace(str[len]) > 0 && len > 0)
+		{
+			len--;
+		}
+		if (is_whitespace(str[len]) && len == 0)
+			return (str);
+		if (str[len] == '|')
+		{
+			tmp = ft_strjoin_with_free(str, readline(">"));
+			add_history(tmp);
+		}
+		else
+			return (str);
+		return (complement_cmd(tmp));
+	}
+	return (NULL);
+}
+
 
 void parse_redirection(char *str, t_redirection *command, char **envp)
 {
@@ -694,7 +160,7 @@ void parse_redirection(char *str, t_redirection *command, char **envp)
             parse_command_fix(str, &i, command, envp);
         }
     }
-	//print(command);
+	print(command);
 	command->full_cmd = set_command(command->command);
     set_order(command, str);
 }
@@ -743,160 +209,169 @@ char *umm(char *str)
     }
     return NULL;
 }
-
-void	all_free(char **ptr)
+void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, char ***envp, int *exit_code)
 {
-	while (*ptr != NULL)
+	int		statloc;
+	int		i;
+	char	**cd;
+
+	i = 0;
+	while (i < cnt)
 	{
-		free(*ptr);
-		ptr++;
-	}
-	free(ptr);
-}
-
-char *build_prompt(char **envp)
-{
-    char 	*pwd = getcwd(NULL, BUFSIZ);
-    char 	*cwd;
-	char	*tmp;
-
-    if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp)))) {
-        cwd = pwd + ft_strlen(extract_home(envp));
-        tmp = ft_strjoin("~", cwd);
-    }
-	else
-	{
-        tmp = ft_strdup(pwd);
-    }
-    cwd = ft_strjoin(tmp, "$ ");
-	free(tmp);
-	free(pwd);
-    tmp = ft_strjoin(":", cwd);
-	free(cwd);
-	pwd = extract_location(envp);
-    cwd = ft_strjoin(pwd, tmp);
-	free(pwd);
-	free(tmp);
-    tmp = ft_strjoin("@", cwd);
-	free(cwd);
-    cwd = ft_strjoin(extract_name(envp), tmp);
-	free(tmp);
-    return cwd;
-}
-void process_input(char *str, char ***envp)
-{
-	static int	exit_code;
-    str = umm(str);
-    char **split = ft_split(str, '|');
-    int cnt = cnt_cmd(split);
-    t_redirection **command = (malloc(sizeof(t_redirection *) * cnt));
-    int input_fd = 0;
-    int pipe_fd[2];
-    pid_t *pids = malloc(sizeof(pid_t) * cnt);
-	struct termios old;
-
-    for (int i = 0; i < cnt; i++)
-    {
-        initialize_redirection(&command[i]);
-        parse_redirection(split[i], command[i], *envp);
-    }
-
-    for (int i = 0; i < cnt; i++)
-    {
-        if (i < cnt - 1)
-		{
-            if (pipe(pipe_fd) == -1)
-            {
-                perror("pipe\n");
-                exit(EXIT_FAILURE);
-            }
-        }
-        else
-        {
-            pipe_fd[0] = 0;
-            pipe_fd[1] = 1;
-        }
-        pids[i] = fork();
-        if (pids[i] == -1)
-        {
-            perror("fork\n");
-            exit(EXIT_FAILURE);
-        }
-
-        if (pids[i] == 0)
-        {
-			end_sig(&old);
-            // Child process
-            if (i > 0)
-            {
-                dup2(input_fd, 0);
-                close(input_fd);
-            }
-            if (i < cnt - 1)
-            {
-                dup2(pipe_fd[1], 1);
-                close(pipe_fd[1]);
-            }
-            execute_command(command[i], envp, input_fd, pipe_fd[1]);
-            exit(EXIT_SUCCESS);
-        }
-        else
-        {
-            // Parent process
-            if (i > 0)
-            {
-                close(input_fd);
-            }
-            if (i < cnt - 1)
-            {
-                close(pipe_fd[1]);
-            }
-            input_fd = pipe_fd[0];
-        }
-    }
-
-    for (int i = 0; i < cnt; i++)
-    {
-		int statloc;
-        waitpid(pids[i], &statloc, 0);
-		//printf("statloc : %d\n",WIFEXITED(statloc));
+		waitpid(pids[i], &statloc, 0);
 		if (WIFEXITED(statloc))
-			exit_code = WEXITSTATUS(statloc);
+			*exit_code = WEXITSTATUS(statloc);
 		if (WIFSIGNALED(statloc))
 		{
-			exit_code = 128 + WTERMSIG(statloc);
+			*exit_code = 128 + WTERMSIG(statloc);
 			if (WTERMSIG(statloc) == 2)
 				printf("\n");
-			else if(WTERMSIG(statloc) == 3)
+			else if (WTERMSIG(statloc) == 3)
 				printf("Quit (core dumped)\n");
 		}
 		if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
-			{
-				char **cd = ft_split(command[i]->full_cmd, ' ');
-				if (cd[1] != NULL)
-					exit_code = ft_export(cd, envp);
-			}
-    }
+		{
+			cd = ft_split(command[i]->full_cmd, ' ');
+			if (cd[1] != NULL)
+				*exit_code = ft_export(cd, envp);
+		}
+		i++;
+	}
+}
 
-    for (int i = 0; i < cnt; i++)
-    {
-        free_redirection(command[i]);
-    }
+void	cleanup_resources(int cnt, char **split, t_redirection **command, char *str, pid_t *pids)
+{
+	int	i;
 
-    for (int i = 0; split[i]; i++)
-    {
-        free(split[i]);
-    }
-    free(command);
-    free(split);
-    free(str);
-    free(pids);
-	printf("exit_code : %d\n",exit_code);
+	i = 0;
+	while (i < cnt)
+	{
+		free_redirection(command[i]);
+		i++;
+	}
+	i = 0;
+	while (split[i])
+	{
+		free(split[i]);
+		i++;
+	}
+	free(command);
+	free(split);
+	free(str);
+	free(pids);
+}
+
+void	create_pipes(int i, int cnt, int pipe_fd[2])
+{
+	if (i < cnt - 1)
+	{
+		if (pipe(pipe_fd) == -1)
+		{
+			perror("pipe\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		pipe_fd[0] = 0;
+		pipe_fd[1] = 1;
+	}
+}
+
+void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], pid_t *pids, t_redirection **command, char ***envp, struct termios *old)
+{
+	pids[i] = fork();
+	if (pids[i] == -1)
+	{
+		perror("fork\n");
+		exit(EXIT_FAILURE);
+	}
+	if (pids[i] == 0)
+	{
+		end_sig(old);
+		if (i > 0)
+		{
+			dup2(input_fd, 0);
+			close(input_fd);
+		}
+		if (i < cnt - 1)
+		{
+			dup2(pipe_fd[1], 1);
+			close(pipe_fd[1]);
+		}
+		execute_command(command[i], envp, input_fd, pipe_fd[1]);
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		if (i > 0)
+		{
+			close(input_fd);
+		}
+		if (i < cnt - 1)
+		{
+			close(pipe_fd[1]);
+		}
+		input_fd = pipe_fd[0];
+	}
+}
+
+void	initialize_commands(char **split, int cnt, t_redirection ***command, char ***envp)
+{
+	int	i;
+
+	i = 0;
+	while (i < cnt)
+	{
+		initialize_redirection(&(*command)[i]);
+		parse_redirection(split[i], (*command)[i], *envp);
+		i++;
+	}
+}
+
+void	process_input(char *str, char ***envp)
+{
+	static int		exit_code;
+	char			**split;
+	int				cnt;
+	t_redirection	**command;
+	int				input_fd;
+	int				pipe_fd[2];
+	pid_t			*pids;
+	struct termios	old;
+	int				i;
+
+	i = 0;
+	str = complement_cmd(str);
+	split = ft_split(str, '|');
+	cnt = cnt_cmd(split);
+	pids = malloc(sizeof(pid_t) * cnt);
+	input_fd = 0;
+	command = (malloc(sizeof(t_redirection *) * cnt));
+	initialize_commands(split, cnt, &command, envp);
+	while (i < cnt)
+	{
+		create_pipes(i, cnt, pipe_fd);
+		fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
+		if (i > 0)
+		{
+			close(input_fd);
+		}
+		if (i < cnt - 1)
+		{
+			close(pipe_fd[1]);
+		}
+		input_fd = pipe_fd[0];
+		i++;
+	}
+	wait_for_children(cnt, pids, command, envp, &exit_code);
+	cleanup_resources(cnt, split, command, str, pids);
+	printf("exit_code : %d\n", exit_code);
 }
 
 void cleanup(char *str, char *cwd)
 {
-	struct termios old;
+	struct termios	old;
 
 	end_sig(&old);
     free(str);
@@ -905,17 +380,17 @@ void cleanup(char *str, char *cwd)
     exit(EXIT_SUCCESS);
 }
 
-int main(int argc, char **argv, char *env[])
+int	main(int argc, char **argv, char *env[])
 {
-    char *str;
-	char **envp;
-	pid_t	pid;
-	struct termios old;
+	char			*str;
+	char			**envp;
+	struct termios	old;
+	char			*cwd;
 
 	envp = initialize_environment(env);
 	while (1)
 	{
-		char *cwd = build_prompt(envp);
+		cwd = build_prompt(envp);
 		input_sig(&old);
 		str = readline(cwd);
 		none_sig(&old);
@@ -931,5 +406,5 @@ int main(int argc, char **argv, char *env[])
 		}
 		free(cwd);
 	}
-    return 0;
+	return (0);
 }

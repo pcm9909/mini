@@ -1,15 +1,31 @@
-#include "libft/libft.h"
-#include <stdio.h>
-#include <stdbool.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <readline/readline.h>
-#include <sys/wait.h>
-#include <readline/history.h>
-#include <errno.h>
-#include <signal.h>
-#include <termios.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.h                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/12 14:47:02 by chunpark          #+#    #+#             */
+/*   Updated: 2024/09/12 14:47:33 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef MAIN_H
+# define MAIN_H
+# include "libft/libft.h"
+# include <stdio.h>
+# include <stdbool.h>
+# include <fcntl.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <readline/readline.h>
+# include <sys/wait.h>
+# include <readline/history.h>
+# include <errno.h>
+# include <signal.h>
+# include <termios.h>
+
+//int	g_verification;
 
 typedef struct s_command
 {
@@ -26,58 +42,88 @@ typedef struct s_redirection
 	char				*full_cmd;
 	struct s_command	*right_brace;
 	struct s_command	*double_right_brace;
+	bool				executable;
 }				t_redirection;
 
-
-void print(t_redirection *cmd);
+void	print(t_redirection *cmd);
 
 char	*get_path(char **envp);
 char	*get_cmd_path(char *cmd, char *path);
 
-char *ft_strrev(char *str);
+char	*ft_strrev(char *str);
 
-void free_command_list(char ***command);
+void	free_command_list(char ***command);
 
 char	*ft_strjoin_with_free(char const *s1, char const *s2);
 
-void handle_cd_command(t_redirection *command, char **envp);
-void handle_export_command(t_redirection *command, char ***envp);
-void handle_env_command(t_redirection *command, char **envp);
-void handle_exit_command(t_redirection *command);
-void handle_unset_command(t_redirection *command, char **envp);
-void handle_pwd_command();
-void handle_echo_command(t_redirection *command, char **envp);
+void	handle_cd_command(t_redirection *command, char **envp);
+void	handle_export_command(t_redirection *command, char ***envp);
+void	handle_env_command(t_redirection *command, char **envp);
+void	handle_exit_command(t_redirection *command);
+void	handle_unset_command(t_redirection *command, char **envp);
+void	handle_pwd_command(void);
+void	handle_echo_command(t_redirection *command, char **envp);
 
-void handle_double_left_brace(t_redirection *command);
-void handle_left_brace(t_redirection *command);
-void handle_right_brace(t_redirection *command);
-void handle_double_right_brace(t_redirection *command);
-	// void free_redirection(t_redirection **redirection);
+void	handle_double_left_brace(t_redirection *command);
+void	handle_left_brace(t_redirection *command);
+void	handle_right_brace(t_redirection *command);
+void	handle_double_right_brace(t_redirection *command);
 
-void execute_command(t_redirection *command, char ***envp, int input_fd, int output_fd);
-void execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
+void	execute_command(t_redirection *command, char ***envp, int input_fd, int output_fd);
+void	execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
 
-char *handle_single_quotes(const char *str, int *i);
-char *handle_double_quotes(const char *str, int *i);
+char	*handle_single_quotes(const char *str, int *i);
+char	*handle_double_quotes(const char *str, int *i, char **envp);
 
-char **update_envp(char **envp, int type, char *new);
-char **initialize_environment(char *env[]);
+char	**update_envp(char **envp, int type, char *new);
+char	**initialize_environment(char *env[]);
 char	*extract_home(char *envp[]);
 
 void	all_free(char **ptr);
 
-char **update_envp(char **envp, int type, char *new);
-char **initialize_environment(char *env[]);
-int	double_ptr_size(char **ptr);
-int	search_env(char **envp, char *name, int flag); // free
-int	is_validname(char *ptr);
-int	env_validate(char *ptr);
-char *set_env(char *name, int flag, char ***envp);
+char	**update_envp(char **envp, int type, char *new);
+char	**initialize_environment(char *env[]);
+int		double_ptr_size(char **ptr);
+int		search_env(char **envp, char *name, int flag); // free
+int		is_validname(char *ptr);
+int		env_validate(char *ptr);
+char	*set_env(char *name, int flag, char ***envp);
 void	print_envp(char **envp, int flag);
-int	ft_export(char **ptr, char ***envp);
-int	only_digit(char *ptr);
+int		ft_export(char **ptr, char ***envp);
+int		only_digit(char *ptr);
 void	ft_exit(char **ptr);
 void	ft_unset(char **ptr, char **envp);
 void	ft_echo(char *ptr, char **envp);
-void	check_err(int n, int tar, int status, int type);
-int	execute(char *argv, char *envp[]);
+int		is_whitespace(int c);
+char	*handle_command(const char *str, int *i, char **envp);
+
+void	sg(int signal);
+void	sg2(int signal);
+void	input_sig(struct termios *old);
+void	end_sig(struct termios *old);
+void	none_sig(struct termios *old);
+
+void	parse_left_redirection(const char *str, int *i, t_redirection *command);
+void	parse_right_redirection(char *str, int *i, t_redirection *command);
+void	parse_redirection(char *str, t_redirection *command, char **envp);
+char	*set_command(t_command *command);
+void	set_order(t_redirection *command, char *str);
+char	*ft_find_single_redirect(char *str, char c);
+void	parse_command(char *str, int *i, t_redirection *command, char **envp);
+
+char	**append_command(char ***cmd, const char *str);
+
+void	free_redirection(t_redirection *redirection);
+void	free_command(t_command *cmd);
+void	all_free(char **ptr);
+
+char	*build_prompt(char **envp);
+char	*extract_home(char *envp[]);
+char	*extract_location(char *envp[]);
+char	*extract_name(char *envp[]);
+char	**extract_path(char *envp[]);
+
+int		is_whitespace(int c);
+int		cnt_cmd(char **split);
+
+#endif
