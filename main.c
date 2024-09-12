@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 17:19:04 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/12 17:57:52 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,34 +137,34 @@ char	*complement_cmd(char *str)
 	}
 	return (NULL);
 }
-
 void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, char ***envp, int *exit_code)
 {
-	int		statloc;
-	int		i;
-	char	**cd;
+    int		statloc;
+    int		i;
+    char	**cd;
 
-	while (i < cnt)
-	{
-		waitpid(pids[i], &statloc, 0);
-		if (WIFEXITED(statloc))
-			*exit_code = WEXITSTATUS(statloc);
-		if (WIFSIGNALED(statloc))
-		{
-			*exit_code = 128 + WTERMSIG(statloc);
-			if (WTERMSIG(statloc) == 2)
-				printf("\n");
-			else if (WTERMSIG(statloc) == 3)
-				printf("Quit (core dumped)\n");
-		}
-		if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
-		{
-			cd = ft_split(command[i]->full_cmd, ' ');
-			if (cd[1] != NULL)
-				*exit_code = ft_export(cd, envp);
-		}
-		i++;
-	}
+    i = 0;
+    while (i < cnt)
+    {
+        waitpid(pids[i], &statloc, 0);
+        if (WIFEXITED(statloc))
+            *exit_code = WEXITSTATUS(statloc);
+        if (WIFSIGNALED(statloc))
+        {
+            *exit_code = 128 + WTERMSIG(statloc);
+            if (WTERMSIG(statloc) == 2)
+                printf("\n");
+            else if (WTERMSIG(statloc) == 3)
+                printf("Quit (core dumped)\n");
+        }
+        if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
+        {
+            cd = ft_split(command[i]->full_cmd, ' ');
+            if (cd[1] != NULL)
+                *exit_code = ft_export(cd, envp);
+        }
+        i++;
+    }
 }
 
 void	cleanup_resources(int cnt, char **split, t_redirection **command, char *str, pid_t *pids)
@@ -230,6 +230,19 @@ void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], pid_t *pids,
 		execute_command(command[i], envp, input_fd, pipe_fd[1]);
 		exit(EXIT_SUCCESS);
 	}
+	else
+    {
+        // 부모 프로세스에서 사용하지 않는 파일 디스크립터 닫기
+        if (i > 0)
+        {
+            close(input_fd);
+        }
+        if (i < cnt - 1)
+        {
+            close(pipe_fd[1]);
+        }
+        input_fd = pipe_fd[0];
+    }
 }
 
 void	initialize_commands(char **split, int cnt, t_redirection ***command, char ***envp)
