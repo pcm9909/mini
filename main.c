@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 20:19:51 by jakim            ###   ########.fr       */
+/*   Updated: 2024/09/12 20:26:12 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,77 +138,6 @@ char	*complement_cmd(char *str)
 	return (NULL);
 }
 
-
-void parse_redirection(char *str, t_redirection *command, char **envp)
-{
-    int i = 0;
-
-    while (str[i])
-    {
-        while (is_whitespace(str[i]))
-            i++;
-        if (str[i] == '<')
-        {
-            parse_left_redirection(str, &i, command);
-        }
-        else if (str[i] == '>')
-        {
-            parse_right_redirection(str, &i, command);
-        }
-        else
-        {
-            parse_command_fix(str, &i, command, envp);
-        }
-    }
-	print(command);
-	command->full_cmd = set_command(command->command);
-    set_order(command, str);
-}
-
-int cnt_cmd(char **split)
-{
-    int i = 0;
-
-    if (!split)
-    {
-        return 0;
-    }
-    while (split[i])
-    {
-        i++;
-    }
-    return i;
-}
-
-char *umm(char *str)
-{
-    if (str)
-    {
-        int len = ft_strlen(str);
-        char *tmp;
-
-        if (len == 0) // 문자열이 비어 있는 경우
-            return str;
-
-        len--;
-        while (is_whitespace(str[len]) > 0 && len > 0)
-        {
-            len--;
-        }
-        if (is_whitespace(str[len]) && len == 0) // 문자열이 공백만 포함하는 경우
-            return str;
-
-        if (str[len] == '|')
-        {
-            tmp = ft_strjoin_with_free(str, readline(">"));
-            add_history(tmp);
-        }
-        else
-            return str;
-        return umm(tmp);
-    }
-    return NULL;
-}
 void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, char ***envp, int *exit_code)
 {
 	int		statloc;
