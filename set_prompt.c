@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   set_prompt.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:36:50 by chunpark          #+#    #+#             */
 /*   Updated: 2024/09/12 20:53:49 by jakim            ###   ########.fr       */
