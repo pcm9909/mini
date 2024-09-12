@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_action.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:35:24 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 14:36:31 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/12 20:45:41 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,13 @@ void	free_command_list(char ***command)
 
 void	all_free(char **ptr)
 {
+	char	**tmp;
+	
+	tmp = ptr;
 	while (*ptr != NULL)
 	{
 		free(*ptr);
 		ptr++;
 	}
-	free(ptr);
+	free(tmp);
 }
