@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:48:54 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 14:50:26 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/12 18:16:14 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,30 +103,6 @@ char	*ft_strjoin_with_free(char const *s1, char const *s2)
 	free((char *)s1);
 	return (str);
 }
-
-// char	*ft_strdup2(const char *s, int len)
-// {
-// 	char	*mem;
-// 	char	*ptr;
-// 	char	*f;
-
-// 	mem = NULL;
-// 	mem = (char *)malloc(sizeof(char) * (len + 1));
-// 	if (mem == NULL)
-// 		return (mem);
-// 	if (!s)
-// 	{
-// 		mem[0] = 0;
-// 		return (mem);
-// 	}
-// 	f = (char *)s;
-// 	ptr = mem;
-// 	while (*s)
-// 		*(ptr++) = *(char *)(s++);
-// 	*ptr = 0;
-// 	free(f);
-// 	return (mem);
-// }
 
 int	is_whitespace(int c)
 {
