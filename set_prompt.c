@@ -1,5 +1,16 @@
-#include "main.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   set_prompt.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/12 14:36:50 by chunpark          #+#    #+#             */
+/*   Updated: 2024/09/12 14:38:07 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "main.h"
 
 char	**extract_path(char *envp[])
 {
@@ -39,7 +50,7 @@ char	*extract_name(char *envp[])
 		envp++;
 	}
 	tmp = (*envp);
-	return (tmp+5);
+	return (tmp + 5);
 }
 
 char	*extract_location(char *envp[])
@@ -71,25 +82,28 @@ char	*extract_home(char *envp[])
 		envp++;
 	}
 	tmp = (*envp);
-	return (tmp+5);
+	return (tmp + 5);
 }
 
-char *build_prompt(char **envp)
+char	*build_prompt(char **envp)
 {
-    char *pwd = getcwd(NULL, BUFSIZ);
-    char *cwd;
-    if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp)))) {
-        cwd = pwd + ft_strlen(extract_home(envp));
-        cwd = ft_strjoin("~", cwd);
-    }
+	char	*pwd;
+	char	*cwd;
+
+	pwd = getcwd(NULL, BUFSIZ);
+	if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp))))
+	{
+		cwd = pwd + ft_strlen(extract_home(envp));
+		cwd = ft_strjoin("~", cwd);
+	}
 	else
 	{
-        cwd = pwd;
-    }
-    cwd = ft_strjoin(cwd, "$ ");
-    cwd = ft_strjoin(":", cwd);
-    cwd = ft_strjoin(extract_location(envp), cwd);
-    cwd = ft_strjoin("@", cwd);
-    cwd = ft_strjoin(extract_name(envp), cwd);
-    return cwd;
+		cwd = pwd;
+	}
+	cwd = ft_strjoin(cwd, "$ ");
+	cwd = ft_strjoin(":", cwd);
+	cwd = ft_strjoin(extract_location(envp), cwd);
+	cwd = ft_strjoin("@", cwd);
+	cwd = ft_strjoin(extract_name(envp), cwd);
+	return (cwd);
 }

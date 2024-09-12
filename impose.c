@@ -1,5 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   impose.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/12 14:48:54 by chunpark          #+#    #+#             */
+/*   Updated: 2024/09/12 14:50:26 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
+// 뺄함수
 void	print(t_redirection *cmd)
 {
 	int	i;
@@ -115,22 +128,23 @@ char	*ft_strjoin_with_free(char const *s1, char const *s2)
 // 	return (mem);
 // }
 
-int is_whitespace(int c)
+int	is_whitespace(int c)
 {
-    return ((c >= 9 && c <= 13) || c == 32);
+	return ((c >= 9 && c <= 13) || c == 32);
 }
 
-int cnt_cmd(char **split)
+int	cnt_cmd(char **split)
 {
-    int i = 0;
+	int	i;
 
-    if (!split)
-    {
-        return 0;
-    }
-    while (split[i])
-    {
-        i++;
-    }
-    return i;
+	i = 0;
+	if (!split)
+	{
+		return (0);
+	}
+	while (split[i])
+	{
+		i++;
+	}
+	return (i);
 }
