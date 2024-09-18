@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 18:15:28 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/18 19:58:47 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void	initialize_redirection(t_redirection **redirection)
 	(*redirection)->command = create_command();
 	(*redirection)->left_brace = create_command();
 	(*redirection)->right_brace = create_command();
+	(*redirection)->executable = true;
 }
 
 char	**allocate_and_copy(char **cmd, int size)

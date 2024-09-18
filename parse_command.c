@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:44:42 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 14:45:01 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/18 20:02:17 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,9 @@ void	parse_left_redirection(const char *str, int *i, t_redirection *command)
 	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
 	{
 		printf("minishell: parse error near `%c'\n", str[*i]);
+		command->executable = false;
+		while(str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+			(*i)++;
 	}
 	while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
 		(*i)++;
@@ -153,6 +156,8 @@ void	parse_right_redirection(char *str, int *i, t_redirection *command)
 	{
 		printf("minishell: parse error near `%c'\n", str[*i]);
 		command->executable = false;
+		while(str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+			(*i)++;
 	}
 	j = *i;
 	while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
@@ -183,11 +188,11 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 			(*i)++;
 		if (str[*i] == '"')
 		{
-			content = handle_double_quotes(str, i, envp);
+			content = handle_double_quotes(str, i, envp, command);
 		}
 		else if (str[*i] == '\'')
 		{
-			content = handle_single_quotes(str, i);
+			content = handle_single_quotes(str, i, command);
 		}
 		else
 		{

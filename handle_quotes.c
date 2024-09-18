@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:46:11 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/11 22:37:28 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/18 19:40:04 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int	is_envp_vars(int c)
 		return (0);
 }
 
-char	*handle_single_quotes(const char *str, int *i)
+char	*handle_single_quotes(const char *str, int *i, t_redirection *command)
 {
 	int		start;
 	char	*content;
@@ -33,6 +33,7 @@ char	*handle_single_quotes(const char *str, int *i)
 	if (str[*i] != '\'')
 	{
 		fprintf(stderr, "Error: Unmatched single quote\n");
+		command->executable = 0;
 		return (NULL);
 	}
 	content = ft_substr(str, start, *i - start);
@@ -40,7 +41,7 @@ char	*handle_single_quotes(const char *str, int *i)
 	return (content);
 }
 
-char	*handle_double_quotes(const char *str, int *i, char **envp)
+char	*handle_double_quotes(const char *str, int *i, char **envp, t_redirection *command)
 {
 	int		start;
 	int		idx;
@@ -79,6 +80,7 @@ char	*handle_double_quotes(const char *str, int *i, char **envp)
 	if (str[*i] != '"')
 	{
 		fprintf(stderr, "Error: Unmatched double quote\n");
+		command->executable = false;
 		free(content);
 		return (NULL);
 	}
