@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 17:22:01 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/18 20:29:28 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/18 20:57:18 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static void	open_redirection_files(t_redirection *command);
 
 void	execute_command(t_redirection *command, char ***envp, int input_fd, int output_fd)
 {
-	if(command->executable)
+	if(command->executable == true)
 	{
 		open_redirection_files(command);
 		if (command->full_cmd && command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))
@@ -43,10 +43,14 @@ void	execute_command(t_redirection *command, char ***envp, int input_fd, int out
 
 static void	open_redirection_files(t_redirection *command)
 {
-	handle_double_left_brace(command);
-	handle_left_brace(command);
-	handle_right_brace(command);
-	handle_double_right_brace(command);
+	if(command->double_left_brace)
+		handle_double_left_brace(command);
+	if(command->left_brace)
+		handle_left_brace(command);
+	if(command->right_brace)
+		handle_right_brace(command);
+	if(command->double_right_brace)
+		handle_double_right_brace(command);
 }
 
 static void	exe(t_redirection *command, char **cmd, char **envp)
