@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:44:42 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/19 20:21:45 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/19 21:04:45 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,6 +181,7 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
     int		j;
     char	*content;
 
+	content = ft_strdup("");
 	while (is_whitespace(str[*i]))
 		(*i)++;
 	if (str[*i] == '"')
@@ -192,10 +193,10 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 	else if (str[*i] == '>')
 		parse_right_redirection(str, i, command);
 	else
-	{
 		content = handle_command(str, i, envp);
-	}
-	command->command->command = append_command(&command->command->command, content);
+	if(ft_strlen(content))
+		command->command->command = append_command(&command->command->command, content);
+	free(content);
 }
 
 void	parse_redirection(char *str, t_redirection *command, char **envp)

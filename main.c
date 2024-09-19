@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/19 20:22:06 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/19 21:03:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ char	**append_command(char ***cmd, char *str)
 {
 	int		i;
 	char	**new_cmd;
-	printf("\nin = %s\n", str);
+
 	i = 0;
 	if (*cmd == NULL)
 	{
@@ -107,7 +107,6 @@ char	**append_command(char ***cmd, char *str)
 		free((*cmd)[j]);
 	}
 	free(*cmd);
-	free(str);
 	return (new_cmd);
 }
 
