@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/19 21:03:35 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/19 21:37:31 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,7 +278,6 @@ void	process_input(char *str, char ***envp)
 	input_fd = 0;
 	command = (malloc(sizeof(t_redirection *) * cnt));
 	initialize_commands(split, cnt, &command, envp);
-	print(*command);
 	while (i < cnt)
 	{
 		create_pipes(i, cnt, pipe_fd);
