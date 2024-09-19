@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 17:22:01 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/18 20:57:18 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/19 17:27:23 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,10 @@ void	execute_command(t_redirection *command, char ***envp, int input_fd, int out
 
 static void	open_redirection_files(t_redirection *command)
 {
-	if(command->double_left_brace)
-		handle_double_left_brace(command);
-	if(command->left_brace)
-		handle_left_brace(command);
-	if(command->right_brace)
-		handle_right_brace(command);
-	if(command->double_right_brace)
-		handle_double_right_brace(command);
+	handle_double_left_brace(command);
+	handle_left_brace(command);
+	handle_right_brace(command);
+	handle_double_right_brace(command);
 }
 
 static void	exe(t_redirection *command, char **cmd, char **envp)

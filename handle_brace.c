@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:47:53 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/12 14:50:30 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/19 18:03:13 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ void	handle_left_brace(t_redirection *command)
 		if (command->left_brace->command[i + 1] == NULL && command->left_brace->order) // 마지막 <의 경우
 		{
 			dup2(fd, 0);
+			break;
 		}
 		close(fd);
 		i++;
@@ -96,6 +97,8 @@ void	handle_right_brace(t_redirection *command)
 		{
 			dup2(fd, 1);
 		}
+		close(fd);
+		perror(command->right_brace->command[i]);
 		i++;
 	}
 }
@@ -118,6 +121,8 @@ void	handle_double_right_brace(t_redirection *command)
 		{
 			dup2(fd, 1);
 		}
+		close(fd);
+		perror(command->double_right_brace->command[i]);
 		i++;
 	}
 }

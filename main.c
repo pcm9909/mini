@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/18 20:59:53 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/19 20:22:06 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,11 @@ char	**allocate_and_copy(char **cmd, int size)
 	return (new_cmd);
 }
 
-char	**append_command(char ***cmd, const char *str)
+char	**append_command(char ***cmd, char *str)
 {
 	int		i;
 	char	**new_cmd;
-
+	printf("\nin = %s\n", str);
 	i = 0;
 	if (*cmd == NULL)
 	{
@@ -107,6 +107,7 @@ char	**append_command(char ***cmd, const char *str)
 		free((*cmd)[j]);
 	}
 	free(*cmd);
+	free(str);
 	return (new_cmd);
 }
 
@@ -278,6 +279,7 @@ void	process_input(char *str, char ***envp)
 	input_fd = 0;
 	command = (malloc(sizeof(t_redirection *) * cnt));
 	initialize_commands(split, cnt, &command, envp);
+	print(*command);
 	while (i < cnt)
 	{
 		create_pipes(i, cnt, pipe_fd);

@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:47:02 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/18 19:13:46 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/19 20:22:29 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void	set_order(t_redirection *command, char *str);
 char	*ft_find_single_redirect(char *str, char c);
 void	parse_command(char *str, int *i, t_redirection *command, char **envp);
 
-char	**append_command(char ***cmd, const char *str);
+char	**append_command(char ***cmd, char *str);
 
 void	free_redirection(t_redirection *redirection);
 void	free_command(t_command *cmd);
