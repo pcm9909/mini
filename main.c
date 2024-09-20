@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/20 18:56:00 by chunpark         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "main.h"
 
 t_command	*create_command(void)
@@ -272,6 +260,81 @@ void	initialize_commands(char **split, int cnt, \
 	}
 }
 
+int	ft_count_wordss(const char *s, char c)
+{
+    int	i;
+    int	count;
+    int	in_quotes;
+
+    i = 0;
+    count = 0;
+    in_quotes = 0;
+    while (s[i])
+    {
+        if (s[i] == '"' || s[i] == '\'')
+            in_quotes = !in_quotes;
+        if (s[i] != c || in_quotes)
+        {
+            count++;
+            while (s[i] && (s[i] != c || in_quotes))
+            {
+                if (s[i] == '"' || s[i] == '\'')
+                    in_quotes = !in_quotes;
+                i++;
+            }
+        }
+        else
+            i++;
+    }
+    return (count);
+}
+
+char	**ft_free_arrs(char **arr, size_t i)
+{
+    while (i > 0)
+    {
+        free(arr[i]);
+        i--;
+    }
+    free(arr);
+    return (NULL);
+}
+
+char	**ft_splits(char const *s, char c)
+{
+    char	**arr;
+    int		i;
+    int		j;
+    int		k;
+    int		in_quotes;
+
+    if (!s)
+        return (NULL);
+    arr = (char **)malloc(sizeof(char *) * (ft_count_wordss(s, c) + 1));
+    if (!arr)
+        return (NULL);
+    i = -1;
+    j = 0;
+    in_quotes = 0;
+    while (++i < ft_count_wordss(s, c))
+    {
+        while (s[j] == c && !in_quotes)
+            j++;
+        k = j;
+        while (s[j] && (s[j] != c || in_quotes))
+        {
+            if (s[j] == '"' || s[j] == '\'')
+                in_quotes = !in_quotes;
+            j++;
+        }
+        arr[i] = ft_substr(s, k, j - k);
+        if (!arr[i])
+            return (ft_free_arrs(arr, i));
+    }
+    arr[i] = NULL;
+    return (arr);
+}
+
 void	process_input(char *str, char ***envp)
 {
 	static int		exit_code;
@@ -286,7 +349,7 @@ void	process_input(char *str, char ***envp)
 
 	i = 0;
 	str = complement_cmd(str);
-	split = ft_split(str, '|');
+	split = ft_splits(str, '|');
 	cnt = cnt_cmd(split);
 	pids = malloc(sizeof(pid_t) * cnt);
 	input_fd = 0;

@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_strlen.c                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/29 11:27:50 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/10 17:41:42 by chunpark         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "libft.h"
 
 size_t	ft_strlen(const char *s)
@@ -17,7 +5,7 @@ size_t	ft_strlen(const char *s)
 	size_t	i;
 
 	if (!s)
-		return (0);
+		return (1);
 	i = 0;
 	while (s[i])
 		i++;
