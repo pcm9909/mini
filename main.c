@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:56:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/19 21:37:31 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/20 18:56:00 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ void	initialize_redirection(t_redirection **redirection)
 char	**allocate_and_copy(char **cmd, int size)
 {
 	char	**new_cmd;
+	int		j;
+	int		k;
 
 	new_cmd = malloc(sizeof(char *) * size);
 	if (!new_cmd)
@@ -53,7 +55,7 @@ char	**allocate_and_copy(char **cmd, int size)
 		perror("malloc");
 		return (NULL);
 	}
-	for (int j = 0; j < size - 1; j++)
+	while (j < size - 1)
 	{
 		if (cmd[j] == NULL)
 		{
@@ -65,14 +67,16 @@ char	**allocate_and_copy(char **cmd, int size)
 			if (!new_cmd[j])
 			{
 				perror("ft_strdup");
-				for (int k = 0; k < j; k++)
+				while (k < j)
 				{
 					free(new_cmd[k]);
+					k++;
 				}
 				free(new_cmd);
 				return (NULL);
 			}
 		}
+		j++;
 	}
 	return (new_cmd);
 }
@@ -81,6 +85,7 @@ char	**append_command(char ***cmd, char *str)
 {
 	int		i;
 	char	**new_cmd;
+	int		j;
 
 	i = 0;
 	if (*cmd == NULL)
@@ -102,9 +107,11 @@ char	**append_command(char ***cmd, char *str)
 		return (NULL);
 	new_cmd[i] = ft_strdup(str);
 	new_cmd[i + 1] = NULL;
-	for (int j = 0; j < i; j++)
+	j = 0;
+	while (j < i)
 	{
 		free((*cmd)[j]);
+		j++;
 	}
 	free(*cmd);
 	return (new_cmd);
@@ -138,7 +145,9 @@ char	*complement_cmd(char *str)
 	}
 	return (NULL);
 }
-void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, char ***envp, int *exit_code)
+
+void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
+							char ***envp, int *exit_code)
 {
 	int		statloc;
 	int		i;
@@ -158,7 +167,8 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, char ***en
 			else if (WTERMSIG(statloc) == 3)
 				printf("Quit (core dumped)\n");
 		}
-		if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || !ft_strncmp(command[i]->full_cmd, "export", 8))
+		if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || \
+			!ft_strncmp(command[i]->full_cmd, "export", 8))
 		{
 			cd = ft_split(command[i]->full_cmd, ' ');
 			if (cd[1] != NULL)
@@ -168,7 +178,8 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, char ***en
 	}
 }
 
-void	cleanup_resources(int cnt, char **split, t_redirection **command, char *str, pid_t *pids)
+void	cleanup_resources(int cnt, char **split, t_redirection **command, \
+							char *str, pid_t *pids)
 {
 	int	i;
 
@@ -207,7 +218,9 @@ void	create_pipes(int i, int cnt, int pipe_fd[2])
 	}
 }
 
-void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], pid_t *pids, t_redirection **command, char ***envp, struct termios *old)
+void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
+							pid_t *pids, t_redirection **command, \
+							char ***envp, struct termios *old)
 {
 	pids[i] = fork();
 	if (pids[i] == -1)
@@ -245,7 +258,8 @@ void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], pid_t *pids,
 	}
 }
 
-void	initialize_commands(char **split, int cnt, t_redirection ***command, char ***envp)
+void	initialize_commands(char **split, int cnt, \
+			t_redirection ***command, char ***envp)
 {
 	int	i;
 
