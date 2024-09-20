@@ -234,7 +234,16 @@ void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
             char buffer[1024];
             int fd[2];
             pipe(fd);
-            write(fd[1], command[i]->double_left_brace->command[0], strlen(command[i]->double_left_brace->command[0]));
+            while (1)
+            {
+                printf("> ");
+                fgets(buffer, 1024, stdin);
+                buffer[strcspn(buffer, "\n")] = 0; // 개행 문자 제거
+                if (strcmp(buffer, command[i]->double_left_brace->command[0]) == 0)
+                    break;
+                write(fd[1], buffer, strlen(buffer));
+                write(fd[1], "\n", 1);
+            }
             close(fd[1]);
             dup2(fd[0], 0);
             close(fd[0]);
@@ -369,15 +378,6 @@ void	process_input(char *str, char ***envp)
     while (i < cnt)
     {
         create_pipes(i, cnt, pipe_fd);
-        if (command[i]->double_left_brace && command[i]->double_left_brace->exist)
-        {
-            char buffer[1024];
-            printf("> ");
-            fgets(buffer, 1024, stdin);
-            buffer[strcspn(buffer, "\n")] = 0; // 개행 문자 제거
-            command[i]->double_left_brace->command[0] = strdup(buffer);
-            command[i]->double_left_brace->command[0] = ft_strdup(buffer);
-        }
         fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
         if (i > 0)
         {
