@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:47:02 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/19 20:22:29 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/20 19:26:51 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,6 @@
 # include <errno.h>
 # include <signal.h>
 # include <termios.h>
-
-//int	g_verification;
 
 typedef struct s_command
 {
@@ -69,11 +67,14 @@ void	handle_left_brace(t_redirection *command);
 void	handle_right_brace(t_redirection *command);
 void	handle_double_right_brace(t_redirection *command);
 
-void	execute_command(t_redirection *command, char ***envp, int input_fd, int output_fd);
-void	execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
+void	execute_command(t_redirection *command, char ***envp, \
+							int input_fd, int output_fd);
+void	execute_external_command(t_redirection *command, char **envp, \
+							int input_fd, int output_fd);
 
 char	*handle_single_quotes(const char *str, int *i, t_redirection *command);
-char	*handle_double_quotes(const char *str, int *i, char **envp, t_redirection *command);
+char	*handle_double_quotes(const char *str, int *i, char **envp, \
+								t_redirection *command);
 
 char	**update_envp(char **envp, int type, char *new);
 char	**initialize_environment(char *env[]);

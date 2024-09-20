@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:44:42 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/19 21:04:45 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/20 19:34:21 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,84 +102,96 @@ char	*set_command(t_command *command)
 
 void	parse_left_redirection(const char *str, int *i, t_redirection *command)
 {
-    int		j;
-    int		flag = 0;
-    char	*content;
+	int		j;
+	int		flag;
+	char	*content;
 
-    (*i)++;
-    if (str[*i] == '<')
-    {
-        (*i)++;
-        flag = 1;
-    }
-    while (is_whitespace(str[*i]))
-        (*i)++;
-    j = *i;
-    if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-    {
-        printf("minishell: parse error near `%c'\n", str[*i]);
-        command->executable = false;
-        while(str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-            (*i)++;
-    }
-    while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
-        (*i)++;
-    content = ft_substr(str, j, *i - j);
-    if (flag == 1)
-    {
-        command->double_left_brace->exist = true;
-        command->double_left_brace->command = append_command(&command->double_left_brace->command, content);
-    }
-    else
-    {
-        command->left_brace->exist = true;
-        command->left_brace->command = append_command(&command->left_brace->command, content);
-    }
-    free(content);
+	flag = 0;
+	(*i)++;
+	if (str[*i] == '<')
+	{
+		(*i)++;
+		flag = 1;
+	}
+	while (is_whitespace(str[*i]))
+		(*i)++;
+	j = *i;
+	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0'
+		|| str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+	{
+		printf("minishell: parse error near `%c'\n", str[*i]);
+		command->executable = false;
+		while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
+				str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+			(*i)++;
+	}
+	while (str[*i] && !is_whitespace(str[*i]) && \
+		str[*i] != '>' && str[*i] != '<')
+		(*i)++;
+	content = ft_substr(str, j, *i - j);
+	if (flag == 1)
+	{
+		command->double_left_brace->exist = true;
+		command->double_left_brace->command = \
+			append_command(&command->double_left_brace->command, content);
+	}
+	else
+	{
+		command->left_brace->exist = true;
+		command->left_brace->command = \
+			append_command(&command->left_brace->command, content);
+	}
+	free(content);
 }
 
 void	parse_right_redirection(char *str, int *i, t_redirection *command)
 {
-    int		j;
-    int		flag = 0;
-    char	*content;
+	int		j;
+	int		flag;
+	char	*content;
 
-    (*i)++;
-    if (str[*i] == '>')
-    {
-        (*i)++;
-        flag = 1;
-    }
-    while (is_whitespace(str[*i]))
-        (*i)++;
-    if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-    {
-        printf("minishell: parse error near `%c'\n", str[*i]);
-        command->executable = false;
-        while(str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-            (*i)++;
-    }
-    j = *i;
-    while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
-        (*i)++;
-    content = ft_substr(str, j, *i - j);
-    if (flag == 1)
-    {
-        command->double_right_brace->exist = true;
-        command->double_right_brace->command = append_command(&command->double_right_brace->command, content);
-    }
-    else
-    {
-        command->right_brace->exist = true;
-        command->right_brace->command = append_command(&command->right_brace->command, content);
-    }
-    free(content);
+	flag = 0;
+	(*i)++;
+	if (str[*i] == '>')
+	{
+		(*i)++;
+		flag = 1;
+	}
+	while (is_whitespace(str[*i]))
+		(*i)++;
+	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
+		str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+	{
+		printf("minishell: parse error near `%c'\n", str[*i]);
+		command->executable = false;
+		while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
+			str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+			(*i)++;
+	}
+	j = *i;
+	while (str[*i] && !is_whitespace(str[*i]) && \
+			str[*i] != '>' && str[*i] != '<')
+		(*i)++;
+	content = ft_substr(str, j, *i - j);
+	if (flag == 1)
+	{
+		command->double_right_brace->exist = true;
+		command->double_right_brace->command = \
+			append_command(&command->double_right_brace->command, content);
+	}
+	else
+	{
+		command->right_brace->exist = true;
+		command->right_brace->command = \
+			append_command(&command->right_brace->command, content);
+	}
+	free(content);
 }
 
 void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 {
-    int		j;
-    char	*content;
+	int		j;
+	char	*content;
 
 	content = ft_strdup("");
 	while (is_whitespace(str[*i]))
@@ -192,24 +204,24 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 		parse_left_redirection(str, i, command);
 	else if (str[*i] == '>')
 		parse_right_redirection(str, i, command);
-	else
-		content = handle_command(str, i, envp);
-	if(ft_strlen(content))
-		command->command->command = append_command(&command->command->command, content);
+	content = ft_strjoin_with_free(content, handle_command(str, i, envp));
+	if (ft_strlen(content))
+		command->command->command = \
+			append_command(&command->command->command, content);
 	free(content);
 }
 
 void	parse_redirection(char *str, t_redirection *command, char **envp)
 {
-    int	i;
+	int	i;
 
-    i = 0;
-    while (str[i])
-    {
-        parse_command(str, &i, command, envp);
+	i = 0;
+	while (str[i])
+	{
+		parse_command(str, &i, command, envp);
 		while (is_whitespace(str[i]))
-            i++;
-    }
-    command->full_cmd = set_command(command->command);
-    set_order(command, str);
+			i++;
+	}
+	command->full_cmd = set_command(command->command);
+	set_order(command, str);
 }

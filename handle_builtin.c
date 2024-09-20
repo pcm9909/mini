@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 14:48:26 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/18 20:31:16 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/20 19:29:13 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,6 @@ void	print_envp(char **envp, int flag)
 		}
 		envp++;
 	}
-	//exit(0);
 }
 
 int	ft_export(char **ptr, char ***envp)

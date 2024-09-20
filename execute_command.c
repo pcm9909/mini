@@ -6,39 +6,40 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/12 17:22:01 by chunpark          #+#    #+#             */
-/*   Updated: 2024/09/19 17:27:23 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/09/20 19:30:02 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
 
-void		execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd);
-static void	open_redirection_files(t_redirection *command);
-
-void	execute_command(t_redirection *command, char ***envp, int input_fd, int output_fd)
+static void	exe(t_redirection *command, char **cmd, char **envp)
 {
-	if(command->executable == true)
+	char	*cmd_path;
+	char	*path;
+
+	cmd_path = NULL;
+	path = get_path(envp);
+	if (cmd)
+		cmd_path = get_cmd_path(cmd[0], path);
+	if (ft_strlen(*cmd) == 0)
+		exit(0);
+	if (execve(cmd_path, cmd, envp))
 	{
-		open_redirection_files(command);
-		if (command->full_cmd && command->full_cmd[0] == 'c' && command->full_cmd[1] == 'd' && (command->full_cmd[2] == ' ' || command->full_cmd[2] == '\0'))
-			handle_cd_command(command, *envp);
-		else if (!ft_strncmp(command->full_cmd, "export ", 7) || !ft_strncmp(command->full_cmd, "export", 8))
-			handle_export_command(command, envp);
-		else if (!ft_strncmp(command->full_cmd, "env", 5) || !ft_strncmp(command->full_cmd, "env ", 4))
-			handle_env_command(command, *envp);
-		else if (!ft_strncmp(command->full_cmd, "exit", 5) || !ft_strncmp(command->full_cmd, "exit ", 5))
-			handle_exit_command(command);
-		else if (!ft_strncmp(command->full_cmd, "unset", 6) || !ft_strncmp(command->full_cmd, "unset ", 6))
-			handle_unset_command(command, *envp);
-		else if (!ft_strncmp(command->full_cmd, "pwd", 6) || !ft_strncmp(command->full_cmd, "pwd ", 4))
-			handle_pwd_command();
-		else if (!ft_strncmp(command->full_cmd, "echo", 6) || !ft_strncmp(command->full_cmd, "echo ", 5))
-			handle_echo_command(command, *envp);
-		else
-			execute_external_command(command, *envp, input_fd, output_fd);
+		if (cmd)
+		{
+			write(2, cmd[0], ft_strlen(cmd[0]));
+			write(2, ": command not found\n", ft_strlen(": command not found\n"));
+		}
 	}
 	else
 		exit(2);
+	free(path);
+}
+
+void	execute_external_command(t_redirection *command, \
+									char **envp, int input_fd, int output_fd)
+{
+	exe(command, command->command->command, envp);
 }
 
 static void	open_redirection_files(t_redirection *command)
@@ -49,37 +50,38 @@ static void	open_redirection_files(t_redirection *command)
 	handle_double_right_brace(command);
 }
 
-static void	exe(t_redirection *command, char **cmd, char **envp)
+void	execute_command(t_redirection *cmd, char ***envp, \
+							int input_fd, int output_fd)
 {
-	char	*cmd_path;
-	char	*path;
-
-	cmd_path = NULL;
-	path = get_path(envp);
-	if (cmd)
+	if (cmd->executable == true)
 	{
-		cmd_path = get_cmd_path(cmd[0], path);
-	}
-	if(ft_strlen(*cmd) == 0)
-	{
-		exit(0);
-	}
-	if (execve(cmd_path, cmd, envp))
-	{
-		if (cmd)
-		{
-			write(2, cmd[0], ft_strlen(cmd[0]));
-			write(2, ": command not found\n", ft_strlen(": command not found\n"));
-		}
+		open_redirection_files(cmd);
+		if (cmd->full_cmd && cmd->full_cmd[0] == 'c' && \
+			cmd->full_cmd[1] == 'd' && (cmd->full_cmd[2] == ' ' || \
+			cmd->full_cmd[2] == '\0'))
+			handle_cd_command(cmd, *envp);
+		else if (!ft_strncmp(cmd->full_cmd, "export ", 7) || \
+				!ft_strncmp(cmd->full_cmd, "export", 8))
+			handle_export_command(cmd, envp);
+		else if (!ft_strncmp(cmd->full_cmd, "env", 5) || \
+				!ft_strncmp(cmd->full_cmd, "env ", 4))
+			handle_env_command(cmd, *envp);
+		else if (!ft_strncmp(cmd->full_cmd, "exit", 5) || \
+				!ft_strncmp(cmd->full_cmd, "exit ", 5))
+			handle_exit_command(cmd);
+		else if (!ft_strncmp(cmd->full_cmd, "unset", 6) || \
+				!ft_strncmp(cmd->full_cmd, "unset ", 6))
+			handle_unset_command(cmd, *envp);
+		else if (!ft_strncmp(cmd->full_cmd, "pwd", 6) || \
+				!ft_strncmp(cmd->full_cmd, "pwd ", 4))
+			handle_pwd_command();
+		else if (!ft_strncmp(cmd->full_cmd, "echo", 6) || \
+				!ft_strncmp(cmd->full_cmd, "echo ", 5))
+			handle_echo_command(cmd, *envp);
+		else
+			execute_external_command(cmd, *envp, input_fd, output_fd);
 	}
 	else
-	{
 		exit(2);
-	}
-	free(path);
 }
 
-void	execute_external_command(t_redirection *command, char **envp, int input_fd, int output_fd)
-{
-	exe(command, command->command->command, envp);
-}
