@@ -32,7 +32,7 @@ void	execute_external_command(t_redirection *command, \
 
 static void	open_redirection_files(t_redirection *command)
 {
-	handle_double_left_brace(command);
+	//handle_double_left_brace(command);
 	handle_left_brace(command);
 	handle_right_brace(command);
 	handle_double_right_brace(command);

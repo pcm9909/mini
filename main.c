@@ -207,44 +207,55 @@ void	create_pipes(int i, int cnt, int pipe_fd[2])
 }
 
 void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
-							pid_t *pids, t_redirection **command, \
-							char ***envp, struct termios *old)
+                            pid_t *pids, t_redirection **command, \
+                            char ***envp, struct termios *old)
 {
-	pids[i] = fork();
-	if (pids[i] == -1)
-	{
-		perror("fork\n");
-		exit(EXIT_FAILURE);
-	}
-	if (pids[i] == 0)
-	{
-		end_sig(old);
-		if (i > 0)
-		{
-			dup2(input_fd, 0);
-			close(input_fd);
-		}
-		if (i < cnt - 1)
-		{
-			dup2(pipe_fd[1], 1);
-			close(pipe_fd[1]);
-		}
-		execute_command(command[i], envp, input_fd, pipe_fd[1]);
-		exit(EXIT_SUCCESS);
-	}
-	else
-	{
-		if (i > 0)
-		{
-			close(input_fd);
-		}
-		if (i < cnt - 1)
-		{
-			close(pipe_fd[1]);
-		}
-		input_fd = pipe_fd[0];
-	}
+    pids[i] = fork();
+    if (pids[i] == -1)
+    {
+        perror("fork\n");
+        exit(EXIT_FAILURE);
+    }
+    if (pids[i] == 0)
+    {
+        end_sig(old);
+        if (i > 0)
+        {
+            dup2(input_fd, 0);
+            close(input_fd);
+        }
+        if (i < cnt - 1)
+        {
+            dup2(pipe_fd[1], 1);
+            close(pipe_fd[1]);
+        }
+        if (command[i]->double_left_brace && command[i]->double_left_brace->exist)
+        {
+            char buffer[1024];
+            int fd[2];
+            pipe(fd);
+            write(fd[1], command[i]->double_left_brace->command[0], strlen(command[i]->double_left_brace->command[0]));
+            close(fd[1]);
+            dup2(fd[0], 0);
+            close(fd[0]);
+        }
+        execute_command(command[i], envp, input_fd, pipe_fd[1]);
+        exit(EXIT_SUCCESS);
+    }
+    else
+    {
+        if (i > 0)
+        {
+            close(input_fd);
+        }
+        if (i < cnt - 1)
+        {
+            close(pipe_fd[1]);
+        }
+        input_fd = pipe_fd[0];
+    }
 }
+
 
 void	initialize_commands(char **split, int cnt, \
 			t_redirection ***command, char ***envp)
@@ -337,42 +348,51 @@ char	**ft_splits(char const *s, char c)
 
 void	process_input(char *str, char ***envp)
 {
-	static int		exit_code;
-	char			**split;
-	int				cnt;
-	t_redirection	**command;
-	int				input_fd;
-	int				pipe_fd[2];
-	pid_t			*pids;
-	struct termios	old;
-	int				i;
+    static int		exit_code;
+    char			**split;
+    int				cnt;
+    t_redirection	**command;
+    int				input_fd;
+    int				pipe_fd[2];
+    pid_t			*pids;
+    struct termios	old;
+    int				i;
 
-	i = 0;
-	str = complement_cmd(str);
-	split = ft_splits(str, '|');
-	cnt = cnt_cmd(split);
-	pids = malloc(sizeof(pid_t) * cnt);
-	input_fd = 0;
-	command = (malloc(sizeof(t_redirection *) * cnt));
-	initialize_commands(split, cnt, &command, envp);
-	while (i < cnt)
-	{
-		create_pipes(i, cnt, pipe_fd);
-		fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
-		if (i > 0)
-		{
-			close(input_fd);
-		}
-		if (i < cnt - 1)
-		{
-			close(pipe_fd[1]);
-		}
-		input_fd = pipe_fd[0];
-		i++;
-	}
-	wait_for_children(cnt, pids, command, envp, &exit_code);
-	cleanup_resources(cnt, split, command, str, pids);
-	printf("exit_code : %d\n", exit_code);
+    i = 0;
+    str = complement_cmd(str);
+    split = ft_splits(str, '|');
+    cnt = cnt_cmd(split);
+    pids = malloc(sizeof(pid_t) * cnt);
+    input_fd = 0;
+    command = (malloc(sizeof(t_redirection *) * cnt));
+    initialize_commands(split, cnt, &command, envp);
+    while (i < cnt)
+    {
+        create_pipes(i, cnt, pipe_fd);
+        if (command[i]->double_left_brace && command[i]->double_left_brace->exist)
+        {
+            char buffer[1024];
+            printf("> ");
+            fgets(buffer, 1024, stdin);
+            buffer[strcspn(buffer, "\n")] = 0; // 개행 문자 제거
+            command[i]->double_left_brace->command[0] = strdup(buffer);
+            command[i]->double_left_brace->command[0] = ft_strdup(buffer);
+        }
+        fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
+        if (i > 0)
+        {
+            close(input_fd);
+        }
+        if (i < cnt - 1)
+        {
+            close(pipe_fd[1]);
+        }
+        input_fd = pipe_fd[0];
+        i++;
+    }
+    wait_for_children(cnt, pids, command, envp, &exit_code);
+    cleanup_resources(cnt, split, command, str, pids);
+    printf("exit_code : %d\n", exit_code);
 }
 
 static void	cleanup(char *str)
