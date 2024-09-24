@@ -194,8 +194,11 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 		parse_right_redirection(str, i, command);
 	content = ft_strjoin_with_free(content, handle_command(str, i, envp));
 	if (ft_strlen(content))
+	{
+		command->command->exist = true;
 		command->command->command = \
 			append_command(&command->command->command, content);
+	}
 	free(content);
 }
 
