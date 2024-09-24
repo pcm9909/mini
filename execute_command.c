@@ -17,6 +17,7 @@ static void	exe(t_redirection *command, char **cmd, char **envp)
 		{
 			write(2, cmd[0], ft_strlen(cmd[0]));
 			write(2, ": command not found\n", ft_strlen(": command not found\n"));
+			exit(127);
 		}
 	}
 	else
