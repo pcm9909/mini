@@ -12,6 +12,7 @@ t_command	*create_command(void)
 	}
 	cmd->command = NULL;
 	cmd->order = false;
+	cmd->exist = false;
 	return (cmd);
 }
 
@@ -37,6 +38,7 @@ char	**allocate_and_copy(char **cmd, int size)
 	int		j;
 	int		k;
 
+	j = 0;
 	new_cmd = malloc(sizeof(char *) * size);
 	if (!new_cmd)
 	{
@@ -126,6 +128,7 @@ char	*complement_cmd(char *str)
 		{
 			tmp = ft_strjoin_with_free(str, readline(">"));
 			add_history(tmp);
+			str = tmp;
 		}
 		else
 			return (str);
@@ -205,11 +208,82 @@ void	create_pipes(int i, int cnt, int pipe_fd[2])
 		pipe_fd[1] = 1;
 	}
 }
+void handle_double_left_brace(t_redirection *cmd)
+{
+    int     i;
+    char    *input;
+    char    *str;
+    int     pipe_fd[2];
+    pid_t   pid;
 
-void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
+    i = 0;
+    while (cmd->double_left_brace->command && \
+            cmd->double_left_brace->command[i])
+    {
+        if (pipe(pipe_fd) == -1)
+        {
+            perror("pipe");
+            exit(EXIT_FAILURE);
+        }
+
+        pid = fork();
+        if (pid == -1)
+        {
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
+
+        if (pid == 0) // 자식 프로세스
+        {
+            close(pipe_fd[0]); // 읽기 끝을 닫음
+            str = NULL;
+            while (1)
+            {
+                input = readline(">");
+                if (!input)
+                    break;
+                if (ft_strncmp(input, cmd->double_left_brace->command[i], \
+                    ft_strlen(cmd->double_left_brace->command[i])) == 0 && \
+                ft_strlen(input) == ft_strlen(cmd->double_left_brace->command[i]))
+                {
+                    free(input);
+                    break;
+                }
+                str = ft_strjoin_with_free(str, input);
+                str = ft_strjoin_with_free(str, "\n");
+                add_history(input);
+                free(input);
+            }
+            if (str)
+            {
+                write(pipe_fd[1], str, ft_strlen(str));
+                free(str);
+            }
+            close(pipe_fd[1]);
+            exit(EXIT_SUCCESS);
+        }
+        else // 부모 프로세스
+        {
+            close(pipe_fd[1]); // 쓰기 끝을 닫음
+            waitpid(pid, NULL, 0); // 자식 프로세스가 끝날 때까지 기다림
+            if (cmd->double_left_brace->command[i + 1] == NULL)
+            {
+                dup2(pipe_fd[0], 0); // 파이프의 읽기 끝을 표준 입력으로 복제
+            }
+            close(pipe_fd[0]);
+        }
+        i++;
+    }
+}
+
+void fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
                             pid_t *pids, t_redirection **command, \
                             char ***envp, struct termios *old)
 {
+    if (command[i]->double_left_brace && command[i]->double_left_brace->exist)
+    {
+        handle_double_left_brace(command[i]);
+    }
     pids[i] = fork();
     if (pids[i] == -1)
     {
@@ -229,25 +303,7 @@ void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
             dup2(pipe_fd[1], 1);
             close(pipe_fd[1]);
         }
-        if (command[i]->double_left_brace && command[i]->double_left_brace->exist)
-        {
-            char buffer[1024];
-            int fd[2];
-            pipe(fd);
-            while (1)
-            {
-                printf("> ");
-                fgets(buffer, 1024, stdin);
-                buffer[strcspn(buffer, "\n")] = 0; // 개행 문자 제거
-                if (strcmp(buffer, command[i]->double_left_brace->command[0]) == 0)
-                    break;
-                write(fd[1], buffer, strlen(buffer));
-                write(fd[1], "\n", 1);
-            }
-            close(fd[1]);
-            dup2(fd[0], 0);
-            close(fd[0]);
-        }
+
         execute_command(command[i], envp, input_fd, pipe_fd[1]);
         exit(EXIT_SUCCESS);
     }

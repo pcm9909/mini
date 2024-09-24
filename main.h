@@ -50,7 +50,7 @@ void	handle_unset_command(t_redirection *command, char **envp);
 void	handle_pwd_command(void);
 void	handle_echo_command(t_redirection *command, char **envp);
 
-void	handle_double_left_brace(t_redirection *command);
+//void	handle_double_left_brace(t_redirection *command);
 void	handle_left_brace(t_redirection *command);
 void	handle_right_brace(t_redirection *command);
 void	handle_double_right_brace(t_redirection *command);
