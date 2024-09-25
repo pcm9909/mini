@@ -123,8 +123,7 @@ void handle_double_left_brace(t_redirection *cmd)
     pid_t   pid;
 
     i = 0;
-    while (cmd->double_left_brace->command && \
-            cmd->double_left_brace->command[i])
+    while (cmd->double_left_brace->command && cmd->double_left_brace->command[i])
     {
         if (pipe(pipe_fd) == -1)
         {
@@ -148,9 +147,7 @@ void handle_double_left_brace(t_redirection *cmd)
                 input = readline(">");
                 if (!input)
                     break;
-                if (ft_strncmp(input, cmd->double_left_brace->command[i], \
-                    ft_strlen(cmd->double_left_brace->command[i])) == 0 && \
-                ft_strlen(input) == ft_strlen(cmd->double_left_brace->command[i]))
+                if (ft_strncmp(input, cmd->double_left_brace->command[i], ft_strlen(cmd->double_left_brace->command[i])) == 0 && ft_strlen(input) == ft_strlen(cmd->double_left_brace->command[i]))
                 {
                     free(input);
                     break;
