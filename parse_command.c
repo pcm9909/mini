@@ -93,8 +93,12 @@ void parse_left_redirection(const char *str, int *i, t_redirection *command)
     int     j;
     int     flag;
     char    *content;
+	int		check;
+
+	printf("str = %s\n", str);
 
     flag = 0;
+	check = 0;
     (*i)++;
     if (str[*i] == '<')
     {
@@ -122,7 +126,17 @@ void parse_left_redirection(const char *str, int *i, t_redirection *command)
         command->double_left_brace->exist = true;
         command->double_left_brace->command = \
             append_command(&command->double_left_brace->command, content);
-        handle_double_left_brace(command);
+		while (str[j])
+		{
+			if (str[j] && str[j + 1] && str[j] == '<' && str[j + 1] == '<')
+			{
+				check = 1;
+				break;
+			}
+			j++;
+    	}
+		if(check == 0)
+			handle_double_left_brace(command, check);
     }
     else
     {

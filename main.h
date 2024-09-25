@@ -25,9 +25,10 @@ typedef struct s_redirection
 	struct s_command	*double_left_brace;
 	struct s_command	*left_brace;
 	struct s_command	*command;
-	char				*full_cmd;
 	struct s_command	*right_brace;
 	struct s_command	*double_right_brace;
+	char				*full_cmd;
+	char				*here_doc;
 	bool				executable;
 }				t_redirection;
 
@@ -50,7 +51,6 @@ void	handle_unset_command(t_redirection *command, char **envp);
 void	handle_pwd_command(void);
 void	handle_echo_command(t_redirection *command, char **envp);
 
-//void	handle_double_left_brace(t_redirection *command);
 void	handle_left_brace(t_redirection *command);
 void	handle_right_brace(t_redirection *command);
 void	handle_double_right_brace(t_redirection *command);
@@ -115,6 +115,6 @@ char	**extract_path(char *envp[]);
 int		is_whitespace(int c);
 int		cnt_cmd(char **split);
 
-void handle_double_left_brace(t_redirection *cmd);
+void handle_double_left_brace(t_redirection *cmd, int check);
 
 #endif
