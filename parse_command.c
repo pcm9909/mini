@@ -95,8 +95,6 @@ void parse_left_redirection(const char *str, int *i, t_redirection *command)
     char    *content;
 	int		check;
 
-	printf("str = %s\n", str);
-
     flag = 0;
 	check = 0;
     (*i)++;
