@@ -88,48 +88,49 @@ char	*set_command(t_command *command)
 	return (result);
 }
 
-void	parse_left_redirection(const char *str, int *i, t_redirection *command)
+void parse_left_redirection(const char *str, int *i, t_redirection *command)
 {
-	int		j;
-	int		flag;
-	char	*content;
+    int     j;
+    int     flag;
+    char    *content;
 
-	flag = 0;
-	(*i)++;
-	if (str[*i] == '<')
-	{
-		(*i)++;
-		flag = 1;
-	}
-	while (is_whitespace(str[*i]))
-		(*i)++;
-	j = *i;
-	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0'
-		|| str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-	{
-		printf("minishell: parse error near `%c'\n", str[*i]);
-		command->executable = false;
-		while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
-				str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-			(*i)++;
-	}
-	while (str[*i] && !is_whitespace(str[*i]) && \
-		str[*i] != '>' && str[*i] != '<')
-		(*i)++;
-	content = ft_substr(str, j, *i - j);
-	if (flag == 1)
-	{
-		command->double_left_brace->exist = true;
-		command->double_left_brace->command = \
-			append_command(&command->double_left_brace->command, content);
-	}
-	else
-	{
-		command->left_brace->exist = true;
-		command->left_brace->command = \
-			append_command(&command->left_brace->command, content);
-	}
-	free(content);
+    flag = 0;
+    (*i)++;
+    if (str[*i] == '<')
+    {
+        (*i)++;
+        flag = 1;
+    }
+    while (is_whitespace(str[*i]))
+        (*i)++;
+    j = *i;
+    if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0'
+        || str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+    {
+        printf("minishell: parse error near `%c'\n", str[*i]);
+        command->executable = false;
+        while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
+                str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+            (*i)++;
+    }
+    while (str[*i] && !is_whitespace(str[*i]) && \
+        str[*i] != '>' && str[*i] != '<')
+        (*i)++;
+    content = ft_substr(str, j, *i - j);
+    if (flag == 1)
+    {
+        command->double_left_brace->exist = true;
+        command->double_left_brace->command = \
+            append_command(&command->double_left_brace->command, content);
+        handle_double_left_brace(command);
+    }
+    else
+    {
+        command->left_brace->exist = true;
+        command->left_brace->command = \
+            append_command(&command->left_brace->command, content);
+    }
+    free(content);
 }
 
 void	parse_right_redirection(char *str, int *i, t_redirection *command)

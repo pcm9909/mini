@@ -115,4 +115,6 @@ char	**extract_path(char *envp[]);
 int		is_whitespace(int c);
 int		cnt_cmd(char **split);
 
+void handle_double_left_brace(t_redirection *cmd);
+
 #endif
