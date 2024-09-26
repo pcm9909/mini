@@ -41,7 +41,7 @@ int	double_ptr_size(char **ptr)
 	return (i);
 }
 
-int	search_env(char **envp, char *name, int flag) // free
+int	search_env(char **envp, char *name, int flag)
 {
 	int		i;
 	char	*re;
@@ -118,7 +118,7 @@ char	*set_env(char *name, int flag, char ***envp)
 	return (NULL);
 }
 
-void	print_envp(char **envp, int flag)
+void		print_envp(char **envp, int flag)
 {
 	while (*envp != NULL)
 	{
@@ -229,7 +229,7 @@ void	ft_echo(char *ptr, char **envp)
 	}
 	while (*ptr)
 	{
-		if (*ptr == '$')
+		/*if (*ptr == '$')
 		{
 			ptr++;
 			if (*ptr == '?')
@@ -252,10 +252,10 @@ void	ft_echo(char *ptr, char **envp)
 			}
 		}
 		else
-		{
+		{*/
 			printf("%c", *ptr);
 			ptr++;
-		}
+		//}
 	}
 	if (flag == 0)
 		printf("\n");

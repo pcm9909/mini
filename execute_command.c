@@ -34,42 +34,40 @@ void	execute_external_command(t_redirection *command, \
 
 static void	open_redirection_files(t_redirection *command)
 {
-    pid_t pid;
-    int	pipe_fd[2];
+	pid_t	pid;
+	int		pipe_fd[2];
 
-    handle_left_brace(command);
-    handle_right_brace(command);
-    handle_double_right_brace(command);
-    if (command->double_left_brace->exist)
-    {
-        if (pipe(pipe_fd) == -1)
-        {
-            perror("pipe");
-            exit(EXIT_FAILURE);
-        }
-
-        pid = fork();
-        if (pid == -1)
-        {
-            perror("fork");
-            exit(EXIT_FAILURE);
-        }
-
-        if (pid == 0)
-        {
-            close(pipe_fd[0]);
-            dup2(pipe_fd[1], STDOUT_FILENO);
-            write(pipe_fd[1], command->here_doc, ft_strlen(command->here_doc));
-            close(pipe_fd[1]);
-            exit(EXIT_SUCCESS);
-        }
-        else // 부모 프로세스
-        {
-            close(pipe_fd[1]);
-            wait(NULL);
-            dup2(pipe_fd[0], STDIN_FILENO);
-            close(pipe_fd[0]);
-        }
+	handle_left_brace(command);
+	handle_right_brace(command);
+	handle_double_right_brace(command);
+	if (command->double_left_brace->exist)
+	{
+		if (pipe(pipe_fd) == -1)
+		{
+			perror("pipe");
+			exit(EXIT_FAILURE);
+		}
+		pid = fork();
+		if (pid == -1)
+		{
+			perror("fork");
+			exit(EXIT_FAILURE);
+		}
+		if (pid == 0)
+		{
+			close(pipe_fd[0]);
+			dup2(pipe_fd[1], STDOUT_FILENO);
+			write(pipe_fd[1], command->here_doc, ft_strlen(command->here_doc));
+			close(pipe_fd[1]);
+			exit(EXIT_SUCCESS);
+		}
+		else
+		{
+			close(pipe_fd[1]);
+			wait(NULL);
+			dup2(pipe_fd[0], STDIN_FILENO);
+			close(pipe_fd[0]);
+		}
 	}
 }
 
@@ -107,4 +105,3 @@ void	execute_command(t_redirection *cmd, char ***envp, \
 	else
 		exit(2);
 }
-

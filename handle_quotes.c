@@ -42,7 +42,7 @@ char	*handle_double_quotes(const char *str, int *i, \
 
 	start = ++(*i);
 	content = ft_strdup("");
-	while (str[*i] && str[*i] != '"')
+	while (str[*i] && str[*i] != '"' && str[*i] != ' ')
 	{
 		if (str[*i] == '$')
 		{
@@ -100,7 +100,6 @@ char	*handle_command(const char *str, int *i, char **envp)
 	{
 		if (str[*i] == '$')
 		{
-			//이부분 함수로 만들어주자
 			temp = ft_substr(str, start, (*i) - start);
 			content = ft_strjoin_with_free(content, temp);
 			free(temp);
@@ -118,12 +117,15 @@ char	*handle_command(const char *str, int *i, char **envp)
 			start = (*i);
 		}
 		else
-			(*i)++;
+		{
+			if(str[*i] != ' ')
+				(*i)++;
+			else
+				break;
+		}
 	}
 	temp = ft_substr(str, start, (*i) - start);
 	content = ft_strjoin_with_free(content, temp);
 	free(temp);
-	while (is_whitespace(str[*i]))
-		(*i)++;
 	return (content);
 }

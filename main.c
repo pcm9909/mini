@@ -19,11 +19,6 @@ t_command	*create_command(void)
 void	initialize_redirection(t_redirection **redirection)
 {
 	*redirection = malloc(sizeof(t_redirection));
-	if (!*redirection)
-	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
 	(*redirection)->double_left_brace = create_command();
 	(*redirection)->double_right_brace = create_command();
 	(*redirection)->command = create_command();
@@ -37,7 +32,6 @@ char	**allocate_and_copy(char **cmd, int size)
 {
 	char	**new_cmd;
 	int		j;
-	int		k;
 
 	j = 0;
 	new_cmd = malloc(sizeof(char *) * size);
@@ -49,24 +43,9 @@ char	**allocate_and_copy(char **cmd, int size)
 	while (j < size - 1)
 	{
 		if (cmd[j] == NULL)
-		{
 			new_cmd[j] = NULL;
-		}
 		else
-		{
 			new_cmd[j] = ft_strdup(cmd[j]);
-			if (!new_cmd[j])
-			{
-				perror("ft_strdup");
-				while (k < j)
-				{
-					free(new_cmd[k]);
-					k++;
-				}
-				free(new_cmd);
-				return (NULL);
-			}
-		}
 		j++;
 	}
 	return (new_cmd);
@@ -82,11 +61,6 @@ char	**append_command(char ***cmd, char *str)
 	if (*cmd == NULL)
 	{
 		new_cmd = malloc(sizeof(char *) * 2);
-		if (!new_cmd)
-		{
-			perror("malloc");
-			return (NULL);
-		}
 		new_cmd[0] = ft_strdup(str);
 		new_cmd[1] = NULL;
 		return (new_cmd);
@@ -98,12 +72,9 @@ char	**append_command(char ***cmd, char *str)
 		return (NULL);
 	new_cmd[i] = ft_strdup(str);
 	new_cmd[i + 1] = NULL;
-	j = 0;
-	while (j < i)
-	{
+	j = -1;
+	while (++j < i)
 		free((*cmd)[j]);
-		j++;
-	}
 	free(*cmd);
 	return (new_cmd);
 }
@@ -120,9 +91,7 @@ char	*complement_cmd(char *str)
 			return (str);
 		len--;
 		while (is_whitespace(str[len]) > 0 && len > 0)
-		{
 			len--;
-		}
 		if (is_whitespace(str[len]) && len == 0)
 			return (str);
 		if (str[len] == '|')
@@ -145,8 +114,8 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
 	int		i;
 	char	**cd;
 
-	i = 0;
-	while (i < cnt)
+	i = -1;
+	while (++i < cnt)
 	{
 		waitpid(pids[i], &statloc, 0);
 		if (WIFEXITED(statloc))
@@ -166,7 +135,6 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
 			if (cd[1] != NULL)
 				*exit_code = ft_export(cd, envp);
 		}
-		i++;
 	}
 }
 
@@ -197,11 +165,7 @@ void	create_pipes(int i, int cnt, int pipe_fd[2])
 {
 	if (i < cnt - 1)
 	{
-		if (pipe(pipe_fd) == -1)
-		{
-			perror("pipe\n");
-			exit(EXIT_FAILURE);
-		}
+		pipe(pipe_fd);
 	}
 	else
 	{
@@ -213,43 +177,32 @@ void fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
                             pid_t *pids, t_redirection **command, \
                             char ***envp, struct termios *old)
 {
-    pids[i] = fork();
-    if (pids[i] == -1)
-    {
-        perror("fork\n");
-        exit(EXIT_FAILURE);
-    }
-    if (pids[i] == 0)
-    {
-        end_sig(old);
-        if (i > 0)
-        {
-            dup2(input_fd, 0);
-            close(input_fd);
-        }
-        if (i < cnt - 1)
-        {
-            dup2(pipe_fd[1], 1);
-            close(pipe_fd[1]);
-        }
-
-        execute_command(command[i], envp, input_fd, pipe_fd[1]);
-        exit(EXIT_SUCCESS);
-    }
-    else
-    {
-        if (i > 0)
-        {
-            close(input_fd);
-        }
-        if (i < cnt - 1)
-        {
-            close(pipe_fd[1]);
-        }
-        input_fd = pipe_fd[0];
-    }
+	pids[i] = fork();
+	if (pids[i] == 0)
+	{
+		end_sig(old);
+		if (i > 0)
+		{
+			dup2(input_fd, 0);
+			close(input_fd);
+		}
+		if (i < cnt - 1)
+		{
+			dup2(pipe_fd[1], 1);
+			close(pipe_fd[1]);
+		}
+		execute_command(command[i], envp, input_fd, pipe_fd[1]);
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		if (i > 0)
+			close(input_fd);
+		if (i < cnt - 1)
+			close(pipe_fd[1]);
+		input_fd = pipe_fd[0];
+	}
 }
-
 
 void	initialize_commands(char **split, int cnt, \
 			t_redirection ***command, char ***envp)
@@ -267,117 +220,117 @@ void	initialize_commands(char **split, int cnt, \
 
 int	ft_count_wordss(const char *s, char c)
 {
-    int	i;
-    int	count;
-    int	in_quotes;
+	int	i;
+	int	count;
+	int	in_quotes;
 
-    i = 0;
-    count = 0;
-    in_quotes = 0;
-    while (s[i])
-    {
-        if (s[i] == '"' || s[i] == '\'')
-            in_quotes = !in_quotes;
-        if (s[i] != c || in_quotes)
-        {
-            count++;
-            while (s[i] && (s[i] != c || in_quotes))
-            {
-                if (s[i] == '"' || s[i] == '\'')
-                    in_quotes = !in_quotes;
-                i++;
-            }
-        }
-        else
-            i++;
-    }
-    return (count);
+	i = 0;
+	count = 0;
+	in_quotes = 0;
+	while (s[i])
+	{
+		if (s[i] == '"' || s[i] == '\'')
+			in_quotes = !in_quotes;
+		if (s[i] != c || in_quotes)
+		{
+			count++;
+			while (s[i] && (s[i] != c || in_quotes))
+			{
+				if (s[i] == '"' || s[i] == '\'')
+					in_quotes = !in_quotes;
+				i++;
+			}
+		}
+		else
+			i++;
+	}
+	return (count);
 }
 
 char	**ft_free_arrs(char **arr, size_t i)
 {
-    while (i > 0)
-    {
-        free(arr[i]);
-        i--;
-    }
-    free(arr);
-    return (NULL);
+	while (i > 0)
+	{
+		free(arr[i]);
+		i--;
+	}
+	free(arr);
+	return (NULL);
 }
 
 char	**ft_splits(char const *s, char c)
 {
-    char	**arr;
-    int		i;
-    int		j;
-    int		k;
-    int		in_quotes;
+	char	**arr;
+	int		i;
+	int		j;
+	int		k;
+	int		in_quotes;
 
-    if (!s)
-        return (NULL);
-    arr = (char **)malloc(sizeof(char *) * (ft_count_wordss(s, c) + 1));
-    if (!arr)
-        return (NULL);
-    i = -1;
-    j = 0;
-    in_quotes = 0;
-    while (++i < ft_count_wordss(s, c))
-    {
-        while (s[j] == c && !in_quotes)
-            j++;
-        k = j;
-        while (s[j] && (s[j] != c || in_quotes))
-        {
-            if (s[j] == '"' || s[j] == '\'')
-                in_quotes = !in_quotes;
-            j++;
-        }
-        arr[i] = ft_substr(s, k, j - k);
-        if (!arr[i])
-            return (ft_free_arrs(arr, i));
-    }
-    arr[i] = NULL;
-    return (arr);
+	if (!s)
+		return (NULL);
+	arr = (char **)malloc(sizeof(char *) * (ft_count_wordss(s, c) + 1));
+	if (!arr)
+		return (NULL);
+	i = -1;
+	j = 0;
+	in_quotes = 0;
+	while (++i < ft_count_wordss(s, c))
+	{
+		while (s[j] == c && !in_quotes)
+			j++;
+		k = j;
+		while (s[j] && (s[j] != c || in_quotes))
+		{
+			if (s[j] == '"' || s[j] == '\'')
+				in_quotes = !in_quotes;
+			j++;
+		}
+		arr[i] = ft_substr(s, k, j - k);
+		if (!arr[i])
+			return (ft_free_arrs(arr, i));
+	}
+	arr[i] = NULL;
+	return (arr);
 }
 
 void	process_input(char *str, char ***envp)
 {
-    static int		exit_code;
-    char			**split;
-    int				cnt;
-    t_redirection	**command;
-    int				input_fd;
-    int				pipe_fd[2];
-    pid_t			*pids;
-    struct termios	old;
-    int				i;
+	static int		exit_code;
+	char			**split;
+	int				cnt;
+	t_redirection	**command;
+	int				input_fd;
+	int				pipe_fd[2];
+	pid_t			*pids;
+	struct termios	old;
+	int				i;
 
-    i = 0;
-    str = complement_cmd(str);
-    split = ft_splits(str, '|');
-    cnt = cnt_cmd(split);
-    pids = malloc(sizeof(pid_t) * cnt);
-    input_fd = 0;
-    command = (malloc(sizeof(t_redirection *) * cnt));
-    initialize_commands(split, cnt, &command, envp);
-    while (i < cnt)
-    {
-        create_pipes(i, cnt, pipe_fd);
-        fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
-        if (i > 0)
-        {
-            close(input_fd);
-        }
-        if (i < cnt - 1)
-        {
-            close(pipe_fd[1]);
-        }
-        input_fd = pipe_fd[0];
-        i++;
-    }
-    wait_for_children(cnt, pids, command, envp, &exit_code);
-    cleanup_resources(cnt, split, command, str, pids);
-    printf("exit_code : %d\n", exit_code);
+	i = 0;
+	str = complement_cmd(str);
+	split = ft_splits(str, '|');
+	cnt = cnt_cmd(split);
+	pids = malloc(sizeof(pid_t) * cnt);
+	input_fd = 0;
+	command = (malloc(sizeof(t_redirection *) * cnt));
+	initialize_commands(split, cnt, &command, envp);
+	while (i < cnt)
+	{
+		create_pipes(i, cnt, pipe_fd);
+		fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
+		if (i > 0)
+		{
+			close(input_fd);
+		}
+		if (i < cnt - 1)
+		{
+			close(pipe_fd[1]);
+		}
+		input_fd = pipe_fd[0];
+		i++;
+	}
+	wait_for_children(cnt, pids, command, envp, &exit_code);
+	cleanup_resources(cnt, split, command, str, pids);
+	printf("exit_code : %d\n", exit_code);
 }
 
 static void	cleanup(char *str)

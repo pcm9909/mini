@@ -22,6 +22,7 @@ void	free_redirection(t_redirection *redirection)
 		free_command(redirection->left_brace);
 		free_command(redirection->right_brace);
 		free(redirection->full_cmd);
+		free(redirection->here_doc);
 		free(redirection);
 	}
 }

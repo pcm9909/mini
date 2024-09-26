@@ -45,11 +45,8 @@ void handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 {
     char    *input;
 	int 	i;
-	int		cnt;
-
 
 	i = 0;
-	cnt = 0;
     while (cmd->double_left_brace->command && cmd->double_left_brace->command[i])
     {
         while (1)
@@ -73,7 +70,6 @@ void handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 				add_history(input);
                 free(input);
             }
-
         }
 		i++;
     }
