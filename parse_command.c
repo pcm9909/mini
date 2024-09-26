@@ -34,24 +34,16 @@ void	set_order(t_redirection *command, char *str)
 	dual = ft_strlen(ft_strnstr(str, "<<", sizeof(str)));
 	single = ft_strlen(ft_find_single_redirect(str, '<'));
 	if (dual > single)
-	{
 		command->double_left_brace->order = true;
-	}
 	else if (dual < single)
-	{
 		command->left_brace->order = true;
-	}
 	rev = ft_strrev(str);
 	dual = ft_strlen(ft_strnstr(rev, ">>", ft_strlen(str)));
 	single = ft_strlen(ft_find_single_redirect(rev, '>'));
 	if (dual > single)
-	{
 		command->double_right_brace->order = true;
-	}
 	else if (dual < single)
-	{
 		command->right_brace->order = true;
-	}
 	free(rev);
 }
 

@@ -119,4 +119,6 @@ void handle_double_left_brace(t_redirection *cmd, int check, char **envp);
 
 int	is_envp_vars(int c);
 
+void perror_exit(char *str);
+
 #endif

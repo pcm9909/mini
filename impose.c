@@ -18,6 +18,12 @@ char	*ft_strrev(char *str)
 	return (rev);
 }
 
+void perror_exit(char *str)
+{
+	perror(str);
+	exit(EXIT_FAILURE);
+}
+
 char	*ft_strjoin_with_free(char const *s1, char const *s2)
 {
 	char	*str;
