@@ -69,7 +69,7 @@ char	*handle_double_quotes(const char *str, int *i, \
 	}
 	if (str[*i] != '"')
 	{
-		fprintf(stderr, "Error: Unmatched double quote\n");
+		write(2, "Error: Unmatched double quote\n", ft_strlen("Error: Unmatched double quote\n"));
 		command->executable = false;
 		free(content);
 		return (NULL);

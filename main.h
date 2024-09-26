@@ -92,7 +92,7 @@ void	input_sig(struct termios *old);
 void	end_sig(struct termios *old);
 void	none_sig(struct termios *old);
 
-void	parse_left_redirection(const char *str, int *i, t_redirection *command);
+void	parse_left_redirection(const char *str, int *i, t_redirection *command, char **evnp);
 void	parse_right_redirection(char *str, int *i, t_redirection *command);
 void	parse_redirection(char *str, t_redirection *command, char **envp);
 char	*set_command(t_command *command);
@@ -115,6 +115,8 @@ char	**extract_path(char *envp[]);
 int		is_whitespace(int c);
 int		cnt_cmd(char **split);
 
-void handle_double_left_brace(t_redirection *cmd, int check);
+void handle_double_left_brace(t_redirection *cmd, int check, char **envp);
+
+int	is_envp_vars(int c);
 
 #endif

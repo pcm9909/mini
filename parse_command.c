@@ -88,7 +88,7 @@ char	*set_command(t_command *command)
 	return (result);
 }
 
-void parse_left_redirection(const char *str, int *i, t_redirection *command)
+void parse_left_redirection(const char *str, int *i, t_redirection *command, char **envp)
 {
     int     j;
     int     flag;
@@ -134,7 +134,7 @@ void parse_left_redirection(const char *str, int *i, t_redirection *command)
 			j++;
     	}
 		if(check == 0)
-			handle_double_left_brace(command, check);
+			handle_double_left_brace(command, check, envp);
     }
     else
     {
@@ -202,7 +202,7 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 	else if (str[*i] == '\'')
 		content = handle_single_quotes(str, i, command);
 	else if (str[*i] == '<')
-		parse_left_redirection(str, i, command);
+		parse_left_redirection(str, i, command, envp);
 	else if (str[*i] == '>')
 		parse_right_redirection(str, i, command);
 	content = ft_strjoin_with_free(content, handle_command(str, i, envp));

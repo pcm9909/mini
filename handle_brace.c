@@ -1,124 +1,55 @@
 #include "main.h"
 
-// void	handle_double_left_brace(t_redirection *cmd)
-// {
-//     int		i;
-//     char	*input;
-//     char	*str;
-//     int		pipe_fd[2];
-//     pid_t   pid;
+char	*check_input(const char *str, char **envp)
+{
+	int		i;
+	int		start;
+	int		idx;
+	char	*content;
+	char	*temp;
+	char	*env_var;
+	char	*env_val;
 
-//     i = 0;
-//     while (cmd->double_left_brace->command && \
-//             cmd->double_left_brace->command[i])
-//     {
-//         if (pipe(pipe_fd) == -1)
-//         {
-//             perror("pipe");
-//             exit(EXIT_FAILURE);
-//         }
+	i = 0;
+	start = i;
+	content = ft_strdup("");
+	while(str[i])
+	{
+		if (str[i] == '$')
+		{
+			temp = ft_substr(str, start, i - start);
+			content = ft_strjoin_with_free(content, temp);
+			i++;
+			start = i;
+			while(is_envp_vars(str[i]))
+				i++;
+			env_var = ft_substr(str, start, i - start);
+			idx = ft_strlen(env_var) + 1;
+			env_val = ft_strdup(envp[search_env(envp, env_var, 1)]);
+			free(env_var);
+			if (env_val)
+				content = ft_strjoin_with_free(temp, &env_val[idx]);
+			free(env_val);
+			start = i;
+		}
+		else
+			i++;
+	}
+	temp = ft_substr(str, start, i - start);
+	content = ft_strjoin_with_free(content, temp);
+	free(temp);
+	return (content);
+}
 
-//         pid = fork();
-//         if (pid == -1)
-//         {
-//             perror("fork");
-//             exit(EXIT_FAILURE);
-//         }
-
-//         if (pid == 0) // 자식 프로세스
-//         {
-//             close(pipe_fd[0]); // 읽기 끝을 닫음
-//             str = NULL;
-//             while (1)
-//             {
-//                 input = readline(">");
-//                 if (!input)
-//                     break;
-//                 if (ft_strncmp(input, cmd->double_left_brace->command[i], \
-//                     ft_strlen(cmd->double_left_brace->command[i])) == 0 && \
-//                 ft_strlen(input) == ft_strlen(cmd->double_left_brace->command[i]))
-//                 {
-//                     free(input);
-//                     break;
-//                 }
-//                 str = ft_strjoin_with_free(str, input);
-//                 str = ft_strjoin_with_free(str, "\n");
-//                 add_history(input);
-//                 free(input);
-//             }
-//             if (str)
-//             {
-//                 write(pipe_fd[1], str, ft_strlen(str));
-//                 free(str);
-//             }
-//             close(pipe_fd[1]);
-//             exit(EXIT_SUCCESS);
-//         }
-//         else // 부모 프로세스
-//         {
-//             close(pipe_fd[1]); // 쓰기 끝을 닫음
-//             waitpid(pid, NULL, 0); // 자식 프로세스가 끝날 때까지 기다림
-//             if (cmd->double_left_brace->command[i + 1] == NULL)
-//             {
-//                 dup2(pipe_fd[0], 0); // 파이프의 읽기 끝을 표준 입력으로 복제
-//             }
-//             close(pipe_fd[0]);
-//         }
-//         i++;
-//     }
-// }
-
-// void	handle_double_left_brace(t_redirection *cmd)
-// {
-// 	int		i;
-// 	char	*input;
-// 	char	*str;
-// 	int		pipe_fd[2];
-
-// 	i = 0;
-// 	while (cmd->double_left_brace->command && \
-// 			cmd->double_left_brace->command[i])
-// 	{
-// 		if (pipe(pipe_fd) == -1)
-// 		{
-// 			perror("pipe");
-// 			exit(EXIT_FAILURE);
-// 		}
-// 		str = ft_strdup("");
-// 		input = readline(">");
-// 		while (input)
-// 		{
-// 			if (ft_strncmp(input, cmd->double_left_brace->command[i], \
-// 				ft_strlen(cmd->double_left_brace->command[i])) == 0 && \
-// 			ft_strlen(input) == ft_strlen(cmd->double_left_brace->command[i]))
-// 			{
-// 				write(pipe_fd[1], str, ft_strlen(str));
-// 				free(input);
-// 				input = NULL;
-// 				break ;
-// 			}
-// 			str = ft_strjoin_with_free(str, input);
-// 			str = ft_strjoin_with_free(str, "\n");
-// 			add_history(str);
-// 			free(input);
-// 			input = readline(">");
-// 		}
-// 		free(str);
-// 		close(pipe_fd[1]);
-// 		if (cmd->double_left_brace->command[i + 1] == NULL)
-// 		{
-// 			dup2(pipe_fd[0], 0);
-// 		}
-// 		close(pipe_fd[0]);
-// 		i++;
-// 	}
-// }
-
-void handle_double_left_brace(t_redirection *cmd, int check)
+void handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 {
     char    *input;
-	int 	i = 0;
+	int 	i;
+	int		cnt;
 
+
+	i = 0;
+	cnt = 0;
     while (cmd->double_left_brace->command && cmd->double_left_brace->command[i])
     {
         while (1)
@@ -136,11 +67,13 @@ void handle_double_left_brace(t_redirection *cmd, int check)
             }
             if(cmd->double_left_brace->command[i + 1] == NULL)
             {
+				input = check_input(input, envp);
                 cmd->here_doc = ft_strjoin_with_free(cmd->here_doc, input);
                 cmd->here_doc = ft_strjoin_with_free(cmd->here_doc, "\n");
-                add_history(input);
+				add_history(input);
                 free(input);
             }
+
         }
 		i++;
     }
