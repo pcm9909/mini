@@ -67,7 +67,7 @@ char	*handle_double_quotes(const char *str, int *i, \
 
 	start = ++(*i);
 	content = ft_strdup("");
-	while (str[*i] && str[*i] != '"' && str[*i] != ' ')
+	while (str[*i] && str[*i] != '"')
 	{
 		if (str[*i] == '$')
 		{
