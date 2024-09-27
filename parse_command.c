@@ -177,39 +177,52 @@ void	parse_right_redirection(char *str, int *i, t_redirection *command)
 	free(content);
 }
 
+void	handle_redirection(char *str, int *i, \
+							t_redirection *command, char **envp)
+{
+	if (str[*i] == '<')
+	{
+		parse_left_redirection(str, i, command, envp);
+	}
+	if (str[*i] == '>')
+	{
+		parse_right_redirection(str, i, command);
+	}
+}
+
+char	*handle_quotes(char *str, int *i, char **envp, t_redirection *command)
+{
+	char	*temp;
+
+	if (str[*i] == '"')
+	{
+		temp = handle_double_quotes(str, i, envp, command);
+	}
+	else if (str[*i] == '\'')
+	{
+		temp = handle_single_quotes(str, i, command);
+	}
+	return (temp);
+}
+
 void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 {
-	int		j;
 	char	*content;
 	char	*temp;
 
 	content = ft_strdup("");
-	while(str[*i])
+	while (str[*i])
 	{
-		if (str[*i] == '<')
-			parse_left_redirection(str, i, command, envp);
-		if (str[*i] == '>')
-			parse_right_redirection(str, i, command);
-		if (str[*i] == '"')
-		{
-			temp = handle_double_quotes(str, i, envp, command);
-			content = ft_strjoin_with_free(content, temp);
-			free(temp);
-		}
-		else if (str[*i] == '\'')
-		{
-			temp = handle_single_quotes(str, i, command);
-			content = ft_strjoin_with_free(content, temp);
-			free(temp);
-		}
+		if (str[*i] == '<' || str[*i] == '>')
+			handle_redirection(str, i, command, envp);
+		if (str[*i] == '"' || str[*i] == '\'')
+			content = ft_strjoin_with_free(content, \
+						handle_quotes(str, i, envp, command));
 		else
-		{
-			temp = handle_command(str, i, envp);
-			content = ft_strjoin_with_free(content, temp);
-			free(temp);
-		}
-		if(str[*i] == 0 || str[*i] == ' ')
-			break;
+			content = ft_strjoin_with_free(content, \
+						handle_command(str, i, envp));
+		if (str[*i] == 0 || str[*i] == ' ')
+			break ;
 	}
 	if (ft_strlen(content))
 	{

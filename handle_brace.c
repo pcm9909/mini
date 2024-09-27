@@ -4,41 +4,24 @@ char	*check_input(const char *str, char **envp)
 {
 	int		i;
 	int		start;
-	int		idx;
-	char	*content;
-	char	*temp;
-	char	*env_var;
-	char	*env_val;
+	char	*val;
 
 	i = 0;
 	start = i;
-	content = ft_strdup("");
+	val = ft_strdup("");
 	while(str[i])
 	{
 		if (str[i] == '$')
 		{
-			temp = ft_substr(str, start, i - start);
-			content = ft_strjoin_with_free(content, temp);
-			i++;
-			start = i;
-			while(is_envp_vars(str[i]))
-				i++;
-			env_var = ft_substr(str, start, i - start);
-			idx = ft_strlen(env_var) + 1;
-			env_val = ft_strdup(envp[search_env(envp, env_var, 1)]);
-			free(env_var);
-			if (env_val)
-				content = ft_strjoin_with_free(temp, &env_val[idx]);
-			free(env_val);
+			val = ft_strjoin_with_free(val, ft_substr(str, start, i - start));
+			handle_dollar(&i, &val, str, envp);
 			start = i;
 		}
 		else
 			i++;
 	}
-	temp = ft_substr(str, start, i - start);
-	content = ft_strjoin_with_free(content, temp);
-	free(temp);
-	return (content);
+	val = ft_strjoin_with_free2(val, ft_substr(str, start, i - start));
+	return (val);
 }
 
 void handle_double_left_brace(t_redirection *cmd, int check, char **envp)
@@ -46,21 +29,18 @@ void handle_double_left_brace(t_redirection *cmd, int check, char **envp)
     char    *input;
 	int 	i;
 
-	i = 0;
-    while (cmd->double_left_brace->command && cmd->double_left_brace->command[i])
+	i = -1;
+    while (cmd->double_left_brace->command && cmd->double_left_brace->command[++i])
     {
         while (1)
         {
             input = readline(">");
-            if(!input)
+            if(!input || (ft_strncmp(input, cmd->double_left_brace->command[i], \
+			ft_strlen(cmd->double_left_brace->command[i])) == 0 && \
+			ft_strlen(input) == ft_strlen(cmd->double_left_brace->command[i])))
             {
 				free(input);
-                break;
-            }
-            if (ft_strncmp(input, cmd->double_left_brace->command[i], ft_strlen(cmd->double_left_brace->command[i])) == 0 && ft_strlen(input) == ft_strlen(cmd->double_left_brace->command[i]))
-            {
-                free(input);
-                break;
+                break ;
             }
             if(cmd->double_left_brace->command[i + 1] == NULL)
             {
@@ -71,7 +51,6 @@ void handle_double_left_brace(t_redirection *cmd, int check, char **envp)
                 free(input);
             }
         }
-		i++;
     }
 }
 

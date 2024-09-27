@@ -318,13 +318,9 @@ void	process_input(char *str, char ***envp)
 		create_pipes(i, cnt, pipe_fd);
 		fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
 		if (i > 0)
-		{
 			close(input_fd);
-		}
 		if (i < cnt - 1)
-		{
 			close(pipe_fd[1]);
-		}
 		input_fd = pipe_fd[0];
 		i++;
 	}

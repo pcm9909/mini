@@ -34,6 +34,7 @@ typedef struct s_redirection
 
 void	print(t_redirection *cmd);
 
+void	handle_dollar(int *i, char **content, const char *str, char **envp);
 char	*get_path(char **envp);
 char	*get_cmd_path(char *cmd, char *path);
 
@@ -42,6 +43,7 @@ char	*ft_strrev(char *str);
 void	free_command_list(char ***command);
 
 char	*ft_strjoin_with_free(char const *s1, char const *s2);
+char	*ft_strjoin_with_free2(char const *s1, char const *s2);
 
 void	handle_cd_command(t_redirection *command, char **envp);
 void	handle_export_command(t_redirection *command, char ***envp);
