@@ -261,7 +261,7 @@ void	ft_echo(char *ptr, char **envp)
 		printf("\n");
 }
 
-void	handle_cd_command(t_redirection *command, char **envp)
+void	handle_cd_command(t_redirection *command, char ***envp)
 {
 	char	*tmp_pwd;
 	char	**cd;
@@ -273,12 +273,12 @@ void	handle_cd_command(t_redirection *command, char **envp)
 	if (cd[1] == NULL)
 	{
 		free(tmp_pwd);
-		tmp_pwd = ft_strdup(extract_home(envp));
+		tmp_pwd = ft_strdup(extract_home(*envp));
 	}
 	else if (cd[2] != NULL)
 	{
 		printf("minishell: cd: too many arguments\n");
-		exit(1);
+		set_dollar(1,envp);
 	}
 	else
 	{
@@ -294,7 +294,7 @@ void	handle_cd_command(t_redirection *command, char **envp)
 			if (i == 0 && !ft_strncmp(cd_path[i], "~", 4))
 			{
 				free(tmp_pwd);
-				tmp_pwd = ft_strdup(extract_home(envp));
+				tmp_pwd = ft_strdup(extract_home(*envp));
 			}
 			else
 			{
@@ -317,7 +317,7 @@ void	handle_cd_command(t_redirection *command, char **envp)
 	if (chdir(tmp_pwd) == -1)
 	{
 		printf("minishell: cd: %s: No such file or directory\n", cd[1]);
-		exit(1);
+		set_dollar(1,envp);
 	}
 }
 
@@ -327,7 +327,12 @@ void	handle_export_command(t_redirection *command, char ***envp)
 
 	cd = ft_split(command->full_cmd, ' ');
 	if (cd[1] == NULL)
+	{
 		print_envp(*envp, 1);
+	}
+	else
+		set_dollar(ft_export(cd, envp),envp);
+		//*exit_code = ft_export(cd, envp);
 }
 
 void	handle_env_command(t_redirection *command, char **envp)

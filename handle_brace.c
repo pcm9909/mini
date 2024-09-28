@@ -53,7 +53,7 @@ void	handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 	}
 }
 
-void	handle_left_brace(t_redirection *command)
+int	handle_left_brace(t_redirection *command)
 {
 	int	i;
 	int	fd;
@@ -65,7 +65,7 @@ void	handle_left_brace(t_redirection *command)
 		if (fd == -1)
 		{
 			perror(command->left_brace->command[i]);
-			exit(EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 		if (command->left_brace->command[i + 1] == NULL && \
 			command->left_brace->order)
@@ -76,9 +76,10 @@ void	handle_left_brace(t_redirection *command)
 		close(fd);
 		i++;
 	}
+	return (EXIT_SUCCESS);
 }
 
-void	handle_right_brace(t_redirection *cmd)
+int	handle_right_brace(t_redirection *cmd)
 {
 	int	i;
 	int	fd;
@@ -91,7 +92,7 @@ void	handle_right_brace(t_redirection *cmd)
 		if (fd == -1)
 		{
 			perror(cmd->right_brace->command[i]);
-			exit(EXIT_FAILURE);
+			return(EXIT_FAILURE);
 		}
 		if (cmd->right_brace->order == true)
 			dup2(fd, 1);
@@ -99,9 +100,10 @@ void	handle_right_brace(t_redirection *cmd)
 		perror(cmd->right_brace->command[i]);
 		i++;
 	}
+	return (EXIT_SUCCESS);
 }
 
-void	handle_double_right_brace(t_redirection *cmd)
+int	handle_double_right_brace(t_redirection *cmd)
 {
 	int	i;
 	int	fd;
@@ -115,7 +117,7 @@ void	handle_double_right_brace(t_redirection *cmd)
 		if (fd == -1)
 		{
 			perror(cmd->double_right_brace->command[i]);
-			exit(EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 		if (cmd->double_right_brace->order == true)
 			dup2(fd, 1);
@@ -123,4 +125,5 @@ void	handle_double_right_brace(t_redirection *cmd)
 		perror(cmd->double_right_brace->command[i]);
 		i++;
 	}
+	return (EXIT_SUCCESS);
 }

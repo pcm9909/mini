@@ -1,5 +1,15 @@
 #include "main.h"
 
+void	set_dollar(int ptr, char ***envp)
+{
+	char	*tmp;
+	char	*jo;
+
+	tmp = ft_itoa(ptr);
+	jo = ft_strjoin("?=",tmp);
+	//printf("%s\n",jo);
+	set_env(jo, 1, envp);
+}
 t_command	*create_command(void)
 {
 	t_command	*cmd;
@@ -112,6 +122,7 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
 {
 	int		statloc;
 	int		i;
+	char	*tmp;
 	char	**cd;
 
 	i = -1;
@@ -119,21 +130,16 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
 	{
 		waitpid(pids[i], &statloc, 0);
 		if (WIFEXITED(statloc))
-			*exit_code = WEXITSTATUS(statloc);
+		{
+			set_dollar(WEXITSTATUS(statloc),envp);
+		}
 		if (WIFSIGNALED(statloc))
 		{
-			*exit_code = 128 + WTERMSIG(statloc);
+			set_dollar(128 + WTERMSIG(statloc),envp);
 			if (WTERMSIG(statloc) == 2)
 				printf("\n");
 			else if (WTERMSIG(statloc) == 3)
 				printf("Quit (core dumped)\n");
-		}
-		if (!ft_strncmp(command[i]->full_cmd, "export ", 7) || \
-			!ft_strncmp(command[i]->full_cmd, "export", 8))
-		{
-			cd = ft_split(command[i]->full_cmd, ' ');
-			if (cd[1] != NULL)
-				*exit_code = ft_export(cd, envp);
 		}
 	}
 }
@@ -304,6 +310,9 @@ void	process_input(char *str, char ***envp)
 	pid_t			*pids;
 	struct termios	old;
 	int				i;
+	int				builtin_num;
+	int	in;
+	int out;
 
 	i = 0;
 	str = complement_cmd(str);
@@ -315,18 +324,49 @@ void	process_input(char *str, char ***envp)
 	initialize_commands(split, cnt, &command, envp);
 	while (i < cnt)
 	{
-		create_pipes(i, cnt, pipe_fd);
-		fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
-		if (i > 0)
-			close(input_fd);
-		if (i < cnt - 1)
-			close(pipe_fd[1]);
-		input_fd = pipe_fd[0];
+		set_dollar(0 ,envp);
+		builtin_num = check_builtin_num(command[i]);
+		if (builtin_num)
+		{
+			create_pipes(i, cnt, pipe_fd);
+			in = dup(0);
+			out = dup(1);
+			end_sig(&old);
+			if (i > 0)
+			{
+				dup2(input_fd, 0);
+				//close(input_fd);
+			}
+			if (i < cnt - 1)
+			{
+				dup2(pipe_fd[1], 1);
+				//close(pipe_fd[1]);
+			}
+			if(!open_redirection_files(command[i]))
+				handle_builtin_command(command[i], envp, builtin_num);
+			if (i > 0)
+				close(input_fd);
+			if (i < cnt - 1)
+				close(pipe_fd[1]);
+			input_fd = pipe_fd[0];
+			dup2(in, 0);
+			dup2(out, 1);
+		}
+		else
+		{
+			create_pipes(i, cnt, pipe_fd);
+			fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
+			if (i > 0)
+				close(input_fd);
+			if (i < cnt - 1)
+				close(pipe_fd[1]);
+			input_fd = pipe_fd[0];
+		}
 		i++;
 	}
 	wait_for_children(cnt, pids, command, envp, &exit_code);
 	cleanup_resources(cnt, split, command, str, pids);
-	printf("exit_code : %d\n", exit_code);
+	//printf("exit_code : %d\n", exit_code);
 }
 
 static void	cleanup(char *str)
@@ -347,6 +387,7 @@ int	main(int argc, char **argv, char *env[])
 	char			*cwd;
 
 	envp = initialize_environment(env);
+	set_env("?=0",1,&envp);
 	while (1)
 	{
 		cwd = build_prompt(envp);

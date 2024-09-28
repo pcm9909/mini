@@ -57,19 +57,21 @@ void	handle_double_left_brace_fork(t_redirection *command, int pipe_fd[2])
 	}
 }
 
-void	open_redirection_files(t_redirection *command)
+int	open_redirection_files(t_redirection *command)
 {
 	int	pipe_fd[2];
 
-	handle_left_brace(command);
-	handle_right_brace(command);
-	handle_double_right_brace(command);
+	if (handle_left_brace(command) || handle_right_brace(command) || handle_double_right_brace(command))
+		return (EXIT_FAILURE);
+	//handle_right_brace(command);
+	//handle_double_right_brace(command);
 	if (command->double_left_brace->exist)
 	{
 		if (pipe(pipe_fd) == -1)
 			perror_exit("pipe");
 		handle_double_left_brace_fork(command, pipe_fd);
 	}
+	return (EXIT_SUCCESS);
 }
 
 int	check_builtin_num(t_redirection *cmd)
@@ -103,7 +105,7 @@ void	handle_builtin_command(t_redirection *cmd, \
 								char ***envp, int builtin_num)
 {
 	if ((builtin_num) == 1)
-		handle_cd_command(cmd, *envp);
+		handle_cd_command(cmd, envp);
 	else if ((builtin_num) == 2)
 		handle_export_command(cmd, envp);
 	else if ((builtin_num) == 3)
@@ -126,10 +128,11 @@ void	execute_command(t_redirection *cmd, char ***envp, \
 	builtin_num = check_builtin_num(cmd);
 	if (cmd->executable == true)
 	{
-		open_redirection_files(cmd);
-		if (builtin_num)
-			handle_builtin_command(cmd, envp, builtin_num);
-		else
+		if (open_redirection_files(cmd))
+			exit(2);
+		// if (builtin_num)
+		// 	handle_builtin_command(cmd, envp, builtin_num);
+		// else
 			execute_external_command(cmd, *envp, input_fd, output_fd);
 	}
 	else

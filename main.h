@@ -27,10 +27,16 @@ typedef struct s_redirection
 	struct s_command	*command;
 	struct s_command	*right_brace;
 	struct s_command	*double_right_brace;
+
 	char				*full_cmd;
 	char				*here_doc;
 	bool				executable;
 }				t_redirection;
+
+int	check_builtin_num(t_redirection *cmd);
+int	open_redirection_files(t_redirection *command);
+void	handle_builtin_command(t_redirection *cmd, \
+								char ***envp, int builtin_num);
 
 void	print(t_redirection *cmd);
 
@@ -45,17 +51,18 @@ void	free_command_list(char ***command);
 char	*ft_strjoin_with_free(char const *s1, char const *s2);
 char	*ft_strjoin_with_free2(char const *s1, char const *s2);
 
-void	handle_cd_command(t_redirection *command, char **envp);
+void	handle_cd_command(t_redirection *command, char ***envp);
 void	handle_export_command(t_redirection *command, char ***envp);
 void	handle_env_command(t_redirection *command, char **envp);
 void	handle_exit_command(t_redirection *command);
 void	handle_unset_command(t_redirection *command, char **envp);
 void	handle_pwd_command(void);
 void	handle_echo_command(t_redirection *command, char **envp);
+void	set_dollar(int ptr, char ***envp);
 
-void	handle_left_brace(t_redirection *command);
-void	handle_right_brace(t_redirection *command);
-void	handle_double_right_brace(t_redirection *command);
+int	handle_left_brace(t_redirection *command);
+int	handle_right_brace(t_redirection *command);
+int	handle_double_right_brace(t_redirection *command);
 
 void	execute_command(t_redirection *command, char ***envp, \
 							int input_fd, int output_fd);

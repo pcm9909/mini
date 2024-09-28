@@ -2,8 +2,9 @@
 
 int	is_envp_vars(int c)
 {
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || \
-		(c == '_') || (c >= '0' && c <= '9'))
+	//if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || \
+	//	(c == '_') || (c >= '0' && c <= '9'))
+	if (!is_whitespace(c))
 	{
 		return (1);
 	}
