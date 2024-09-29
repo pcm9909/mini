@@ -170,6 +170,8 @@ int	ft_export(char **ptr, char ***envp)
 
 int	only_digit(char *ptr)
 {
+	if (*ptr == '-' || *ptr == '+')
+		ptr++;
 	while (*ptr)
 	{
 		if (!ft_isdigit(*ptr))
@@ -273,9 +275,11 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 	char	*tmp_pwd;
 	char	**cd;
 	char	**cd_path;
+	char	*old;
 	int		i;
 
 	tmp_pwd = getcwd(NULL, BUFSIZ);
+	old = getcwd(NULL, BUFSIZ);
 	cd = ft_split(command->full_cmd, ' ');
 	if (cd[1] == NULL)
 	{
@@ -328,6 +332,11 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 		ft_putstr_fd(": No such file or directory\n",2);
 		//printf("minishell: cd: %s: No such file or directory\n", cd[1]);
 		set_dollar(1,envp);
+	}
+	else
+	{
+		set_env(ft_strjoin("OLDPWD=",old), 1, envp);// free
+		set_env(ft_strjoin("PWD=",tmp_pwd), 1, envp);// free
 	}
 }
 

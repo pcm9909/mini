@@ -12,6 +12,8 @@
 # include <errno.h>
 # include <signal.h>
 # include <termios.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 typedef struct s_command
 {

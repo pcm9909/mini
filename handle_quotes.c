@@ -2,7 +2,7 @@
 
 int	is_envp_vars(int c)
 {
-	if (!is_whitespace(c) && c)
+	if (!is_whitespace(c) && c && ft_isalnum(c))
 	{
 		return (1);
 	}
@@ -46,7 +46,12 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 
 	(*i)++;
 	start = (*i);
-	while (is_envp_vars(str[*i]))
+	if (ft_isalpha(str[*i]) || str[*i] == '_')
+	{
+		while (is_envp_vars(str[*i]))
+			(*i)++;
+	}
+	else
 		(*i)++;
 	envp_var = ft_substr(str, start, (*i) - start);
 	idx = ft_strlen(envp_var) + 1;
