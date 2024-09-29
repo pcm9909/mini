@@ -128,6 +128,8 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
 	i = -1;
 	while (++i < cnt)
 	{
+		if (pids[i] == -1)
+			continue;
 		waitpid(pids[i], &statloc, 0);
 		if (WIFEXITED(statloc))
 		{
@@ -322,6 +324,7 @@ void	process_input(char *str, char ***envp)
 	input_fd = 0;
 	command = (malloc(sizeof(t_redirection *) * cnt));
 	initialize_commands(split, cnt, &command, envp);
+	set_dollar(0 ,envp);
 	while (i < cnt)
 	{
 		set_dollar(0 ,envp);
@@ -329,6 +332,7 @@ void	process_input(char *str, char ***envp)
 		if (builtin_num)
 		{
 			create_pipes(i, cnt, pipe_fd);
+			pids[i] = -1;
 			in = dup(0);
 			out = dup(1);
 			end_sig(&old);

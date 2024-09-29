@@ -1,5 +1,29 @@
 #include "main.h"
 
+static void	check_executable(char *path)
+{
+	struct stat st;
+
+	if(lstat(path, &st) < 0)
+	{
+		return ;
+	}
+	if (S_ISDIR(st.st_mode))
+	{
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd(path, 2);
+		ft_putstr_fd(": Is a directory\n", 2);
+		exit(126);
+	}
+	if ((S_IXUSR & st.st_mode) != S_IXUSR)
+	{
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd(path, 2);
+		ft_putstr_fd(": Permission denied\n", 2);
+		exit(126);
+	}
+}
+
 static void	exe(t_redirection *command, char **cmd, char **envp)
 {
 	char	*cmd_path;
@@ -9,8 +33,9 @@ static void	exe(t_redirection *command, char **cmd, char **envp)
 	path = get_path(envp);
 	if (cmd)
 		cmd_path = get_cmd_path(cmd[0], path);
-	if (ft_strlen(*cmd) == 0)
+	if (ft_strlen(command->command->command[0]) == 0)
 		exit(0);
+	check_executable(cmd[0]);
 	if (execve(cmd_path, cmd, envp))
 	{
 		if (cmd)
