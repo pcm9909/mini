@@ -2,7 +2,7 @@
 
 int	is_envp_vars(int c)
 {
-	if (!is_whitespace(c) && c)
+	if (!is_whitespace(c) && c && ft_isalnum(c))
 	{
 		return (1);
 	}
@@ -36,25 +36,29 @@ char	*handle_single_quotes(const char *str, int *i, t_redirection *command)
 	return (content);
 }
 
-void	handle_dollar(int *i, char **content, const char *str, char **envp)
+void    handle_dollar(int *i, char **content, const char *str, char **envp)
 {
-	char	*temp;
-	char	*envp_var;
-	char	*envp_val;
-	int		idx;
-	int		start;
-
-	(*i)++;
-	start = (*i);
-	while (is_envp_vars(str[*i]))
-		(*i)++;
-	envp_var = ft_substr(str, start, (*i) - start);
-	idx = ft_strlen(envp_var) + 1;
-	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
-	free(envp_var);
-	if (envp_val)
-		(*content) = ft_strjoin_with_free((*content), &envp_val[idx]);
-	free(envp_val);
+    char    *temp;
+    char    *envp_var;
+    char    *envp_val;
+    int     idx;
+    int     start;
+    (*i)++;
+    start = (*i);
+    if (ft_isalpha(str[*i]) || str[*i] == '_')
+    {
+        while (is_envp_vars(str[*i]))
+            (*i)++;
+    }
+    else
+        (*i)++;
+    envp_var = ft_substr(str, start, (*i) - start);
+    idx = ft_strlen(envp_var) + 1;
+    envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
+    free(envp_var);
+    if (envp_val)
+        (*content) = ft_strjoin_with_free((*content), &envp_val[idx]);
+    free(envp_val);
 }
 
 char	*handle_single_quotes2(const char *str, int *i, t_redirection *command)

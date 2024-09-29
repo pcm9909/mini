@@ -101,12 +101,9 @@ void	parse_left_redirection(const char *str, int *i, t_redirection *command, cha
 			(*i)++;
 	}
 	while (str[*i] && !is_whitespace(str[*i]) && \
-		str[*i] != '>' && str[*i] != '<' && str[*i] != '"' && str[*i] != '\'')
+		str[*i] != '>' && str[*i] != '<' )
 		(*i)++;
-	if (str[*i] == '"' || str[*i] == '\'')
-			content = handle_quotes2(str, i, envp, command);
-	else
-		content = ft_substr(str, j, *i - j);
+	content = ft_substr(str, j, *i - j);
 	if (flag == 1)
 	{
 		command->double_left_brace->exist = true;
@@ -170,16 +167,12 @@ void	parse_right_redirection(char *str, int *i, char **envp, t_redirection *comm
 		ft_putstr_fd("minishell: parse error near `", 2);
 		ft_putchar_fd(str[*i], 2);
 		ft_putstr_fd("'\n", 2);
-		//printf("minishell: parse error near `%c'\n", str[*i]);
 		command->executable = false;
 		while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
-			str[*i] == '|' || str[*i] == '&' || str[*i] == ';' || str[*i] != '"' || str[*i] != '\'')
+			str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
 			(*i)++;
 	}
-	if (str[*i] == '"' || str[*i] == '\'')
-			content = handle_quotes(str, i, envp, command);
-	else
-		content = ft_substr(str, j, *i - j);
+	content = ft_substr(str, j, *i - j);
 	j = *i;
 	while (str[*i] && !is_whitespace(str[*i]) && \
 			str[*i] != '>' && str[*i] != '<')

@@ -299,6 +299,62 @@ char	**ft_splits(char const *s, char c)
 	return (arr);
 }
 
+void handle_dollar1(int *i, char **content, const char *str, char **envp)
+{
+	char	*temp;
+	char	*envp_var;
+	char	*envp_val;
+	int		idx;
+	int		start;
+
+	(*i)++;
+	start = (*i);
+	while (is_envp_vars(str[*i]))
+		(*i)++;
+	envp_var = ft_substr(str, start, (*i) - start);
+	idx = ft_strlen(envp_var) + 1;
+	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
+	free(envp_var);
+	if (envp_val)
+		(*content) = ft_strjoin_with_free((*content), &envp_val[idx]);
+	free(envp_val);
+}
+
+char *set_str(char *str, char **envp)
+{
+	int 	i;
+	int		start;
+	char	*content;
+
+	i = 0;
+	start = 0;
+	content = ft_strdup("");
+	while(str[i])
+	{
+		if(str[i] == '\'')
+		{
+			i++;
+			while(str[i] && str[i] != '\'')
+			{
+				i++;
+			}
+			if(str[i] == '\'')
+				i++;
+		}
+		else if(str[i] == '$')
+		{
+			content = ft_strjoin_with_free2(content, ft_substr(str, start, i - start));
+			handle_dollar(&i, &content, str, envp);
+			start = i;
+		}
+		else
+			i++;
+	}
+	content = ft_strjoin_with_free2(content, ft_substr(str, start, i - start));
+	free(str);
+	return content;
+}
+
 void	process_input(char *str, char ***envp)
 {
 	static int		exit_code;
@@ -316,6 +372,8 @@ void	process_input(char *str, char ***envp)
 
 	i = 0;
 	str = complement_cmd(str);
+	str = set_str(str, *envp);
+	printf("\n\nstr = %s\n\n", str);
 	split = ft_splits(str, '|');
 	cnt = cnt_cmd(split);
 	pids = malloc(sizeof(pid_t) * cnt);
