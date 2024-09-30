@@ -375,7 +375,7 @@ void	process_input(char *str, char ***envp)
 	i = 0;
 	str = complement_cmd(str);
 	str = set_str(str, *envp);
-	printf("\n\nstr = %s\n\n", str);
+	//printf("\n\nstr = %s\n\n", str);
 	split = ft_splits(str, '|');
 	cnt = cnt_cmd(split);
 	pids = malloc(sizeof(pid_t) * cnt);

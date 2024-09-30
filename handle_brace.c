@@ -103,8 +103,7 @@ void	handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 	int		start;
 	int 	flag;
 	char	*temp;
-	char	*content1;
-	char	*content2;
+	char	*content;
 
 	i = -1;
 	flag = 0;
@@ -112,31 +111,38 @@ void	handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 	{
 		j = 0;
 		temp = ft_strdup("");
-		content1 = ft_strdup("");
+		content = ft_strdup("");
 		start = 0;
 		while(cmd->double_left_brace->command[i][j])
 		{
 			if (cmd->double_left_brace->command[i][j] == '"' || cmd->double_left_brace->command[i][j] == '\'')
 			{
-				content1 = ft_substr(cmd->double_left_brace->command[i], start, j  - start);
-				temp = handle_quotes3(cmd->double_left_brace->command[i], cmd, &j);
-				content2 = ft_strjoin(content1, temp);
-				free(content1);
-				free(temp);
- 				start = ++j;
+				char *sub = ft_substr(cmd->double_left_brace->command[i], start, j - start);
+				char *quote_content = handle_quotes3(cmd->double_left_brace->command[i], cmd, &j);
+				char *joined = ft_strjoin(sub, quote_content);
+				free(sub);
+				free(quote_content);
+				char *new_content = ft_strjoin(content, joined);
+				free(content);
+				free(joined);
+				content = new_content;
+				start = ++j;
 				flag = 1;
 			}
 			else
 				j++;
 		}
-		temp = ft_strjoin(temp, ft_substr(cmd->double_left_brace->command[i], start, j - start));
+		char *sub = ft_substr(cmd->double_left_brace->command[i], start, j - start);
+		char *new_content = ft_strjoin(content, sub);
+		free(content);
+		free(sub);
+		content = new_content;
 		free(cmd->double_left_brace->command[i]);
-		cmd->double_left_brace->command[i] = ft_strdup(temp);
-		free(temp);
+		cmd->double_left_brace->command[i] = ft_strdup(content);
+		free(content);
 
 		while (1)
 		{
-			printf("%s", cmd->double_left_brace->command[i]);
 			read = readline(">");
 			if (!read || (ft_strncmp(read, cmd->double_left_brace->command[i], \
 			ft_strlen(cmd->double_left_brace->command[i])) == 0 && \
@@ -156,41 +162,54 @@ void	handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 			}
 		}
 	}
-}
+	}
 
-int	handle_left_brace(t_redirection *cmd)
-{
-	int	i;
+	int	handle_left_brace(t_redirection *cmd)
+	{
+	int		i;
 	int		j;
 	int		start;
-	int 	flag;
 	char	*temp;
-	int	fd;
+	char	*content;
+	int		fd;
 
 	i = 0;
 	while (cmd->left_brace->command && cmd->left_brace->command[i])
 	{
 		j = 0;
 		temp = ft_strdup("");
+		content = ft_strdup("");
 		start = 0;
-		while(cmd->double_left_brace->command[i][j])
+		while(cmd->left_brace->command[i][j])
 		{
-			if (cmd->double_left_brace->command[i][j] == '"' || cmd->double_left_brace->command[i][j] == '\'')
+			if (cmd->left_brace->command[i][j] == '"' || cmd->left_brace->command[i][j] == '\'')
 			{
-				temp = ft_strjoin(ft_substr(cmd->double_left_brace->command[i], start, j  - start) ,handle_quotes3(cmd->double_left_brace->command[i], cmd, &j));
- 				start = ++j;
-				flag = 1;
+				char *sub = ft_substr(cmd->left_brace->command[i], start, j - start);
+				char *quote_content = handle_quotes3(cmd->left_brace->command[i], cmd, &j);
+				char *joined = ft_strjoin(sub, quote_content);
+				free(sub);
+				free(quote_content);
+				char *new_content = ft_strjoin(content, joined);
+				free(content);
+				free(joined);
+				content = new_content;
+				start = ++j;
 			}
 			else
 				j++;
 		}
-		temp = ft_strjoin(temp, ft_substr(cmd->double_left_brace->command[i], start, j - start));
-		free(cmd->double_left_brace->command[i]);
-		cmd->double_left_brace->command[i] = ft_strdup(temp);
-		free(temp);
+		char *sub = ft_substr(cmd->left_brace->command[i], start, j - start);
+		char *new_content = ft_strjoin(content, sub);
+		free(content);
+		free(sub);
+		content = new_content;
+		free(cmd->left_brace->command[i]);
+		cmd->left_brace->command[i] = ft_strdup(content);
+		free(content);
 		fd = open(cmd->left_brace->command[i], O_RDONLY);
 		if (fd == -1)
 		{
+			ft_putstr_fd("minishell: ",2);
 			perror(cmd->left_brace->command[i]);
 			return (EXIT_FAILURE);
 		}
@@ -209,49 +228,130 @@ int	handle_left_brace(t_redirection *cmd)
 int	handle_right_brace(t_redirection *cmd)
 {
 	int	i;
+	int		j;
+	int		start;
+	char	*temp;
+	char	*content;
 	int	fd;
 
 	i = 0;
 	while (cmd->right_brace->command && cmd->right_brace->command[i])
 	{
-
-		fd = open(cmd->right_brace->command[i], \
-					O_CREAT | O_TRUNC | O_WRONLY, 0644);
-		if (fd == -1)
+		i = 0;
+		while (cmd->right_brace->command && cmd->right_brace->command[i])
 		{
-			perror(cmd->right_brace->command[i]);
-			return(EXIT_FAILURE);
+			j = 0;
+			temp = ft_strdup("");
+			content = ft_strdup("");
+			start = 0;
+			while(cmd->right_brace->command[i][j])
+			{
+				if (cmd->right_brace->command[i][j] == '"' || cmd->right_brace->command[i][j] == '\'')
+				{
+					char *sub = ft_substr(cmd->right_brace->command[i], start, j - start);
+					char *quote_content = handle_quotes3(cmd->right_brace->command[i], cmd, &j);
+					char *joined = ft_strjoin(sub, quote_content);
+					free(sub);
+					free(quote_content);
+					char *new_content = ft_strjoin(content, joined);
+					free(content);
+					free(joined);
+					content = new_content;
+					start = ++j;
+				}
+				else
+					j++;
+			}
+			char *sub = ft_substr(cmd->right_brace->command[i], start, j - start);
+			char *new_content = ft_strjoin(content, sub);
+			free(content);
+			free(sub);
+			content = new_content;
+			free(cmd->right_brace->command[i]);
+			cmd->right_brace->command[i] = ft_strdup(content);
+			free(content);
+
+			fd = open(cmd->right_brace->command[i], \
+						O_CREAT | O_TRUNC | O_WRONLY, 0644);
+			if (fd == -1)
+			{
+				ft_putstr_fd("minishell: ",2);
+				perror(cmd->right_brace->command[i]);
+				return(EXIT_FAILURE);
+			}
+			if (cmd->right_brace->order == true)
+				dup2(fd, 1);
+			close(fd);
+			//perror(cmd->right_brace->command[i]);
+			i++;
 		}
-		if (cmd->right_brace->order == true)
-			dup2(fd, 1);
-		close(fd);
-		perror(cmd->right_brace->command[i]);
-		i++;
+
 	}
 	return (EXIT_SUCCESS);
 }
 
 int	handle_double_right_brace(t_redirection *cmd)
 {
-	int	i;
+	int		i;
+	int		j;
+	int		start;
+	char	*temp;
+	char	*content;
 	int	fd;
 
 	i = 0;
 	while (cmd->double_right_brace->command && \
 			cmd->double_right_brace->command[i])
 	{
-		fd = open(cmd->double_right_brace->command[i], \
-					O_CREAT | O_APPEND | O_WRONLY, 0644);
-		if (fd == -1)
+		i = 0;
+		while (cmd->double_right_brace->command && cmd->double_right_brace->command[i])
 		{
-			perror(cmd->double_right_brace->command[i]);
-			return (EXIT_FAILURE);
+			j = 0;
+			temp = ft_strdup("");
+			content = ft_strdup("");
+			start = 0;
+			while(cmd->double_right_brace->command[i][j])
+			{
+				if (cmd->double_right_brace->command[i][j] == '"' || cmd->double_right_brace->command[i][j] == '\'')
+				{
+					char *sub = ft_substr(cmd->double_right_brace->command[i], start, j - start);
+					char *quote_content = handle_quotes3(cmd->double_right_brace->command[i], cmd, &j);
+					char *joined = ft_strjoin(sub, quote_content);
+					free(sub);
+					free(quote_content);
+					char *new_content = ft_strjoin(content, joined);
+					free(content);
+					free(joined);
+					content = new_content;
+					start = ++j;
+				}
+				else
+					j++;
+			}
+			char *sub = ft_substr(cmd->double_right_brace->command[i], start, j - start);
+			char *new_content = ft_strjoin(content, sub);
+			free(content);
+			free(sub);
+			content = new_content;
+			free(cmd->double_right_brace->command[i]);
+			cmd->double_right_brace->command[i] = ft_strdup(content);
+			free(content);
+
+
+			fd = open(cmd->double_right_brace->command[i], \
+						O_CREAT | O_APPEND | O_WRONLY, 0644);
+			if (fd == -1)
+			{
+				ft_putstr_fd("minishell: ",2);
+				perror(cmd->double_right_brace->command[i]);
+				return (EXIT_FAILURE);
+			}
+			if (cmd->double_right_brace->order == true)
+				dup2(fd, 1);
+			close(fd);
+			//perror(cmd->double_right_brace->command[i]);
+			i++;
 		}
-		if (cmd->double_right_brace->order == true)
-			dup2(fd, 1);
-		close(fd);
-		perror(cmd->double_right_brace->command[i]);
-		i++;
 	}
 	return (EXIT_SUCCESS);
 }
