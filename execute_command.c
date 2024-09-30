@@ -35,9 +35,9 @@ static void	exe(t_redirection *command, char **cmd, char **envp)
 		cmd_path = get_cmd_path(cmd[0], path);
 	if (ft_strlen(command->command->command[0]) == 0)
 		exit(0);
-	check_executable(cmd[0]);
 	if (execve(cmd_path, cmd, envp))
 	{
+		check_executable(cmd[0]);
 		if (cmd)
 		{
 			write(2, "minishell: ", ft_strlen("minishell: " ));
