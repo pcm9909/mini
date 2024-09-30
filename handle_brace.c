@@ -24,23 +24,6 @@ char	*check_input(const char *str, char **envp)
 	return (val);
 }
 
-// char	*handle_double_quotes4(const char *str, t_redirection *command)
-// {
-// 	int 	i;
-// 	int		start;
-// 	char	*content;
-
-// 	i = 0;
-// 	start = ++i;
-// 	content = ft_strdup("");
-// 	while (str[i] && str[i] != '"')
-// 		i++;
-// 	if (str[i] != '"')
-// 		return (print_qutoes_error(str, command, &content));
-// 	else
-// 		content = ft_substr(str, start, i - start);
-// 	return (content);
-// }
 
 char	*handle_quotes4(const char *str, t_redirection *command, char param, int *idx)
 {
