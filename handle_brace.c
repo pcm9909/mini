@@ -104,6 +104,7 @@ void	handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 	int 	flag;
 	char	*temp;
 	char	*content;
+	struct termios	old;
 
 	i = -1;
 	flag = 0;
@@ -143,11 +144,14 @@ void	handle_double_left_brace(t_redirection *cmd, int check, char **envp)
 
 		while (1)
 		{
+			input_sig(&old); // 바꿔야함
 			read = readline(">");
+			none_sig(&old);
 			if (!read || (ft_strncmp(read, cmd->double_left_brace->command[i], \
 			ft_strlen(cmd->double_left_brace->command[i])) == 0 && \
 			ft_strlen(read) == ft_strlen(cmd->double_left_brace->command[i])))
 			{
+				printf("gimozzi~~~\n"); // 수정해야함
 				free(read);
 				break ;
 			}

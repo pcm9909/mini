@@ -245,7 +245,7 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 		if (str[*i] == 0 || str[*i] == ' ')
 			break ;
 	}
-	if (ft_strlen(content))
+	if (content)
 	{
 		command->command->exist = true;
 		command->command->command = \
