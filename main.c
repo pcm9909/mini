@@ -6,7 +6,7 @@ void	set_dollar(int ptr, char ***envp)
 	char	*jo;
 
 	tmp = ft_itoa(ptr);
-	jo = ft_strjoin("?=", tmp);
+	jo = strjoin_free("?=", tmp, 2);
 	set_env(jo, 1, envp);
 }
 
@@ -106,7 +106,7 @@ char	*complement_cmd(char *str)
 			return (str);
 		if (str[len] == '|')
 		{
-			tmp = ft_strjoin_with_free(str, readline(">"));
+			tmp = strjoin_free(str, readline(">"), 3);
 			add_history(tmp);
 			str = tmp;
 		}
@@ -344,15 +344,14 @@ char	*set_str(char *str, char **envp)
 		}
 		else if (str[i] == '$')
 		{
-			content = ft_strjoin_with_free2(content, \
-						ft_substr(str, start, i - start));
+			content = strjoin_free(content, ft_substr(str, start, i - start), 3);
 			handle_dollar(&i, &content, str, envp);
 			start = i;
 		}
 		else
 			i++;
 	}
-	content = ft_strjoin_with_free2(content, ft_substr(str, start, i - start));
+	content = strjoin_free(content, ft_substr(str, start, i - start), 3);
 	free(str);
 	return (content);
 }
@@ -428,7 +427,7 @@ void	process_input(char *str, char ***envp)
 	cleanup_resources(cnt, split, command, str, pids);
 }
 
-static void	cleanup(char *str)
+static void	cleanup(char *str, char **envp)
 {
 	struct termios	old;
 
@@ -460,8 +459,9 @@ int	main(int argc, char **argv, char *env[])
 		}
 		else
 		{
-			cleanup(str);
+			cleanup(str, envp);
 		}
+		free(cwd);
 	}
 	return (0);
 }

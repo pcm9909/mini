@@ -64,6 +64,72 @@ int	is_whitespace(int c)
 	return ((c >= 9 && c <= 13) || c == 32);
 }
 
+char	*ft_strjoin_free_f1(char const *s1, char const *s2)
+{
+	char	*str;
+	size_t	len;
+
+	if (!s1 || !s2)
+		return (NULL);
+	len = ft_strlen(s1) + ft_strlen(s2);
+	str = (char *)malloc(sizeof(char) * (len + 1));
+	if (!str)
+		return (NULL);
+	ft_strlcpy (str, s1, ft_strlen(s1) + 1);
+	ft_strlcat (str, s2, len + 1);
+	free((char *)s1);
+	return (str);
+}
+
+char	*ft_strjoin_free_f2(char const *s1, char const *s2)
+{
+	char	*str;
+	size_t	len;
+
+	if (!s1 || !s2)
+		return (NULL);
+	len = ft_strlen(s1) + ft_strlen(s2);
+	str = (char *)malloc(sizeof(char) * (len + 1));
+	if (!str)
+		return (NULL);
+	ft_strlcpy (str, s1, ft_strlen(s1) + 1);
+	ft_strlcat (str, s2, len + 1);
+	free((char *)s2);
+	return (str);
+}
+
+char	*ft_strjoin_free_f1_f2(char const *s1, char const *s2)
+{
+	char	*str;
+	size_t	len;
+
+	if (!s1 || !s2)
+		return (NULL);
+	len = ft_strlen(s1) + ft_strlen(s2);
+	str = (char *)malloc(sizeof(char) * (len + 1));
+	if (!str)
+		return (NULL);
+	ft_strlcpy (str, s1, ft_strlen(s1) + 1);
+	ft_strlcat (str, s2, len + 1);
+	free((char *)s1);
+	free((char *)s2);
+	return (str);
+}
+
+
+
+char	*strjoin_free(char const *s1, char const *s2, int i)
+{
+	if (i == 0)
+		return (ft_strjoin(s1, s2));
+	else if (i == 1)
+		return (ft_strjoin_free_f1(s1, s2));
+	else if (i == 2)
+		return (ft_strjoin_free_f2(s1, s2));
+	else
+		return (ft_strjoin_free_f1_f2(s1, s2));
+}
+
 int	cnt_cmd(char **split)
 {
 	int	i;
