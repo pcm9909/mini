@@ -71,7 +71,8 @@ char	*set_command(t_command *command)
 	return (result);
 }
 
-void	parse_left_redirection(const char *str, int *i, t_redirection *command, char **envp)
+void	parse_left_redirection(const char *str, int *i, \
+				t_redirection *cmd, char **envp)
 {
 	int		j;
 	int		flag;
@@ -89,13 +90,13 @@ void	parse_left_redirection(const char *str, int *i, t_redirection *command, cha
 	while (is_whitespace(str[*i]))
 		(*i)++;
 	j = *i;
-	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0'
-		|| str[*i] == '|' || str[*i] == '&')
+	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
+		str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
 	{
 		ft_putstr_fd("minishell: parse error near `", 2);
 		ft_putchar_fd(str[*i], 2);
 		ft_putstr_fd("'\n", 2);
-		command->executable = false;
+		cmd->executable = false;
 		while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
 				str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
 			(*i)++;
@@ -106,9 +107,9 @@ void	parse_left_redirection(const char *str, int *i, t_redirection *command, cha
 	content = ft_substr(str, j, *i - j);
 	if (flag == 1)
 	{
-		command->double_left_brace->exist = true;
-		command->double_left_brace->command = \
-			append_command(&command->double_left_brace->command, content);
+		cmd->double_left_brace->exist = true;
+		cmd->double_left_brace->command = \
+			append_command(&cmd->double_left_brace->command, content);
 		while (str[j])
 		{
 			if (str[j] && str[j + 1] && str[j] == '<' && str[j + 1] == '<')
@@ -119,13 +120,13 @@ void	parse_left_redirection(const char *str, int *i, t_redirection *command, cha
 			j++;
 		}
 		if (check == 0)
-			handle_double_left_brace(command, check, envp);
+			handle_double_left_brace(cmd, check, envp);
 	}
 	else
 	{
-		command->left_brace->exist = true;
-		command->left_brace->command = \
-			append_command(&command->left_brace->command, content);
+		cmd->left_brace->exist = true;
+		cmd->left_brace->command = \
+			append_command(&cmd->left_brace->command, content);
 	}
 	free(content);
 }
@@ -146,7 +147,8 @@ static void	check_flag(t_redirection *command, int flag, char *content)
 	}
 }
 
-void	parse_right_redirection(char *str, int *i, char **envp, t_redirection *command)
+void	parse_right_redirection(char *str, int *i, \
+				char **envp, t_redirection *cmd)
 {
 	int		j;
 	int		flag;
@@ -162,12 +164,12 @@ void	parse_right_redirection(char *str, int *i, char **envp, t_redirection *comm
 	while (is_whitespace(str[*i]))
 		(*i)++;
 	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
-		str[*i] == '|' || str[*i] == '&')
+		str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
 	{
 		ft_putstr_fd("minishell: parse error near `", 2);
 		ft_putchar_fd(str[*i], 2);
 		ft_putstr_fd("'\n", 2);
-		command->executable = false;
+		cmd->executable = false;
 		while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
 			str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
 			(*i)++;
@@ -178,7 +180,7 @@ void	parse_right_redirection(char *str, int *i, char **envp, t_redirection *comm
 			str[*i] != '>' && str[*i] != '<')
 		(*i)++;
 	content = ft_substr(str, j, *i - j);
-	check_flag(command, flag, content);
+	check_flag(cmd, flag, content);
 	free(content);
 }
 
@@ -193,10 +195,12 @@ void	handle_redirection(char *str, int *i, \
 	{
 		parse_right_redirection(str, i, envp, command);
 	}
+	while (str[*i] && is_whitespace(str[*i]))
+		(*i)++;
 }
 
-
-char	*handle_quotes(const char *str, int *i, char **envp, t_redirection *command)
+char	*handle_quotes(const char *str, int *i, \
+				char **envp, t_redirection *command)
 {
 	char	*temp;
 
@@ -212,7 +216,8 @@ char	*handle_quotes(const char *str, int *i, char **envp, t_redirection *command
 	return (temp);
 }
 
-char	*handle_quotes2(const char *str, int *i, char **envp, t_redirection *command)
+char	*handle_quotes2(const char *str, int *i, \
+			char **envp, t_redirection *command)
 {
 	char	*temp;
 
@@ -229,35 +234,31 @@ char	*handle_quotes2(const char *str, int *i, char **envp, t_redirection *comman
 
 void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
 {
-	char	*content;
 	char	*temp;
 
-	content = ft_strdup("");
+	temp = ft_strdup("");
 	while (str[*i])
 	{
-		if(str[*i] && str[*i + 1] && str[*i] == '"' && str[*i + 1] == '"')
+		if (str[*i] && str[*i + 1] && str[*i] == '"' && str[*i + 1] == '"')
 		{
-			content = ft_strjoin_with_free(content, "");
+			temp = ft_strjoin_with_free(temp, "");
 			(*i) += 2;
 		}
 		else if (str[*i] == '<' || str[*i] == '>')
 			handle_redirection(str, i, cmd, envp);
 		else if (str[*i] == '"' || str[*i] == '\'')
-			content = ft_strjoin_with_free(content, \
-						handle_quotes(str, i, envp, cmd));
+			temp = ft_strjoin_with_free(temp, handle_quotes(str, i, envp, cmd));
 		else
-			content = ft_strjoin_with_free(content, \
-						handle_command(str, i, envp));
+			temp = ft_strjoin_with_free(temp, handle_command(str, i, envp));
 		if (str[*i] == 0 || str[*i] == ' ')
 			break ;
 	}
-	if (content)
+	if (temp)
 	{
 		cmd->command->exist = true;
-		cmd->command->command = \
-			append_command(&cmd->command->command, content);
+		cmd->command->command = append_command(&cmd->command->command, temp);
 	}
-	free(content);
+	free(temp);
 }
 
 void	parse_redirection(char *str, t_redirection *command, char **envp)

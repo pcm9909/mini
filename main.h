@@ -29,7 +29,6 @@ typedef struct s_redirection
 	struct s_command	*command;
 	struct s_command	*right_brace;
 	struct s_command	*double_right_brace;
-
 	char				*full_cmd;
 	char				*here_doc;
 	bool				executable;
@@ -136,8 +135,8 @@ char	*handle_quotes(const char *str, int *i, char **envp, t_redirection *command
 char	*handle_double_quotes2(const char *str, int *i, \
 							char **envp, t_redirection *command);
 
-char	*handle_quotes2(const char *str, int *i, char **envp, t_redirection *command);			
-char	*handle_single_quotes2(const char *str, int *i, t_redirection *command);		
+char	*handle_quotes2(const char *str, int *i, char **envp, t_redirection *command);
+char	*handle_single_quotes2(const char *str, int *i, t_redirection *command);
 
 char	*print_qutoes_error(const char *str, \
 								t_redirection *command, char **content);
