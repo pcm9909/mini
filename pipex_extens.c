@@ -1,6 +1,6 @@
 #include "main.h"
 
-static void	check_cmd(char *cmd_path) // 암데도 안씀
+static void	check_cmd(char *cmd_path)
 {
 	if (!cmd_path)
 	{

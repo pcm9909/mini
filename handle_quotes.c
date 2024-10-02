@@ -36,13 +36,14 @@ char	*handle_single_quotes(const char *str, int *i, t_redirection *command)
 	return (content);
 }
 
-void    handle_dollar(int *i, char **content, const char *str, char **envp)
+void	handle_dollar(int *i, char **content, const char *str, char **envp)
 {
 	char	*temp;
 	char	*envp_var;
 	char	*envp_val;
 	int		idx;
 	int		start;
+
 	(*i)++;
 	start = (*i);
 	if (ft_isalpha(str[*i]) || str[*i] == '_')
