@@ -34,6 +34,8 @@ typedef struct s_redirection
 	bool				executable;
 }				t_redirection;
 
+
+
 int		check_builtin_num(t_redirection *cmd);
 int		open_redirection_files(t_redirection *command);
 void	handle_builtin_command(t_redirection *cmd, \
@@ -140,5 +142,10 @@ char	*handle_single_quotes2(const char *str, int *i, t_redirection *command);
 
 char	*print_qutoes_error(const char *str, \
 								t_redirection *command, char **content);
+
+char	*ft_strjoin_free_f1_f2(char const *s1, char const *s2);
+char	*ft_strjoin_free_f2(char const *s1, char const *s2);
+char	*ft_strjoin_free_f1(char const *s1, char const *s2);
+char	*strjoin_free(char const *s1, char const *s2, int i);
 
 #endif

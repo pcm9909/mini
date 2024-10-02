@@ -237,6 +237,8 @@ void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
 	char	*temp;
 
 	temp = ft_strdup("");
+	while(str[*i] && is_whitespace(str[*i]))
+		(*i)++;
 	while (str[*i])
 	{
 		if (str[*i] && str[*i + 1] && str[*i] == '"' && str[*i + 1] == '"')
@@ -247,9 +249,9 @@ void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
 		else if (str[*i] == '<' || str[*i] == '>')
 			handle_redirection(str, i, cmd, envp);
 		else if (str[*i] == '"' || str[*i] == '\'')
-			temp = ft_strjoin_with_free(temp, handle_quotes(str, i, envp, cmd));
+			temp = strjoin_free(temp, handle_quotes(str, i, envp, cmd), 3);
 		else
-			temp = ft_strjoin_with_free(temp, handle_command(str, i, envp));
+			temp = strjoin_free(temp, handle_command(str, i, envp), 3);
 		if (str[*i] == 0 || str[*i] == ' ')
 			break ;
 	}
