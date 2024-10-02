@@ -200,6 +200,7 @@ char	*handle_quotes(const char *str, int *i, char **envp, t_redirection *command
 {
 	char	*temp;
 
+	temp = ft_strdup("");
 	if (str[*i] == '"')
 	{
 		temp = handle_double_quotes(str, i, envp, command);
@@ -226,7 +227,7 @@ char	*handle_quotes2(const char *str, int *i, char **envp, t_redirection *comman
 	return (temp);
 }
 
-void	parse_command(char *str, int *i, t_redirection *command, char **envp)
+void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
 {
 	char	*content;
 	char	*temp;
@@ -234,11 +235,16 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 	content = ft_strdup("");
 	while (str[*i])
 	{
-		if (str[*i] == '<' || str[*i] == '>')
-			handle_redirection(str, i, command, envp);
-		if (str[*i] == '"' || str[*i] == '\'')
+		if(str[*i] && str[*i + 1] && str[*i] == '"' && str[*i + 1] == '"')
+		{
+			content = ft_strjoin_with_free(content, "");
+			(*i) += 2;
+		}
+		else if (str[*i] == '<' || str[*i] == '>')
+			handle_redirection(str, i, cmd, envp);
+		else if (str[*i] == '"' || str[*i] == '\'')
 			content = ft_strjoin_with_free(content, \
-						handle_quotes(str, i, envp, command));
+						handle_quotes(str, i, envp, cmd));
 		else
 			content = ft_strjoin_with_free(content, \
 						handle_command(str, i, envp));
@@ -247,9 +253,9 @@ void	parse_command(char *str, int *i, t_redirection *command, char **envp)
 	}
 	if (content)
 	{
-		command->command->exist = true;
-		command->command->command = \
-			append_command(&command->command->command, content);
+		cmd->command->exist = true;
+		cmd->command->command = \
+			append_command(&cmd->command->command, content);
 	}
 	free(content);
 }
