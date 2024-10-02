@@ -11,7 +11,7 @@ char	*check_input(const char *str, char **envp)
 	val = ft_strdup("");
 	while (str[i])
 		i++;
-	val = ft_strjoin_with_free2(val, ft_substr(str, start, i - start));
+	val = ft_strjoin_opts(val, ft_substr(str, start, i - start), 3);
 	return (val);
 }
 
@@ -54,12 +54,8 @@ char	*handle_quotes_and_join(char *command,
 
 	sub = ft_substr(command, start, *j - start);
 	quote_content = handle_quotes3(command, cmd, j);
-	new_content = ft_strjoin(sub, quote_content);
-	free(sub);
-	free(quote_content);
-	sub = ft_strjoin(content, new_content);
-	free(content);
-	free(new_content);
+	new_content = ft_strjoin_opts(sub, quote_content, 3);
+	sub = ft_strjoin_opts(content, new_content, 3);
 	return (sub);
 }
 
@@ -69,9 +65,7 @@ char	*join_remaining_content(char *command, char *content, int start, int j)
 	char	*new_content;
 
 	sub = ft_substr(command, start, j - start);
-	new_content = ft_strjoin(content, sub);
-	free(content);
-	free(sub);
+	new_content = ft_strjoin_opts(content, sub, 3);;
 	return (new_content);
 }
 
@@ -116,10 +110,10 @@ void	handle_readline(t_redirection *cmd, int i, int flag, char **envp)
 		{
 			add_history(read);
 			if (flag)
-				read = ft_strjoin_with_free(read, "\n");
+				read = ft_strjoin_opts(read, "\n", 1);
 			else
-				read = ft_strjoin_with_free(check_input(read, envp), "\n");
-			cmd->here_doc = ft_strjoin_with_free2(cmd->here_doc, read);
+				read = ft_strjoin_opts(check_input(read, envp), "\n", 1);
+			cmd->here_doc = ft_strjoin_opts(cmd->here_doc, read, 3);
 		}
 	}
 }

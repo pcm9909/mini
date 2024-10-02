@@ -142,10 +142,7 @@ char	*handle_single_quotes2(const char *str, int *i, t_redirection *command);
 
 char	*print_qutoes_error(const char *str, \
 								t_redirection *command, char **content);
-
-char	*ft_strjoin_free_f1_f2(char const *s1, char const *s2);
-char	*ft_strjoin_free_f2(char const *s1, char const *s2);
-char	*ft_strjoin_free_f1(char const *s1, char const *s2);
-char	*strjoin_free(char const *s1, char const *s2, int i);
+								
+char	*ft_strjoin_opts(char const *s1, char const *s2, int i);
 
 #endif

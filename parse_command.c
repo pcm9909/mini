@@ -243,15 +243,15 @@ void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
 	{
 		if (str[*i] && str[*i + 1] && str[*i] == '"' && str[*i + 1] == '"')
 		{
-			temp = ft_strjoin_with_free(temp, "");
+			temp = ft_strjoin_opts(temp, "", 1);
 			(*i) += 2;
 		}
 		else if (str[*i] == '<' || str[*i] == '>')
 			handle_redirection(str, i, cmd, envp);
 		else if (str[*i] == '"' || str[*i] == '\'')
-			temp = strjoin_free(temp, handle_quotes(str, i, envp, cmd), 3);
+			temp = ft_strjoin_opts(temp, handle_quotes(str, i, envp, cmd), 3);
 		else
-			temp = strjoin_free(temp, handle_command(str, i, envp), 3);
+			temp = ft_strjoin_opts(temp, handle_command(str, i, envp), 3);
 		if (str[*i] == 0 || str[*i] == ' ')
 			break ;
 	}

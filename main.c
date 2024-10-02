@@ -6,7 +6,7 @@ void	set_dollar(int ptr, char ***envp)
 	char	*jo;
 
 	tmp = ft_itoa(ptr);
-	jo = strjoin_free("?=", tmp, 2);
+	jo = ft_strjoin_opts("?=", tmp, 2);
 	set_env(jo, 1, envp);
 }
 
@@ -106,7 +106,7 @@ char	*complement_cmd(char *str)
 			return (str);
 		if (str[len] == '|')
 		{
-			tmp = strjoin_free(str, readline(">"), 3);
+			tmp = ft_strjoin_opts(str, readline(">"), 3);
 			add_history(tmp);
 			str = tmp;
 		}
@@ -319,7 +319,7 @@ void	handle_dollar1(int *i, char **content, const char *str, char **envp)
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
 	free(envp_var);
 	if (envp_val)
-		(*content) = ft_strjoin_with_free((*content), &envp_val[idx]);
+		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 1);
 	free(envp_val);
 }
 
@@ -344,14 +344,14 @@ char	*set_str(char *str, char **envp)
 		}
 		else if (str[i] == '$')
 		{
-			content = strjoin_free(content, ft_substr(str, start, i - start), 3);
+			content = ft_strjoin_opts(content, ft_substr(str, start, i - start), 3);
 			handle_dollar(&i, &content, str, envp);
 			start = i;
 		}
 		else
 			i++;
 	}
-	content = strjoin_free(content, ft_substr(str, start, i - start), 3);
+	content = ft_strjoin_opts(content, ft_substr(str, start, i - start), 3);
 	free(str);
 	return (content);
 }
