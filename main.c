@@ -6,10 +6,10 @@ void	set_dollar(int ptr, char ***envp)
 	char	*jo;
 
 	tmp = ft_itoa(ptr);
-	jo = ft_strjoin("?=",tmp);
-	//printf("%s\n",jo);
+	jo = ft_strjoin("?=", tmp);
 	set_env(jo, 1, envp);
 }
+
 t_command	*create_command(void)
 {
 	t_command	*cmd;
@@ -129,15 +129,15 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
 	while (++i < cnt)
 	{
 		if (pids[i] == -1)
-			continue;
+			continue ;
 		waitpid(pids[i], &statloc, 0);
 		if (WIFEXITED(statloc))
 		{
-			set_dollar(WEXITSTATUS(statloc),envp);
+			set_dollar(WEXITSTATUS(statloc), envp);
 		}
 		if (WIFSIGNALED(statloc))
 		{
-			set_dollar(128 + WTERMSIG(statloc),envp);
+			set_dollar(128 + WTERMSIG(statloc), envp);
 			if (WTERMSIG(statloc) == 2)
 				printf("\n");
 			else if (WTERMSIG(statloc) == 3)
@@ -181,9 +181,10 @@ void	create_pipes(int i, int cnt, int pipe_fd[2])
 		pipe_fd[1] = 1;
 	}
 }
-void fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
-                            pid_t *pids, t_redirection **command, \
-                            char ***envp, struct termios *old)
+
+void	fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
+							pid_t *pids, t_redirection **command, \
+							char ***envp, struct termios *old)
 {
 	pids[i] = fork();
 	if (pids[i] == 0)
@@ -301,7 +302,7 @@ char	**ft_splits(char const *s, char c)
 	return (arr);
 }
 
-void handle_dollar1(int *i, char **content, const char *str, char **envp)
+void	handle_dollar1(int *i, char **content, const char *str, char **envp)
 {
 	char	*temp;
 	char	*envp_var;
@@ -322,30 +323,29 @@ void handle_dollar1(int *i, char **content, const char *str, char **envp)
 	free(envp_val);
 }
 
-char *set_str(char *str, char **envp)
+char	*set_str(char *str, char **envp)
 {
-	int 	i;
+	int		i;
 	int		start;
 	char	*content;
 
 	i = 0;
 	start = 0;
 	content = ft_strdup("");
-	while(str[i])
+	while (str[i])
 	{
-		if(str[i] == '\'')
+		if (str[i] == '\'')
 		{
 			i++;
-			while(str[i] && str[i] != '\'')
-			{
+			while (str[i] && str[i] != '\'')
 				i++;
-			}
-			if(str[i] == '\'')
+			if (str[i] == '\'')
 				i++;
 		}
-		else if(str[i] == '$')
+		else if (str[i] == '$')
 		{
-			content = ft_strjoin_with_free2(content, ft_substr(str, start, i - start));
+			content = ft_strjoin_with_free2(content, \
+						ft_substr(str, start, i - start));
 			handle_dollar(&i, &content, str, envp);
 			start = i;
 		}
@@ -354,7 +354,7 @@ char *set_str(char *str, char **envp)
 	}
 	content = ft_strjoin_with_free2(content, ft_substr(str, start, i - start));
 	free(str);
-	return content;
+	return (content);
 }
 
 void	process_input(char *str, char ***envp)
@@ -369,23 +369,22 @@ void	process_input(char *str, char ***envp)
 	struct termios	old;
 	int				i;
 	int				builtin_num;
-	int	in;
-	int out;
+	int				in;
+	int				out;
 
 	i = 0;
 	str = complement_cmd(str);
 	str = set_str(str, *envp);
-	//printf("\n\nstr = %s\n\n", str);
 	split = ft_splits(str, '|');
 	cnt = cnt_cmd(split);
 	pids = malloc(sizeof(pid_t) * cnt);
 	input_fd = 0;
 	command = (malloc(sizeof(t_redirection *) * cnt));
 	initialize_commands(split, cnt, &command, envp);
-	set_dollar(0 ,envp);
+	set_dollar(0, envp);
 	while (i < cnt)
 	{
-		set_dollar(0 ,envp);
+		set_dollar(0, envp);
 		builtin_num = check_builtin_num(command[i]);
 		if (builtin_num)
 		{
@@ -397,14 +396,12 @@ void	process_input(char *str, char ***envp)
 			if (i > 0)
 			{
 				dup2(input_fd, 0);
-				//close(input_fd);
 			}
 			if (i < cnt - 1)
 			{
 				dup2(pipe_fd[1], 1);
-				//close(pipe_fd[1]);
 			}
-			if(!open_redirection_files(command[i]))
+			if (!open_redirection_files(command[i]))
 				handle_builtin_command(command[i], envp, builtin_num);
 			if (i > 0)
 				close(input_fd);
@@ -417,7 +414,8 @@ void	process_input(char *str, char ***envp)
 		else
 		{
 			create_pipes(i, cnt, pipe_fd);
-			fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
+			fork_and_execute(i, cnt, input_fd, pipe_fd, \
+							pids, command, envp, &old);
 			if (i > 0)
 				close(input_fd);
 			if (i < cnt - 1)
@@ -447,7 +445,7 @@ int	main(int argc, char **argv, char *env[])
 	struct termios	old;
 	char			*cwd;
 
-	envp = update_envp(env,0,ft_strdup("?=0"));
+	envp = update_envp(env, 0, ft_strdup("?=0"));
 	while (1)
 	{
 		cwd = build_prompt(envp);
