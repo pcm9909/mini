@@ -439,6 +439,7 @@ void	process_input(char *str, char ***envp)
 	set_dollar(0 ,envp);
 	while (i < cnt)
 	{
+		print(command[i]);
 		set_dollar(0 ,envp);
 		builtin_num = check_builtin_num(command[i]);
 		if (builtin_num)
