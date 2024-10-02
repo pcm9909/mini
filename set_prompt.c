@@ -83,15 +83,16 @@ char	*build_prompt(char **envp)
 	{
 		cwd = pwd + ft_strlen(extract_home(envp));
 		cwd = ft_strjoin("~", cwd);
+		free(pwd);
 	}
 	else
 	{
 		cwd = pwd;
 	}
-	cwd = ft_strjoin(cwd, "$ ");
-	cwd = ft_strjoin(":", cwd);
-	cwd = ft_strjoin(extract_location(envp), cwd);
-	cwd = ft_strjoin("@", cwd);
-	cwd = ft_strjoin(extract_name(envp), cwd);
+	cwd = strjoin_free(cwd, "$ ", 1);
+	cwd = strjoin_free(":", cwd, 2);
+	cwd = strjoin_free(extract_location(envp), cwd, 3);
+	cwd = strjoin_free("@", cwd, 2);
+	cwd = strjoin_free(extract_name(envp), cwd, 2);
 	return (cwd);
 }

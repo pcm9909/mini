@@ -56,9 +56,8 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 	envp_var = ft_substr(str, start, (*i) - start);
 	idx = ft_strlen(envp_var) + 1;
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
-	free(envp_var);
 	if (envp_val)
-		(*content) = ft_strjoin_with_free((*content), &envp_val[idx]);
+		(*content) = ft_strjoin((*content), &envp_val[idx]);
 	free(envp_val);
 }
 
