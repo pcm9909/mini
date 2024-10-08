@@ -62,10 +62,6 @@ char	*get_cmd_path(char *cmd, char *path);
 char	*ft_strrev(char *str);
 
 void	free_command_list(char ***command);
-
-char	*ft_strjoin_with_free(char const *s1, char const *s2);
-char	*ft_strjoin_with_free2(char const *s1, char const *s2);
-
 void	handle_cd_command(t_redirection *command, char ***envp);
 void	handle_export_command(t_redirection *command, char ***envp);
 void	handle_env_command(t_redirection *command, char **envp);
@@ -139,7 +135,7 @@ char	**extract_path(char *envp[]);
 int		is_whitespace(int c);
 int		cnt_cmd(char **split);
 
-void	handle_double_left_brace(t_redirection *cmd, int check, char **envp);
+void	handle_double_left_brace(t_redirection *cmd, char **envp);
 
 int		is_envp_vars(int c);
 

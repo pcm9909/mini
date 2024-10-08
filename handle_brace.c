@@ -1,5 +1,11 @@
 #include "main.h"
 
+void	print_error(char *target)
+{
+	ft_putstr_fd("minishell: ", 2);
+	perror(target);
+}
+
 char	*check_input(const char *str, char **envp)
 {
 	int		i;
@@ -28,10 +34,11 @@ char	*handle_quotes4(const char *str, \
 		(*idx)++;
 	if (str[(*idx)] != param)
 	{
-		return (print_qutoes_error(str, command, &content)); // 실패시 heredoc 안되도록 수정하기
+		return (print_qutoes_error(str, command, &content));
 	}
 	else
 	{
+		free(content);
 		content = ft_substr(str, start, (*idx) - start);
 	}
 	return (content);
@@ -46,7 +53,7 @@ char	*handle_quotes3(const char *str, t_redirection *command, int *j)
 }
 
 char	*handle_quotes_and_join(char *command,
-			t_redirection *cmd, int *j, char *content, int start)
+			t_redirection *cmd, int *j, int start)
 {
 	char	*sub;
 	char	*quote_content;
@@ -55,8 +62,7 @@ char	*handle_quotes_and_join(char *command,
 	sub = ft_substr(command, start, *j - start);
 	quote_content = handle_quotes3(command, cmd, j);
 	new_content = ft_strjoin_opts(sub, quote_content, 3);
-	sub = ft_strjoin_opts(content, new_content, 3);
-	return (sub);
+	return (new_content);
 }
 
 char	*join_remaining_content(char *command, char *content, int start, int j)
@@ -65,7 +71,8 @@ char	*join_remaining_content(char *command, char *content, int start, int j)
 	char	*new_content;
 
 	sub = ft_substr(command, start, j - start);
-	new_content = ft_strjoin_opts(content, sub, 3);;
+	new_content = ft_strjoin_opts(content, sub, 1);
+	free(sub);
 	return (new_content);
 }
 
@@ -74,15 +81,19 @@ char	*process_command(char *command, t_redirection *cmd)
 	int		j;
 	int		start;
 	char	*content;
+	char	*sub;
+	int		len;
 
 	j = 0;
+	len = ft_strlen(command);
 	content = ft_strdup("");
 	start = 0;
-	while (command[j])
+	while (j < len)
 	{
 		if (command[j] == '"' || command[j] == '\'')
 		{
-			content = handle_quotes_and_join(command, cmd, &j, content, start);
+			sub = handle_quotes_and_join(command, cmd, &j, start);
+			content = ft_strjoin_opts(content, sub, 3);
 			start = ++j;
 		}
 		else
@@ -96,7 +107,7 @@ void	handle_readline(t_redirection *cmd, int i, int flag, char **envp)
 {
 	char	*read;
 
-	while (1)
+	while (cmd->executable)
 	{
 		read = readline(">");
 		if (!read || (ft_strncmp(read, cmd->double_left_brace->command[i], \
@@ -118,7 +129,7 @@ void	handle_readline(t_redirection *cmd, int i, int flag, char **envp)
 	}
 }
 
-void	handle_double_left_brace(t_redirection *cmd, int check, char **envp)
+void	handle_double_left_brace(t_redirection *cmd, char **envp)
 {
 	char	*read;
 	int		i;
@@ -155,8 +166,7 @@ int	handle_left_brace(t_redirection *cmd)
 		fd = open(cmd->left_brace->command[i], O_RDONLY);
 		if (fd == -1)
 		{
-			ft_putstr_fd("minishell: ", 2);
-			perror(cmd->left_brace->command[i]);
+			print_error(cmd->left_brace->command[i]);
 			return (EXIT_FAILURE);
 		}
 		if (cmd->left_brace->command[i + 1] == NULL && cmd->left_brace->order)
@@ -186,8 +196,7 @@ int	handle_right_brace(t_redirection *cmd)
 				O_CREAT | O_TRUNC | O_WRONLY, 0644);
 		if (fd == -1)
 		{
-			ft_putstr_fd("minishell: ", 2);
-			perror(cmd->right_brace->command[i]);
+			print_error(cmd->right_brace->command[i]);
 			return (EXIT_FAILURE);
 		}
 		if (cmd->right_brace->order == true)
@@ -210,15 +219,14 @@ int	handle_double_right_brace(t_redirection *cmd)
 	{
 		proc_command = \
 			process_command(cmd->double_right_brace->command[i], cmd);
-		cmd->double_right_brace->command[i] = ft_strdup(proc_command);
 		free(cmd->double_right_brace->command[i]);
+		cmd->double_right_brace->command[i] = ft_strdup(proc_command);
 		free(proc_command);
 		fd = open(cmd->double_right_brace->command[i], \
 					O_CREAT | O_APPEND | O_WRONLY, 0644);
 		if (fd == -1)
 		{
-			ft_putstr_fd("minishell: ", 2);
-			perror(cmd->double_right_brace->command[i]);
+			print_error(cmd->double_left_brace->command[i]);
 			return (EXIT_FAILURE);
 		}
 		if (cmd->double_right_brace->order == true)

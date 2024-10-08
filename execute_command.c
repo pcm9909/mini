@@ -33,7 +33,7 @@ static void	exe(t_redirection *command, char **cmd, char **envp)
 	path = get_path(envp);
 	if (cmd)
 		cmd_path = get_cmd_path(cmd[0], path);
-	if (ft_strlen(command->command->command[0]) == 0)
+	if (!command->command->command)
 		exit(0);
 	if (execve(cmd_path, cmd, envp))
 	{

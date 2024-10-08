@@ -18,7 +18,7 @@ char	*ft_strrev(char *str)
 	return (rev);
 }
 
-void perror_exit(char *str)
+void	perror_exit(char *str)
 {
 	perror(str);
 	exit(EXIT_FAILURE);
@@ -45,10 +45,10 @@ int	cnt_cmd(char **split)
 	return (i);
 }
 
-char *ft_strjoin_opts(char const *s1, char const *s2, int i)
+char	*ft_strjoin_opts(char const *s1, char const *s2, int i)
 {
-	char *str;
-	size_t len;
+	char	*str;
+	size_t	len;
 
 	if (!s1 || !s2)
 		return (NULL);
