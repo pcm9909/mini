@@ -28,7 +28,7 @@ char	*handle_quotes4(const char *str, \
 		(*idx)++;
 	if (str[(*idx)] != param)
 	{
-		return (print_qutoes_error(str, command, &content));
+		return (print_qutoes_error(str, command, &content)); // 실패시 heredoc 안되도록 수정하기
 	}
 	else
 	{

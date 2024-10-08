@@ -71,16 +71,67 @@ char	*set_command(t_command *command)
 	return (result);
 }
 
-void	parse_left_redirection(const char *str, int *i, \
-				t_redirection *cmd, char **envp)
+static void handle_parse_error(const char *str, int *i, t_redirection *cmd)
 {
-	int		j;
-	int		flag;
-	char	*content;
-	int		check;
+	ft_putstr_fd("minishell: parse error near `", 2);
+	ft_putchar_fd(str[*i], 2);
+	ft_putstr_fd("'\n", 2);
+	cmd->executable = false;
+	while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' ||
+		   str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
+		(*i)++;
+}
+
+static char *extract_content(const char *str, int *i)
+{
+	int j;
+	char *content;
+
+	j = *i;
+	while (str[*i] && !is_whitespace(str[*i]) &&
+		   str[*i] != '>' && str[*i] != '<')
+		(*i)++;
+	content = ft_substr(str, j, *i - j);
+	return (content);
+}
+
+static void handle_double_left(t_redirection *cmd, char *content, const char *str, int *i, char **envp)
+{
+	int j;
+	int check;
+
+	cmd->double_left_brace->exist = true;
+	cmd->double_left_brace->command =
+		append_command(&cmd->double_left_brace->command, content);
+	j = *i;
+	check = 0;
+	while (str[j])
+	{
+		if (str[j] && str[j + 1] && str[j] == '<' && str[j + 1] == '<')
+		{
+			check = 1;
+			break;
+		}
+		j++;
+	}
+	if (check == 0)
+		handle_double_left_brace(cmd, check, envp);
+}
+
+static void handle_single_left(t_redirection *cmd, char *content)
+{
+	cmd->left_brace->exist = true;
+	cmd->left_brace->command =
+		append_command(&cmd->left_brace->command, content);
+}
+
+void parse_left_redirection(const char *str, int *i,
+							t_redirection *cmd, char **envp)
+{
+	int flag;
+	char *content;
 
 	flag = 0;
-	check = 0;
 	(*i)++;
 	if (str[*i] == '<')
 	{
@@ -89,45 +140,17 @@ void	parse_left_redirection(const char *str, int *i, \
 	}
 	while (is_whitespace(str[*i]))
 		(*i)++;
-	j = *i;
-	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
+	if (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' ||
 		str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
 	{
-		ft_putstr_fd("minishell: parse error near `", 2);
-		ft_putchar_fd(str[*i], 2);
-		ft_putstr_fd("'\n", 2);
-		cmd->executable = false;
-		while (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' || \
-				str[*i] == '|' || str[*i] == '&' || str[*i] == ';')
-			(*i)++;
+		handle_parse_error(str, i, cmd);
+		return;
 	}
-	while (str[*i] && !is_whitespace(str[*i]) && \
-		str[*i] != '>' && str[*i] != '<' )
-		(*i)++;
-	content = ft_substr(str, j, *i - j);
+	content = extract_content(str, i);
 	if (flag == 1)
-	{
-		cmd->double_left_brace->exist = true;
-		cmd->double_left_brace->command = \
-			append_command(&cmd->double_left_brace->command, content);
-		while (str[j])
-		{
-			if (str[j] && str[j + 1] && str[j] == '<' && str[j + 1] == '<')
-			{
-				check = 1;
-				break ;
-			}
-			j++;
-		}
-		if (check == 0)
-			handle_double_left_brace(cmd, check, envp);
-	}
+		handle_double_left(cmd, content, str, i, envp);
 	else
-	{
-		cmd->left_brace->exist = true;
-		cmd->left_brace->command = \
-			append_command(&cmd->left_brace->command, content);
-	}
+		handle_single_left(cmd, content);
 	free(content);
 }
 

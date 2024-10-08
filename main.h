@@ -34,7 +34,19 @@ typedef struct s_redirection
 	bool				executable;
 }				t_redirection;
 
-
+typedef struct s_process_data
+{
+	t_redirection	**command;
+	pid_t			*pids;
+	struct termios	old;
+	char			**split;
+	int				pipe_fd[2];
+	int				cnt;
+	int				input_fd;
+	int				builtin_num;
+	int				in;
+	int				out;
+} t_process_data;
 
 int		check_builtin_num(t_redirection *cmd);
 int		open_redirection_files(t_redirection *command);
@@ -142,7 +154,7 @@ char	*handle_single_quotes2(const char *str, int *i, t_redirection *command);
 
 char	*print_qutoes_error(const char *str, \
 								t_redirection *command, char **content);
-								
+
 char	*ft_strjoin_opts(char const *s1, char const *s2, int i);
 
 #endif
