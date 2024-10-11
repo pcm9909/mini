@@ -81,6 +81,7 @@ char	*process_command(char *command, t_redirection *cmd)
 	int		j;
 	int		start;
 	char	*content;
+	struct termios	old;
 	char	*sub;
 	int		len;
 
