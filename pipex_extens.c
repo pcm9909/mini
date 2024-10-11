@@ -39,15 +39,17 @@ static char	*search_path(char *cmd, char *path)
 	i = 0;
 	while (paths[i])
 	{
-		tmp = ft_strjoin_with_free(paths[i], "/");
-		cmd_path = ft_strjoin_with_free(tmp, cmd);
+		tmp = ft_strjoin(paths[i], "/");
+		cmd_path = ft_strjoin_opts(tmp, cmd, 1);
 		if (access(cmd_path, X_OK) != -1)
 			break ;
 		free(cmd_path);
 		cmd_path = NULL;
 		i++;
 	}
-	i = 0;
+	i = -1;
+	while (paths[++i])
+		free(paths[i]);
 	free(paths);
 	return (cmd_path);
 }

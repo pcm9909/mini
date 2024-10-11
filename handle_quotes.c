@@ -57,7 +57,7 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 	idx = ft_strlen(envp_var) + 1;
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
 	if (envp_val)
-		(*content) = ft_strjoin((*content), &envp_val[idx]);
+		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 1);
 	free(envp_val);
 }
 
@@ -112,8 +112,8 @@ char	*handle_double_quotes(const char *str, int *i, \
 	if (str[*i] != '"')
 		return (print_qutoes_error(str, command, &content));
 	else
-		content = ft_strjoin_with_free2(content, \
-					ft_substr(str, start, (*i) - start));
+		content = ft_strjoin_opts(content, \
+					ft_substr(str, start, (*i) - start), 3);
 	(*i)++;
 	return (content);
 }
@@ -133,6 +133,6 @@ char	*handle_command(const char *str, int *i, char **envp)
 		else
 			break ;
 	}
-	val = ft_strjoin_with_free2(val, ft_substr(str, start, (*i) - start));
+	val = ft_strjoin_opts(val, ft_substr(str, start, (*i) - start), 3);
 	return (val);
 }

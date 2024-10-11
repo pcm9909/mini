@@ -406,8 +406,8 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 				}
 				else
 				{
-					tmp_pwd = ft_strjoin(tmp_pwd, "/");
-					tmp_pwd = ft_strjoin(tmp_pwd, cd_path[i]);
+					tmp_pwd = ft_strjoin_opts(tmp_pwd, "/", 1);
+					tmp_pwd = ft_strjoin_opts(tmp_pwd, cd_path[i], 1);
 				}
 			}
 			i++;
