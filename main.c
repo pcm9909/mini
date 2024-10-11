@@ -474,10 +474,16 @@ void	process_input(char *str, char ***envp)
 	free(data);
 }
 
-static void	cleanup(char *str, char ***envp)
+static void	cleanup(char *str, char **envp)
 {
 	struct termios	old;
-
+	int i = 0;
+	while(envp[i])
+	{
+		free(envp[i]);
+		i++;
+	}
+	free(envp);
 	end_sig(&old);
 	ft_putstr_fd("exit\n", 2);
 	exit(EXIT_SUCCESS);
@@ -505,7 +511,7 @@ int	main(int argc, char **argv, char *env[])
 		}
 		else
 		{
-			cleanup(str, &envp);
+			cleanup(str, envp);
 		}
 		free(cwd);
 	}

@@ -152,5 +152,7 @@ char	*print_qutoes_error(const char *str, \
 								t_redirection *command, char **content);
 
 char	*ft_strjoin_opts(char const *s1, char const *s2, int i);
+char	**ft_splits(char const *s, char c);
+char	**ft_strdups(char	**source);
 
 #endif

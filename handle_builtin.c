@@ -46,6 +46,7 @@ int	search_env(char **envp, char *name, int flag)
 	int		i;
 	char	*re;
 	char	*tmp;
+	char	*dup_name;
 
 	i = 0;
 	if (ft_strchr(name, '=') && flag == 1)
@@ -57,16 +58,16 @@ int	search_env(char **envp, char *name, int flag)
 		if (ft_strchr(*envp, '='))
 			tmp = ft_substr(*envp, 0, ft_strchr(*envp, '=') - *envp);
 		else
-			tmp = *envp;
+			tmp = ft_strdup(*envp);
 		if (!ft_strncmp(tmp, re, ft_strlen(re) + 1))
 		{
 			break ;
 		}
 		envp++;
 		i++;
+		free(tmp);
 	}
 	free(re);
-	free(tmp);
 	return (i);
 }
 
@@ -83,21 +84,37 @@ int	is_validname(char *ptr)
 
 int	env_validate(char *ptr)
 {
-	if ((ft_isalpha(*ptr) || *ptr == '_') && is_validname(ptr))
+	char	*dup_ptr;
+
+	dup_ptr = ft_strdup(ptr);
+	if ((ft_isalpha(*dup_ptr) || *dup_ptr == '_') && is_validname(dup_ptr))
 	{
-		if (ft_strchr(ptr, '='))
+		if (ft_strchr(dup_ptr, '='))
 		{
-			if ((ft_strchr(ptr, '=') + 1)[0] == '\0')
+			if ((ft_strchr(dup_ptr, '=') + 1)[0] == '\0')
+			{
+				free(dup_ptr);
 				return (1);
-			if (ft_strchr(ptr, '=') != ft_strrchr(ptr, '='))
+			}
+			if (ft_strchr(dup_ptr, '=') != ft_strrchr(dup_ptr, '='))
+			{
+				free(dup_ptr);
 				return (1);
+			}
+			free(dup_ptr);
 			return (1);
 		}
 		else
+		{
+			free(dup_ptr);
 			return (0);
+		}
 	}
 	else
+	{
+		free(dup_ptr);
 		return (-1);
+	}
 }
 
 char	*set_env(char *name, int flag, char ***envp)
@@ -368,7 +385,7 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 
 	tmp_pwd = getcwd(NULL, BUFSIZ);
 	old = getcwd(NULL, BUFSIZ);
-	cd = ft_split(command->full_cmd, ' ');
+	cd = ft_strdups(command->command->command);
 	if (cd[1] == NULL)
 	{
 		free(tmp_pwd);
@@ -432,7 +449,7 @@ void	handle_export_command(t_redirection *command, char ***envp)
 {
 	char	**cd;
 
-	cd = ft_split(command->full_cmd, ' ');
+	cd = ft_strdups(command->command->command);
 	if (cd[1] == NULL)
 	{
 		print_envp(*envp, 1);
@@ -459,7 +476,7 @@ void	handle_unset_command(t_redirection *command, char **envp)
 {
 	char	**cd;
 
-	cd = ft_split(command->full_cmd, ' ');
+	cd = ft_strdups(command->command->command);
 	ft_unset(cd, envp);
 }
 

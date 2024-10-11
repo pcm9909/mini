@@ -64,3 +64,23 @@ char	*ft_strjoin_opts(char const *s1, char const *s2, int i)
 		free((char *)s2);
 	return (str);
 }
+
+char	**ft_strdups(char	**source)
+{
+	int cnt;
+	int i;
+	char	**dup;
+
+	i = 0;
+	cnt = 0;
+	while(source[cnt])
+		cnt++;
+	dup = malloc(sizeof(char *) * (cnt + 1));
+	dup[cnt] = NULL;
+	while(source[i])
+	{
+		dup[i] = ft_strdup(source[i]);
+		i++;
+	}
+	return (dup);
+}

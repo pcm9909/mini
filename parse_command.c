@@ -259,18 +259,21 @@ char	*get_parse_value(char *str, int *i, t_redirection *cmd, char **envp)
 	char	*temp;
 
 	temp = ft_strdup("");
-	if (str[*i] && str[*i + 1] && ((str[*i] == '"' && str[*i + 1] == '"') \
-							|| (str[*i] == '\'' && str[*i + 1] == '\'')))
+	while(str[*i] && !is_whitespace(str[*i]))
 	{
-		cmd->command->command = append_command(&cmd->command->command, "");
-		(*i) += 2;
+		if (str[*i] && str[*i + 1] && ((str[*i] == '"' && str[*i + 1] == '"') \
+								|| (str[*i] == '\'' && str[*i + 1] == '\'')))
+		{
+			cmd->command->command = append_command(&cmd->command->command, "");
+			(*i) += 2;
+		}
+		else if (str[*i] == '<' || str[*i] == '>')
+			handle_redirection(str, i, cmd, envp);
+		else if (str[*i] == '"' || str[*i] == '\'')
+			temp = ft_strjoin_opts(temp, handle_quotes(str, i, envp, cmd), 3);
+		else
+			temp = ft_strjoin_opts(temp, handle_command(str, i, envp), 3);
 	}
-	else if (str[*i] == '<' || str[*i] == '>')
-		handle_redirection(str, i, cmd, envp);
-	else if (str[*i] == '"' || str[*i] == '\'')
-		temp = ft_strjoin_opts(temp, handle_quotes(str, i, envp, cmd), 3);
-	else
-		temp = ft_strjoin_opts(temp, handle_command(str, i, envp), 3);
 	return (temp);
 }
 
@@ -283,18 +286,18 @@ void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
 	while (str[*i])
 	{
 		temp = get_parse_value(str, i, cmd, envp);
-		if (str[*i] == 0 || str[*i] == ' ')
-			break ;
-	}
-	if (temp)
-	{
-		if (ft_strlen(temp))
+		if (temp)
 		{
-			cmd->command->exist = true;
-			cmd->command->command = \
-					append_command(&cmd->command->command, temp);
+			if (ft_strlen(temp))
+			{
+				cmd->command->exist = true;
+				cmd->command->command = \
+						append_command(&cmd->command->command, temp);
+			}
+			free(temp);
+			while (str[*i] && is_whitespace(str[*i]))
+				(*i)++;
 		}
-		free(temp);
 	}
 }
 
