@@ -366,9 +366,10 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 	char	*old;
 	int		i;
 
-	tmp_pwd = getcwd(NULL, BUFSIZ);
+	tmp_pwd = getcwd(NULL, BUFSIZ); /// export a="123"    export          a=123
 	old = getcwd(NULL, BUFSIZ);
-	cd = ft_split(command->full_cmd, ' ');
+	//cd = ft_split(command->full_cmd, ' ');
+	cd = command->command->command;
 	if (cd[1] == NULL)
 	{
 		free(tmp_pwd);

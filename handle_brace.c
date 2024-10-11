@@ -81,7 +81,6 @@ char	*process_command(char *command, t_redirection *cmd)
 	int		j;
 	int		start;
 	char	*content;
-	struct termios	old;
 	char	*sub;
 	int		len;
 
@@ -104,13 +103,21 @@ char	*process_command(char *command, t_redirection *cmd)
 	return (content);
 }
 
-void	handle_readline(t_redirection *cmd, int i, int flag, char **envp)
+int	handle_readline(t_redirection *cmd, int i, int flag, char **envp)
 {
 	char	*read;
+	struct termios	old;
+	int		a;
 
 	while (cmd->executable)
 	{
+		input_sig(&old);
+		sigcheck(0);
 		read = readline(">");
+		a = sigcheck(2);
+		none_sig(&old);
+		if (a == 1)
+			return (1);
 		if (!read || (ft_strncmp(read, cmd->double_left_brace->command[i], \
 			ft_strlen(cmd->double_left_brace->command[i])) == 0 && \
 			ft_strlen(read) == ft_strlen(cmd->double_left_brace->command[i])))
@@ -128,6 +135,7 @@ void	handle_readline(t_redirection *cmd, int i, int flag, char **envp)
 			cmd->here_doc = ft_strjoin_opts(cmd->here_doc, read, 3);
 		}
 	}
+	return (0);
 }
 
 void	handle_double_left_brace(t_redirection *cmd, char **envp)
@@ -147,7 +155,11 @@ void	handle_double_left_brace(t_redirection *cmd, char **envp)
 		free(cmd->double_left_brace->command[i]);
 		cmd->double_left_brace->command[i] = ft_strdup(processed_command);
 		free(processed_command);
-		handle_readline(cmd, i, flag, envp);
+		if (handle_readline(cmd, i, flag, envp))
+		{
+			cmd->executable = false;
+			break;
+		}
 	}
 }
 

@@ -1,5 +1,16 @@
 #include "main.h"
 
+int sigcheck(int type)
+{
+	static int flag;
+	if (type == 1)
+		flag = 1;
+	if (type == 0)
+		flag = 0;
+	//printf("%d",flag);
+	return flag;
+}
+
 void	sg(int signal)
 {
 	if (signal == SIGINT)
@@ -10,6 +21,8 @@ void	sg(int signal)
 		rl_on_new_line();
 		rl_replace_line("", 0);
 		rl_redisplay();
+		sigcheck(1);
+		exit(0);
 	}
 	else if (signal == SIGTERM)
 	{
@@ -65,4 +78,10 @@ void	none_sig(struct termios *old)
 {
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
+}
+
+void origin_sig(struct termios *old)
+{
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
 }

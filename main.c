@@ -460,7 +460,7 @@ void	process_input(char *str, char ***envp)
 	i = -1;
 	while (++i < data->cnt)
 	{
-		print(data->command[i]);
+		print(data->command[i]); // test
 		set_dollar(0, envp);
 		data->builtin_num = check_builtin_num(data->command[i]);
 		create_pipes(i, data->cnt, data->pipe_fd);

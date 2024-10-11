@@ -47,7 +47,8 @@ typedef struct s_process_data
 	int				in;
 	int				out;
 } t_process_data;
-
+void	origin_sig(struct termios *old);
+int		sigcheck(int type);
 int		check_builtin_num(t_redirection *cmd);
 int		open_redirection_files(t_redirection *command);
 void	handle_builtin_command(t_redirection *cmd, \
