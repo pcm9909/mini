@@ -36,13 +36,14 @@ char	*handle_single_quotes(const char *str, int *i, t_redirection *command)
 	return (content);
 }
 
-void    handle_dollar(int *i, char **content, const char *str, char **envp)
+void	handle_dollar(int *i, char **content, const char *str, char **envp)
 {
 	char	*temp;
 	char	*envp_var;
 	char	*envp_val;
 	int		idx;
 	int		start;
+
 	(*i)++;
 	start = (*i);
 	if (ft_isalpha(str[*i]) || str[*i] == '_')
@@ -55,9 +56,8 @@ void    handle_dollar(int *i, char **content, const char *str, char **envp)
 	envp_var = ft_substr(str, start, (*i) - start);
 	idx = ft_strlen(envp_var) + 1;
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
-	free(envp_var);
 	if (envp_val)
-		(*content) = ft_strjoin_with_free((*content), &envp_val[idx]);
+		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 1);
 	free(envp_val);
 }
 
@@ -107,21 +107,13 @@ char	*handle_double_quotes(const char *str, int *i, \
 	content = ft_strdup("");
 	while (str[*i] && str[*i] != '"')
 	{
-		if (str[*i] == '$')
-		{
-			content = ft_strjoin_with_free2(content, \
-							ft_substr(str, start, (*i) - start));
-			handle_dollar(i, &content, str, envp);
-			start = (*i);
-		}
-		else
-			(*i)++;
+		(*i)++;
 	}
 	if (str[*i] != '"')
 		return (print_qutoes_error(str, command, &content));
 	else
-		content = ft_strjoin_with_free2(content, \
-					ft_substr(str, start, (*i) - start));
+		content = ft_strjoin_opts(content, \
+					ft_substr(str, start, (*i) - start), 3);
 	(*i)++;
 	return (content);
 }
@@ -136,21 +128,11 @@ char	*handle_command(const char *str, int *i, char **envp)
 	while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && \
 			str[*i] != '<' && str[*i] != '"' && str[*i] != '\'')
 	{
-		if (str[*i] == '$')
-		{
-			val = ft_strjoin_with_free2(val, \
-						ft_substr(str, start, (*i) - start));
-			handle_dollar(i, &val, str, envp);
-			start = (*i);
-		}
+		if (str[*i] != ' ')
+			(*i)++;
 		else
-		{
-			if (str[*i] != ' ')
-				(*i)++;
-			else
-				break ;
-		}
+			break ;
 	}
-	val = ft_strjoin_with_free2(val, ft_substr(str, start, (*i) - start));
+	val = ft_strjoin_opts(val, ft_substr(str, start, (*i) - start), 3);
 	return (val);
 }

@@ -1,15 +1,69 @@
 #include "main.h"
 
+void print(t_redirection *cmd)
+{
+	int i = 0;
+	if(cmd->left_brace->command)
+	{
+		while(cmd->left_brace->command[i])
+		{
+			printf("[lb]\n");
+			printf("%s\n", cmd->left_brace->command[i]);
+			i++;
+		}
+	}
+	i = 0;
+	if(cmd->double_left_brace->command)
+	{
+		while(cmd->double_left_brace->command[i])
+		{
+			printf("[dlb]\n");
+			printf("%s\n", cmd->double_left_brace->command[i]);
+			i++;
+		}
+	}
+	i = 0;
+	if(cmd->command->command)
+	{
+		while(cmd->command->command[i])
+		{
+			printf("[cmd]\n");
+			printf("%s\n", cmd->command->command[i]);
+			i++;
+		}
+	}
+	i = 0;
+	if(cmd->right_brace->command)
+	{
+		while(cmd->right_brace->command[i])
+		{
+			printf("[rb]\n");
+			printf("%s\n", cmd->right_brace->command[i]);
+			i++;
+		}
+	}
+	i = 0;
+	if(cmd->double_right_brace->command)
+	{
+		while(cmd->double_right_brace->command[i])
+		{
+			printf("[drb]\n");
+			printf("%s\n", cmd->double_right_brace->command[i]);
+			i++;
+		}
+	}
+}
+
 void	set_dollar(int ptr, char ***envp)
 {
 	char	*tmp;
 	char	*jo;
 
 	tmp = ft_itoa(ptr);
-	jo = ft_strjoin("?=",tmp);
-	//printf("%s\n",jo);
+	jo = ft_strjoin_opts("?=", tmp, 2);
 	set_env(jo, 1, envp);
 }
+
 t_command	*create_command(void)
 {
 	t_command	*cmd;
@@ -106,7 +160,7 @@ char	*complement_cmd(char *str)
 			return (str);
 		if (str[len] == '|')
 		{
-			tmp = ft_strjoin_with_free(str, readline(">"));
+			tmp = ft_strjoin_opts(str, readline(">"), 3);
 			add_history(tmp);
 			str = tmp;
 		}
@@ -117,8 +171,7 @@ char	*complement_cmd(char *str)
 	return (NULL);
 }
 
-void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
-							char ***envp, int *exit_code)
+void	wait_for_children(t_process_data *data, char ***envp, int *exit_code)
 {
 	int		statloc;
 	int		i;
@@ -126,18 +179,18 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
 	char	**cd;
 
 	i = -1;
-	while (++i < cnt)
+	while (++i < data->cnt)
 	{
-		if (pids[i] == -1)
-			continue;
-		waitpid(pids[i], &statloc, 0);
+		if (data->pids[i] == -1)
+			continue ;
+		waitpid(data->pids[i], &statloc, 0);
 		if (WIFEXITED(statloc))
 		{
-			set_dollar(WEXITSTATUS(statloc),envp);
+			set_dollar(WEXITSTATUS(statloc), envp);
 		}
 		if (WIFSIGNALED(statloc))
 		{
-			set_dollar(128 + WTERMSIG(statloc),envp);
+			set_dollar(128 + WTERMSIG(statloc), envp);
 			if (WTERMSIG(statloc) == 2)
 				printf("\n");
 			else if (WTERMSIG(statloc) == 3)
@@ -146,27 +199,25 @@ void	wait_for_children(int cnt, pid_t *pids, t_redirection **command, \
 	}
 }
 
-void	cleanup_resources(int cnt, char **split, t_redirection **command, \
-							char *str, pid_t *pids)
+void	cleanup_resources(t_process_data *data)
 {
 	int	i;
 
 	i = 0;
-	while (i < cnt)
+	while (i < data->cnt)
 	{
-		free_redirection(command[i]);
+		free_redirection(data->command[i]);
 		i++;
 	}
 	i = 0;
-	while (split[i])
+	while (data->split[i])
 	{
-		free(split[i]);
+		free(data->split[i]);
 		i++;
 	}
-	free(command);
-	free(split);
-	free(str);
-	free(pids);
+	free(data->command);
+	free(data->split);
+	free(data->pids);
 }
 
 void	create_pipes(int i, int cnt, int pipe_fd[2])
@@ -181,39 +232,39 @@ void	create_pipes(int i, int cnt, int pipe_fd[2])
 		pipe_fd[1] = 1;
 	}
 }
-void fork_and_execute(int i, int cnt, int input_fd, int pipe_fd[2], \
-                            pid_t *pids, t_redirection **command, \
-                            char ***envp, struct termios *old)
+
+void	fork_and_execute(t_process_data *data, \
+						int i, int input_fd, char ***envp)
 {
-	pids[i] = fork();
-	if (pids[i] == 0)
+	data->pids[i] = fork();
+	if (data->pids[i] == 0)
 	{
-		end_sig(old);
+		end_sig(&data->old);
 		if (i > 0)
 		{
 			dup2(input_fd, 0);
 			close(input_fd);
 		}
-		if (i < cnt - 1)
+		if (i < data->cnt - 1)
 		{
-			dup2(pipe_fd[1], 1);
-			close(pipe_fd[1]);
+			dup2(data->pipe_fd[1], 1);
+			close(data->pipe_fd[1]);
 		}
-		execute_command(command[i], envp, input_fd, pipe_fd[1]);
+		execute_command(data->command[i], envp, input_fd, data->pipe_fd[1]);
 		exit(EXIT_SUCCESS);
 	}
 	else
 	{
 		if (i > 0)
 			close(input_fd);
-		if (i < cnt - 1)
-			close(pipe_fd[1]);
-		input_fd = pipe_fd[0];
+		if (i < data->cnt - 1)
+			close(data->pipe_fd[1]);
+		input_fd = data->pipe_fd[0];
 	}
 }
 
 void	initialize_commands(char **split, int cnt, \
-			t_redirection ***command, char ***envp)
+						t_redirection ***command, char ***envp)
 {
 	int	i;
 
@@ -266,6 +317,23 @@ char	**ft_free_arrs(char **arr, size_t i)
 	return (NULL);
 }
 
+void	set_splits_vars(int *i, int *j, int *in_quotes)
+{
+	(*i) = -1;
+	(*j) = 0;
+	(*in_quotes) = 0;
+}
+
+void	set_in_quotes(const char *s, int *j, char c, int in_quotes)
+{
+	while (s[*j] && (s[*j] != c || in_quotes))
+	{
+		if (s[*j] == '"' || s[*j] == '\'')
+			in_quotes = !in_quotes;
+		(*j)++;
+	}
+}
+
 char	**ft_splits(char const *s, char c)
 {
 	char	**arr;
@@ -279,20 +347,13 @@ char	**ft_splits(char const *s, char c)
 	arr = (char **)malloc(sizeof(char *) * (ft_count_wordss(s, c) + 1));
 	if (!arr)
 		return (NULL);
-	i = -1;
-	j = 0;
-	in_quotes = 0;
+	set_splits_vars(&i, &j, &in_quotes);
 	while (++i < ft_count_wordss(s, c))
 	{
 		while (s[j] == c && !in_quotes)
 			j++;
 		k = j;
-		while (s[j] && (s[j] != c || in_quotes))
-		{
-			if (s[j] == '"' || s[j] == '\'')
-				in_quotes = !in_quotes;
-			j++;
-		}
+		set_in_quotes(s, &j, c, in_quotes);
 		arr[i] = ft_substr(s, k, j - k);
 		if (!arr[i])
 			return (ft_free_arrs(arr, i));
@@ -301,141 +362,123 @@ char	**ft_splits(char const *s, char c)
 	return (arr);
 }
 
-void handle_dollar1(int *i, char **content, const char *str, char **envp)
+void	set_single_quotes(int *i, char *str)
 {
-	char	*temp;
-	char	*envp_var;
-	char	*envp_val;
-	int		idx;
-	int		start;
-
 	(*i)++;
-	start = (*i);
-	while (is_envp_vars(str[*i]))
+	while (str[*i] && str[*i] != '\'')
 		(*i)++;
-	envp_var = ft_substr(str, start, (*i) - start);
-	idx = ft_strlen(envp_var) + 1;
-	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
-	free(envp_var);
-	if (envp_val)
-		(*content) = ft_strjoin_with_free((*content), &envp_val[idx]);
-	free(envp_val);
+	if (str[*i] == '\'')
+		(*i)++;
 }
 
-char *set_str(char *str, char **envp)
+char	*set_str(char *str, char **envp)
 {
-	int 	i;
+	int		i;
 	int		start;
 	char	*content;
 
 	i = 0;
 	start = 0;
 	content = ft_strdup("");
-	while(str[i])
+	while (str[i])
 	{
-		if(str[i] == '\'')
+		if (str[i] == '\'')
+			set_single_quotes(&i, str);
+		else if (str[i] == '$')
 		{
-			i++;
-			while(str[i] && str[i] != '\'')
-			{
-				i++;
-			}
-			if(str[i] == '\'')
-				i++;
-		}
-		else if(str[i] == '$')
-		{
-			content = ft_strjoin_with_free2(content, ft_substr(str, start, i - start));
+			content = ft_strjoin_opts(content, \
+							ft_substr(str, start, i - start), 3);
 			handle_dollar(&i, &content, str, envp);
 			start = i;
 		}
 		else
 			i++;
 	}
-	content = ft_strjoin_with_free2(content, ft_substr(str, start, i - start));
+	content = ft_strjoin_opts(content, ft_substr(str, start, i - start), 3);
 	free(str);
-	return content;
+	return (content);
+}
+
+void	initialize_process_data(t_process_data *data, char *str, char ***envp)
+{
+	str = complement_cmd(str);
+	str = set_str(str, *envp);
+	data->split = ft_splits(str, '|');
+	data->cnt = cnt_cmd(data->split);
+	data->pids = malloc(sizeof(pid_t) * data->cnt);
+	data->input_fd = 0;
+	data->command = (malloc(sizeof(t_redirection *) * data->cnt));
+	initialize_commands(data->split, data->cnt, &data->command, envp);
+	set_dollar(0, envp);
+	free(str);
+}
+
+void	handle_builtin(t_process_data *data, char ***envp, int i)
+{
+	data->pids[i] = -1;
+	data->in = dup(0);
+	data->out = dup(1);
+	end_sig(&data->old);
+	if (i > 0)
+		dup2(data->input_fd, 0);
+	if (i < data->cnt - 1)
+		dup2(data->pipe_fd[1], 1);
+	if (!open_redirection_files(data->command[i]))
+		handle_builtin_command(data->command[i], envp, data->builtin_num);
+	if (i > 0)
+		close(data->input_fd);
+	if (i < data->cnt - 1)
+		close(data->pipe_fd[1]);
+	data->input_fd = data->pipe_fd[0];
+	dup2(data->in, 0);
+	dup2(data->out, 1);
+}
+
+void	handle_non_builtin(t_process_data *data, char ***envp, int i)
+{
+	fork_and_execute(data, i, data->input_fd, envp);
+	if (i > 0)
+		close(data->input_fd);
+	if (i < data->cnt - 1)
+		close(data->pipe_fd[1]);
+	data->input_fd = data->pipe_fd[0];
 }
 
 void	process_input(char *str, char ***envp)
 {
 	static int		exit_code;
-	char			**split;
-	int				cnt;
-	t_redirection	**command;
-	int				input_fd;
-	int				pipe_fd[2];
-	pid_t			*pids;
-	struct termios	old;
+	t_process_data	*data;
 	int				i;
-	int				builtin_num;
-	int	in;
-	int out;
 
-	i = 0;
-	str = complement_cmd(str);
-	str = set_str(str, *envp);
-	//printf("\n\nstr = %s\n\n", str);
-	split = ft_splits(str, '|');
-	cnt = cnt_cmd(split);
-	pids = malloc(sizeof(pid_t) * cnt);
-	input_fd = 0;
-	command = (malloc(sizeof(t_redirection *) * cnt));
-	initialize_commands(split, cnt, &command, envp);
-	set_dollar(0 ,envp);
-	while (i < cnt)
+	data = malloc(sizeof(t_process_data));
+	if (!data)
 	{
-		set_dollar(0 ,envp);
-		builtin_num = check_builtin_num(command[i]);
-		if (builtin_num)
-		{
-			create_pipes(i, cnt, pipe_fd);
-			pids[i] = -1;
-			in = dup(0);
-			out = dup(1);
-			end_sig(&old);
-			if (i > 0)
-			{
-				dup2(input_fd, 0);
-				//close(input_fd);
-			}
-			if (i < cnt - 1)
-			{
-				dup2(pipe_fd[1], 1);
-				//close(pipe_fd[1]);
-			}
-			if(!open_redirection_files(command[i]))
-				handle_builtin_command(command[i], envp, builtin_num);
-			if (i > 0)
-				close(input_fd);
-			if (i < cnt - 1)
-				close(pipe_fd[1]);
-			input_fd = pipe_fd[0];
-			dup2(in, 0);
-			dup2(out, 1);
-		}
-		else
-		{
-			create_pipes(i, cnt, pipe_fd);
-			fork_and_execute(i, cnt, input_fd, pipe_fd, pids, command, envp, &old);
-			if (i > 0)
-				close(input_fd);
-			if (i < cnt - 1)
-				close(pipe_fd[1]);
-			input_fd = pipe_fd[0];
-		}
-		i++;
+		ft_putstr_fd("minishell: Error: allocation failed", 2);
+		exit(EXIT_FAILURE);
 	}
-	wait_for_children(cnt, pids, command, envp, &exit_code);
-	cleanup_resources(cnt, split, command, str, pids);
+	initialize_process_data(data, str, envp);
+	i = -1;
+	while (++i < data->cnt)
+	{
+		print(data->command[i]);
+		set_dollar(0, envp);
+		data->builtin_num = check_builtin_num(data->command[i]);
+		create_pipes(i, data->cnt, data->pipe_fd);
+		if (data->builtin_num)
+			handle_builtin(data, envp, i);
+		else
+			handle_non_builtin(data, envp, i);
+	}
+	wait_for_children(data, envp, &exit_code);
+	cleanup_resources(data);
+	free(data);
 }
 
-static void	cleanup(char *str)
+static void	cleanup(char *str, char ***envp)
 {
 	struct termios	old;
 
 	end_sig(&old);
-	free(str);
 	ft_putstr_fd("exit\n", 2);
 	exit(EXIT_SUCCESS);
 }
@@ -447,7 +490,7 @@ int	main(int argc, char **argv, char *env[])
 	struct termios	old;
 	char			*cwd;
 
-	envp = update_envp(env,0,ft_strdup("?=0"));
+	envp = update_envp(env, 0, ft_strdup("?=0"));
 	while (1)
 	{
 		cwd = build_prompt(envp);
@@ -462,8 +505,9 @@ int	main(int argc, char **argv, char *env[])
 		}
 		else
 		{
-			cleanup(str);
+			cleanup(str, &envp);
 		}
+		free(cwd);
 	}
 	return (0);
 }

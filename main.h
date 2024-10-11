@@ -12,8 +12,8 @@
 # include <errno.h>
 # include <signal.h>
 # include <termios.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+# include <sys/types.h>
+# include <sys/stat.h>
 
 typedef struct s_command
 {
@@ -29,14 +29,27 @@ typedef struct s_redirection
 	struct s_command	*command;
 	struct s_command	*right_brace;
 	struct s_command	*double_right_brace;
-
 	char				*full_cmd;
 	char				*here_doc;
 	bool				executable;
 }				t_redirection;
 
-int	check_builtin_num(t_redirection *cmd);
-int	open_redirection_files(t_redirection *command);
+typedef struct s_process_data
+{
+	t_redirection	**command;
+	pid_t			*pids;
+	struct termios	old;
+	char			**split;
+	int				pipe_fd[2];
+	int				cnt;
+	int				input_fd;
+	int				builtin_num;
+	int				in;
+	int				out;
+} t_process_data;
+
+int		check_builtin_num(t_redirection *cmd);
+int		open_redirection_files(t_redirection *command);
 void	handle_builtin_command(t_redirection *cmd, \
 								char ***envp, int builtin_num);
 
@@ -49,10 +62,6 @@ char	*get_cmd_path(char *cmd, char *path);
 char	*ft_strrev(char *str);
 
 void	free_command_list(char ***command);
-
-char	*ft_strjoin_with_free(char const *s1, char const *s2);
-char	*ft_strjoin_with_free2(char const *s1, char const *s2);
-
 void	handle_cd_command(t_redirection *command, char ***envp);
 void	handle_export_command(t_redirection *command, char ***envp);
 void	handle_env_command(t_redirection *command, char **envp);
@@ -62,9 +71,9 @@ void	handle_pwd_command(void);
 void	handle_echo_command(t_redirection *command, char **envp);
 void	set_dollar(int ptr, char ***envp);
 
-int	handle_left_brace(t_redirection *command);
-int	handle_right_brace(t_redirection *command);
-int	handle_double_right_brace(t_redirection *command);
+int		handle_left_brace(t_redirection *command);
+int		handle_right_brace(t_redirection *command);
+int		handle_double_right_brace(t_redirection *command);
 
 void	execute_command(t_redirection *command, char ***envp, \
 							int input_fd, int output_fd);
@@ -126,20 +135,22 @@ char	**extract_path(char *envp[]);
 int		is_whitespace(int c);
 int		cnt_cmd(char **split);
 
-void handle_double_left_brace(t_redirection *cmd, int check, char **envp);
+void	handle_double_left_brace(t_redirection *cmd, char **envp);
 
-int	is_envp_vars(int c);
+int		is_envp_vars(int c);
 
-void perror_exit(char *str);
+void	perror_exit(char *str);
 
 char	*handle_quotes(const char *str, int *i, char **envp, t_redirection *command);
 char	*handle_double_quotes2(const char *str, int *i, \
 							char **envp, t_redirection *command);
 
-char	*handle_quotes2(const char *str, int *i, char **envp, t_redirection *command);			
-char	*handle_single_quotes2(const char *str, int *i, t_redirection *command);		
+char	*handle_quotes2(const char *str, int *i, char **envp, t_redirection *command);
+char	*handle_single_quotes2(const char *str, int *i, t_redirection *command);
 
 char	*print_qutoes_error(const char *str, \
 								t_redirection *command, char **content);
+
+char	*ft_strjoin_opts(char const *s1, char const *s2, int i);
 
 #endif

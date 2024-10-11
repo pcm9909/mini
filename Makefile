@@ -1,10 +1,10 @@
 all:
 	make -C libft/
-	clang *.c libft/libft.a -lreadline -g -o minishell -g
-
-asan:
-	make -C libft/
 	clang *.c libft/libft.a -lreadline -g -o minishell -g -fsanitize=address
+
+hi:
+	make -C libft/
+	clang *.c libft/libft.a -lreadline -g -o minishell -g
 
 mac:
 	make -C libft/

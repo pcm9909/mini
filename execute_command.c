@@ -2,9 +2,9 @@
 
 static void	check_executable(char *path)
 {
-	struct stat st;
+	struct stat	st;
 
-	if(lstat(path, &st) < 0)
+	if (lstat(path, &st) < 0)
 	{
 		return ;
 	}
@@ -33,7 +33,7 @@ static void	exe(t_redirection *command, char **cmd, char **envp)
 	path = get_path(envp);
 	if (cmd)
 		cmd_path = get_cmd_path(cmd[0], path);
-	if (ft_strlen(command->command->command[0]) == 0)
+	if (!command->command->command)
 		exit(0);
 	if (execve(cmd_path, cmd, envp))
 	{
@@ -86,10 +86,9 @@ int	open_redirection_files(t_redirection *command)
 {
 	int	pipe_fd[2];
 
-	if (handle_left_brace(command) || handle_right_brace(command) || handle_double_right_brace(command))
+	if (handle_left_brace(command) || handle_right_brace(command) \
+		|| handle_double_right_brace(command))
 		return (EXIT_FAILURE);
-	//handle_right_brace(command);
-	//handle_double_right_brace(command);
 	if (command->double_left_brace->exist)
 	{
 		if (pipe(pipe_fd) == -1)
@@ -155,10 +154,7 @@ void	execute_command(t_redirection *cmd, char ***envp, \
 	{
 		if (open_redirection_files(cmd))
 			exit(2);
-		// if (builtin_num)
-		// 	handle_builtin_command(cmd, envp, builtin_num);
-		// else
-			execute_external_command(cmd, *envp, input_fd, output_fd);
+		execute_external_command(cmd, *envp, input_fd, output_fd);
 	}
 	else
 		exit(2);

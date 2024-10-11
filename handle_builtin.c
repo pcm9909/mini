@@ -59,10 +59,14 @@ int	search_env(char **envp, char *name, int flag)
 		else
 			tmp = *envp;
 		if (!ft_strncmp(tmp, re, ft_strlen(re) + 1))
+		{
 			break ;
+		}
 		envp++;
 		i++;
 	}
+	free(re);
+	free(tmp);
 	return (i);
 }
 
@@ -402,8 +406,8 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 				}
 				else
 				{
-					tmp_pwd = ft_strjoin(tmp_pwd, "/");
-					tmp_pwd = ft_strjoin(tmp_pwd, cd_path[i]);
+					tmp_pwd = ft_strjoin_opts(tmp_pwd, "/", 1);
+					tmp_pwd = ft_strjoin_opts(tmp_pwd, cd_path[i], 1);
 				}
 			}
 			i++;
