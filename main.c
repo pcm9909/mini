@@ -1,5 +1,59 @@
 #include "main.h"
 
+void print(t_redirection *cmd)
+{
+	int i = 0;
+	if(cmd->left_brace->command)
+	{
+		while(cmd->left_brace->command[i])
+		{
+			printf("[lb]\n");
+			printf("%s\n", cmd->left_brace->command[i]);
+			i++;
+		}
+	}
+	i = 0;
+	if(cmd->double_left_brace->command)
+	{
+		while(cmd->double_left_brace->command[i])
+		{
+			printf("[dlb]\n");
+			printf("%s\n", cmd->double_left_brace->command[i]);
+			i++;
+		}
+	}
+	i = 0;
+	if(cmd->command->command)
+	{
+		while(cmd->command->command[i])
+		{
+			printf("[cmd]\n");
+			printf("%s\n", cmd->command->command[i]);
+			i++;
+		}
+	}
+	i = 0;
+	if(cmd->right_brace->command)
+	{
+		while(cmd->right_brace->command[i])
+		{
+			printf("[rb]\n");
+			printf("%s\n", cmd->right_brace->command[i]);
+			i++;
+		}
+	}
+	i = 0;
+	if(cmd->double_right_brace->command)
+	{
+		while(cmd->double_right_brace->command[i])
+		{
+			printf("[drb]\n");
+			printf("%s\n", cmd->double_right_brace->command[i]);
+			i++;
+		}
+	}
+}
+
 void	set_dollar(int ptr, char ***envp)
 {
 	char	*tmp;
@@ -406,6 +460,7 @@ void	process_input(char *str, char ***envp)
 	i = -1;
 	while (++i < data->cnt)
 	{
+		print(data->command[i]);
 		set_dollar(0, envp);
 		data->builtin_num = check_builtin_num(data->command[i]);
 		create_pipes(i, data->cnt, data->pipe_fd);

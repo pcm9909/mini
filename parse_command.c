@@ -294,8 +294,8 @@ void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
 			cmd->command->command = \
 					append_command(&cmd->command->command, temp);
 		}
+		free(temp);
 	}
-	free(temp);
 }
 
 void	parse_redirection(char *str, t_redirection *command, char **envp)

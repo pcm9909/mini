@@ -58,14 +58,9 @@ char	*ft_strjoin_opts(char const *s1, char const *s2, int i)
 		return (NULL);
 	ft_strlcpy(str, s1, ft_strlen(s1) + 1);
 	ft_strlcat(str, s2, len + 1);
-	if (i == 1)
+	if (i == 1 || i == 3)
 		free((char *)s1);
-	else if (i == 2)
+	if (i == 2 || i == 3)
 		free((char *)s2);
-	else if (i == 3)
-	{
-		free((char *)s1);
-		free((char *)s2);
-	}
 	return (str);
 }
