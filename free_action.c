@@ -1,28 +1,28 @@
 #include "main.h"
 
-void	free_command(t_command *cmd)
+void	free_command(t_cmd *cmd)
 {
 	if (cmd)
 	{
-		if (cmd->command)
+		if (cmd->cmd_val)
 		{
-			free_command_list(&cmd->command);
+			free_command_list(&cmd->cmd_val);
 		}
 		free(cmd);
 	}
 }
 
-void	free_redirection(t_redirection *redirection)
+void	free_redirection(t_redir *redirection)
 {
 	if (redirection)
 	{
-		free_command(redirection->double_left_brace);
-		free_command(redirection->double_right_brace);
-		free_command(redirection->command);
-		free_command(redirection->left_brace);
-		free_command(redirection->right_brace);
+		free_command(redirection->heredoc_redir);
+		free_command(redirection->append_redir);
+		free_command(redirection->cmd);
+		free_command(redirection->input_redir);
+		free_command(redirection->output_redir);
 		free(redirection->full_cmd);
-		free(redirection->here_doc);
+		free(redirection->heredoc);
 		free(redirection);
 	}
 }

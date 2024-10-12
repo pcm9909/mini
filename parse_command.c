@@ -25,7 +25,7 @@ char	*ft_find_single_redirect(char *str, char c)
 	return (NULL);
 }
 
-void	set_order(t_redirection *command, char *str)
+void	set_order(t_redir *command, char *str)
 {
 	int		dual;
 	int		single;
@@ -34,44 +34,44 @@ void	set_order(t_redirection *command, char *str)
 	dual = ft_strlen(ft_strnstr(str, "<<", sizeof(str)));
 	single = ft_strlen(ft_find_single_redirect(str, '<'));
 	if (dual > single)
-		command->double_left_brace->order = true;
+		command->heredoc_redir->order = true;
 	else if (dual < single)
-		command->left_brace->order = true;
+		command->input_redir->order = true;
 	rev = ft_strrev(str);
 	dual = ft_strlen(ft_strnstr(rev, ">>", ft_strlen(str)));
 	single = ft_strlen(ft_find_single_redirect(rev, '>'));
 	if (dual > single)
-		command->double_right_brace->order = true;
+		command->append_redir->order = true;
 	else if (dual < single)
-		command->right_brace->order = true;
+		command->output_redir->order = true;
 	free(rev);
 }
 
-char	*set_command(t_command *command)
+char	*set_command(t_cmd *command)
 {
 	char	*result;
 	int		i;
 	int		total_length;
 
-	if (!command || !command->command)
+	if (!command || !command->cmd_val)
 		return (NULL);
 	total_length = 0;
 	i = -1;
-	while (command->command[++i])
-		total_length += ft_strlen(command->command[i]) + 1;
+	while (command->cmd_val[++i])
+		total_length += ft_strlen(command->cmd_val[i]) + 1;
 	result = malloc(total_length + 1);
 	result[0] = '\0';
 	i = -1;
-	while (command->command[++i])
+	while (command->cmd_val[++i])
 	{
-		ft_strlcat(result, command->command[i], total_length + 1);
-		if (command->command[i + 1])
+		ft_strlcat(result, command->cmd_val[i], total_length + 1);
+		if (command->cmd_val[i + 1])
 			ft_strlcat(result, " ", total_length + 1);
 	}
 	return (result);
 }
 
-static void	handle_parse_error(const char *str, int *i, t_redirection *cmd)
+static void	handle_parse_error(const char *str, int *i, t_redir *cmd)
 {
 	ft_putstr_fd("minishell: parse error near `", 2);
 	ft_putchar_fd(str[*i], 2);
@@ -95,15 +95,15 @@ static char	*extract_content(const char *str, int *i)
 	return (content);
 }
 
-static int	handle_double_left(t_redirection *cmd, char *content, \
+static int	handle_double_left(t_redir *cmd, char *content, \
 				const char *str, int *i)
 {
 	int	j;
 	int	check;
 
-	cmd->double_left_brace->exist = true;
-	cmd->double_left_brace->command = \
-			append_command(&cmd->double_left_brace->command, content);
+	cmd->heredoc_redir->exist = true;
+	cmd->heredoc_redir->cmd_val = \
+			append_command(&cmd->heredoc_redir->cmd_val, content);
 	j = *i;
 	check = 0;
 	while (str[j])
@@ -124,15 +124,15 @@ int	is_upright_vars(int c)
 			c == '|' || c == '&' || c == ';');
 }
 
-static void	handle_single_left(t_redirection *cmd, char *content)
+static void	handle_single_left(t_redir *cmd, char *content)
 {
-	cmd->left_brace->exist = true;
-	cmd->left_brace->command = \
-		append_command(&cmd->left_brace->command, content);
+	cmd->input_redir->exist = true;
+	cmd->input_redir->cmd_val = \
+		append_command(&cmd->input_redir->cmd_val, content);
 }
 
 void	parse_left_redirection(const char *str, int *i,
-							t_redirection *cmd, char **envp)
+							t_redir *cmd, char **envp)
 {
 	int		flag;
 	char	*content;
@@ -161,24 +161,24 @@ void	parse_left_redirection(const char *str, int *i,
 	free(content);
 }
 
-static void	check_flag(t_redirection *command, int flag, char *content)
+static void	check_flag(t_redir *command, int flag, char *content)
 {
 	if (flag == 1)
 	{
-		command->double_right_brace->exist = true;
-		command->double_right_brace->command = \
-			append_command(&command->double_right_brace->command, content);
+		command->append_redir->exist = true;
+		command->append_redir->cmd_val = \
+			append_command(&command->append_redir->cmd_val, content);
 	}
 	else
 	{
-		command->right_brace->exist = true;
-		command->right_brace->command = \
-			append_command(&command->right_brace->command, content);
+		command->output_redir->exist = true;
+		command->output_redir->cmd_val = \
+			append_command(&command->output_redir->cmd_val, content);
 	}
 }
 
 void	parse_right_redirection(char *str, int *i, \
-				char **envp, t_redirection *cmd)
+				char **envp, t_redir *cmd)
 {
 	int		j;
 	int		flag;
@@ -207,7 +207,7 @@ void	parse_right_redirection(char *str, int *i, \
 }
 
 void	handle_redirection(char *str, int *i, \
-							t_redirection *command, char **envp)
+							t_redir *command, char **envp)
 {
 	if (str[*i] == '<')
 	{
@@ -222,7 +222,7 @@ void	handle_redirection(char *str, int *i, \
 }
 
 char	*handle_quotes(const char *str, int *i, \
-				char **envp, t_redirection *command)
+				char **envp, t_redir *command)
 {
 	char	*temp;
 
@@ -239,7 +239,7 @@ char	*handle_quotes(const char *str, int *i, \
 }
 
 char	*handle_quotes2(const char *str, int *i, \
-			char **envp, t_redirection *command)
+			char **envp, t_redir *command)
 {
 	char	*temp;
 
@@ -254,27 +254,30 @@ char	*handle_quotes2(const char *str, int *i, \
 	return (temp);
 }
 
-char	*get_parse_value(char *str, int *i, t_redirection *cmd, char **envp)
+char	*get_parse_value(char *str, int *i, t_redir *cmd, char **envp)
 {
 	char	*temp;
 
 	temp = ft_strdup("");
-	if (str[*i] && str[*i + 1] && ((str[*i] == '"' && str[*i + 1] == '"') \
-							|| (str[*i] == '\'' && str[*i + 1] == '\'')))
+	while (str[*i] && !is_whitespace(str[*i]))
 	{
-		cmd->command->command = append_command(&cmd->command->command, "");
-		(*i) += 2;
+		if (str[*i] && str[*i + 1] && ((str[*i] == '"' && str[*i + 1] == '"') \
+								|| (str[*i] == '\'' && str[*i + 1] == '\'')))
+		{
+			cmd->cmd->cmd_val = append_command(&cmd->cmd->cmd_val, "");
+			(*i) += 2;
+		}
+		else if (str[*i] == '<' || str[*i] == '>')
+			handle_redirection(str, i, cmd, envp);
+		else if (str[*i] == '"' || str[*i] == '\'')
+			temp = ft_strjoin_opts(temp, handle_quotes(str, i, envp, cmd), 3);
+		else
+			temp = ft_strjoin_opts(temp, handle_command(str, i, envp), 3);
 	}
-	else if (str[*i] == '<' || str[*i] == '>')
-		handle_redirection(str, i, cmd, envp);
-	else if (str[*i] == '"' || str[*i] == '\'')
-		temp = ft_strjoin_opts(temp, handle_quotes(str, i, envp, cmd), 3);
-	else
-		temp = ft_strjoin_opts(temp, handle_command(str, i, envp), 3);
 	return (temp);
 }
 
-void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
+void	parse_command(char *str, int *i, t_redir *cmd, char **envp)
 {
 	char	*temp;
 
@@ -283,22 +286,24 @@ void	parse_command(char *str, int *i, t_redirection *cmd, char **envp)
 	while (str[*i])
 	{
 		temp = get_parse_value(str, i, cmd, envp);
-		if (str[*i] == 0 || str[*i] == ' ')
-			break ;
-	}
-	if (temp)
-	{
-		if (ft_strlen(temp))
+		if (temp)
 		{
-			cmd->command->exist = true;
-			cmd->command->command = \
-					append_command(&cmd->command->command, temp);
+			if (ft_strlen(temp))
+			{
+				cmd->cmd->exist = true;
+				cmd->cmd->cmd_val = \
+						append_command(&cmd->cmd->cmd_val, temp);
+			}
+			free(temp);
+			while (str[*i] && is_whitespace(str[*i]))
+				(*i)++;
 		}
-		free(temp);
+		else
+			free(temp);
 	}
 }
 
-void	parse_redirection(char *str, t_redirection *command, char **envp)
+void	parse_redirection(char *str, t_redir *command, char **envp)
 {
 	int	i;
 
@@ -309,6 +314,6 @@ void	parse_redirection(char *str, t_redirection *command, char **envp)
 		while (is_whitespace(str[i]))
 			i++;
 	}
-	command->full_cmd = set_command(command->command);
+	command->full_cmd = set_command(command->cmd);
 	set_order(command, str);
 }

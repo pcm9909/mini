@@ -11,7 +11,7 @@ int	is_envp_vars(int c)
 }
 
 char	*print_qutoes_error(const char *str, \
-								t_redirection *command, char **content)
+								t_redir *command, char **content)
 {
 	write(2, "minishell: Error: Unmatched quote\n", \
 			ft_strlen("minishell: Error: Unmatched quote\n"));
@@ -20,7 +20,7 @@ char	*print_qutoes_error(const char *str, \
 	return (NULL);
 }
 
-char	*handle_single_quotes(const char *str, int *i, t_redirection *command)
+char	*handle_single_quotes(const char *str, int *i, t_redir *command)
 {
 	int		start;
 	char	*content;
@@ -32,6 +32,7 @@ char	*handle_single_quotes(const char *str, int *i, t_redirection *command)
 	if (str[*i] != '\'')
 		return (print_qutoes_error(str, command, &content));
 	content = ft_substr(str, start, *i - start);
+	command->executable = false;
 	(*i)++;
 	return (content);
 }
@@ -61,7 +62,7 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 	free(envp_val);
 }
 
-char	*handle_single_quotes2(const char *str, int *i, t_redirection *command)
+char	*handle_single_quotes2(const char *str, int *i, t_redir *command)
 {
 	int		start;
 	char	*content;
@@ -78,7 +79,7 @@ char	*handle_single_quotes2(const char *str, int *i, t_redirection *command)
 }
 
 char	*handle_double_quotes2(const char *str, int *i, \
-							char **envp, t_redirection *command)
+							char **envp, t_redir *command)
 {
 	int		start;
 	char	*temp;
@@ -97,7 +98,7 @@ char	*handle_double_quotes2(const char *str, int *i, \
 }
 
 char	*handle_double_quotes(const char *str, int *i, \
-							char **envp, t_redirection *command)
+							char **envp, t_redir *command)
 {
 	int		start;
 	char	*temp;

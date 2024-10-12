@@ -18,6 +18,12 @@ char	*ft_strrev(char *str)
 	return (rev);
 }
 
+void	error_exit(char	*str)
+{
+	ft_putstr_fd(str, 2);
+	exit(EXIT_FAILURE);
+}
+
 void	perror_exit(char *str)
 {
 	perror(str);
@@ -63,4 +69,26 @@ char	*ft_strjoin_opts(char const *s1, char const *s2, int i)
 	if (i == 2 || i == 3)
 		free((char *)s2);
 	return (str);
+}
+
+char	**ft_strdups(char	**source)
+{
+	char	**dup;
+	int		cnt;
+	int		i;
+
+	i = 0;
+	cnt = 0;
+	while (source[cnt])
+		cnt++;
+	dup = malloc(sizeof(char *) * (cnt + 1));
+	if (!dup)
+		return (NULL);
+	dup[cnt] = NULL;
+	while (source[i])
+	{
+		dup[i] = ft_strdup(source[i]);
+		i++;
+	}
+	return (dup);
 }
