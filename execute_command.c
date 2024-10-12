@@ -24,7 +24,7 @@ static void	check_executable(char *path)
 	}
 }
 
-static void	exe(t_redirection *command, char **cmd, char **envp)
+static void	exe(t_redir *command, char **cmd, char **envp)
 {
 	char	*cmd_path;
 	char	*path;
@@ -33,7 +33,7 @@ static void	exe(t_redirection *command, char **cmd, char **envp)
 	path = get_path(envp);
 	if (cmd)
 		cmd_path = get_cmd_path(cmd[0], path);
-	if (!command->command->command)
+	if (!command->cmd->cmd_val)
 		exit(0);
 	if (execve(cmd_path, cmd, envp))
 	{
@@ -52,13 +52,13 @@ static void	exe(t_redirection *command, char **cmd, char **envp)
 	free(path);
 }
 
-void	execute_external_command(t_redirection *command, \
+void	execute_external_command(t_redir *command, \
 									char **envp, int input_fd, int output_fd)
 {
-	exe(command, command->command->command, envp);
+	exe(command, command->cmd->cmd_val, envp);
 }
 
-void	handle_double_left_brace_fork(t_redirection *command, int pipe_fd[2])
+void	handle_double_left_brace_fork(t_redir *command, int pipe_fd[2])
 {
 	pid_t	pid;
 
@@ -69,7 +69,7 @@ void	handle_double_left_brace_fork(t_redirection *command, int pipe_fd[2])
 	{
 		close(pipe_fd[0]);
 		dup2(pipe_fd[1], STDOUT_FILENO);
-		write(pipe_fd[1], command->here_doc, ft_strlen(command->here_doc));
+		write(pipe_fd[1], command->heredoc, ft_strlen(command->heredoc));
 		close(pipe_fd[1]);
 		exit(EXIT_SUCCESS);
 	}
@@ -82,14 +82,14 @@ void	handle_double_left_brace_fork(t_redirection *command, int pipe_fd[2])
 	}
 }
 
-int	open_redirection_files(t_redirection *command)
+int	open_redirection_files(t_redir *command)
 {
 	int	pipe_fd[2];
 
 	if (handle_left_brace(command) || handle_right_brace(command) \
 		|| handle_double_right_brace(command))
 		return (EXIT_FAILURE);
-	if (command->double_left_brace->exist)
+	if (command->heredoc_redir->exist)
 	{
 		if (pipe(pipe_fd) == -1)
 			perror_exit("pipe");
@@ -98,7 +98,7 @@ int	open_redirection_files(t_redirection *command)
 	return (EXIT_SUCCESS);
 }
 
-int	check_builtin_num(t_redirection *cmd)
+int	check_builtin_num(t_redir *cmd)
 {
 	if (cmd->full_cmd && cmd->full_cmd[0] == 'c' && \
 		cmd->full_cmd[1] == 'd' && (cmd->full_cmd[2] == ' ' || \
@@ -125,7 +125,7 @@ int	check_builtin_num(t_redirection *cmd)
 	return (0);
 }
 
-void	handle_builtin_command(t_redirection *cmd, \
+void	handle_builtin_command(t_redir *cmd, \
 								char ***envp, int builtin_num)
 {
 	if ((builtin_num) == 1)
@@ -144,7 +144,7 @@ void	handle_builtin_command(t_redirection *cmd, \
 		handle_echo_command(cmd, *envp);
 }
 
-void	execute_command(t_redirection *cmd, char ***envp, \
+void	execute_command(t_redir *cmd, char ***envp, \
 						int input_fd, int output_fd)
 {
 	int	builtin_num;

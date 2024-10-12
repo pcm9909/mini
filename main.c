@@ -1,59 +1,5 @@
 #include "main.h"
 
-void print(t_redirection *cmd)
-{
-	int i = 0;
-	if(cmd->left_brace->command)
-	{
-		while(cmd->left_brace->command[i])
-		{
-			printf("[lb]\n");
-			printf("%s\n", cmd->left_brace->command[i]);
-			i++;
-		}
-	}
-	i = 0;
-	if(cmd->double_left_brace->command)
-	{
-		while(cmd->double_left_brace->command[i])
-		{
-			printf("[dlb]\n");
-			printf("%s\n", cmd->double_left_brace->command[i]);
-			i++;
-		}
-	}
-	i = 0;
-	if(cmd->command->command)
-	{
-		while(cmd->command->command[i])
-		{
-			printf("[cmd]\n");
-			printf("%s\n", cmd->command->command[i]);
-			i++;
-		}
-	}
-	i = 0;
-	if(cmd->right_brace->command)
-	{
-		while(cmd->right_brace->command[i])
-		{
-			printf("[rb]\n");
-			printf("%s\n", cmd->right_brace->command[i]);
-			i++;
-		}
-	}
-	i = 0;
-	if(cmd->double_right_brace->command)
-	{
-		while(cmd->double_right_brace->command[i])
-		{
-			printf("[drb]\n");
-			printf("%s\n", cmd->double_right_brace->command[i]);
-			i++;
-		}
-	}
-}
-
 void	set_dollar(int ptr, char ***envp)
 {
 	char	*tmp;
@@ -64,32 +10,29 @@ void	set_dollar(int ptr, char ***envp)
 	set_env(jo, 1, envp);
 }
 
-t_command	*create_command(void)
+t_cmd	*create_command(void)
 {
-	t_command	*cmd;
+	t_cmd	*cmd;
 
-	cmd = malloc(sizeof(t_command));
+	cmd = malloc(sizeof(t_cmd));
 	if (!cmd)
-	{
-		ft_putstr_fd("minishell: Error: allocation failed", 2);
-		exit(EXIT_FAILURE);
-	}
-	cmd->command = NULL;
+		error_exit("minishell: Error: allocation failed");
+	cmd->cmd_val = NULL;
 	cmd->order = false;
 	cmd->exist = false;
 	return (cmd);
 }
 
-void	initialize_redirection(t_redirection **redirection)
+void	initialize_redirection(t_redir **redirection)
 {
-	*redirection = malloc(sizeof(t_redirection));
-	(*redirection)->double_left_brace = create_command();
-	(*redirection)->double_right_brace = create_command();
-	(*redirection)->command = create_command();
-	(*redirection)->left_brace = create_command();
-	(*redirection)->right_brace = create_command();
+	*redirection = malloc(sizeof(t_redir));
+	(*redirection)->heredoc_redir = create_command();
+	(*redirection)->append_redir = create_command();
+	(*redirection)->cmd = create_command();
+	(*redirection)->input_redir = create_command();
+	(*redirection)->output_redir = create_command();
 	(*redirection)->executable = true;
-	(*redirection)->here_doc = ft_strdup("");
+	(*redirection)->heredoc = ft_strdup("");
 }
 
 char	**allocate_and_copy(char **cmd, int size)
@@ -100,10 +43,7 @@ char	**allocate_and_copy(char **cmd, int size)
 	j = 0;
 	new_cmd = malloc(sizeof(char *) * size);
 	if (!new_cmd)
-	{
-		ft_putstr_fd("minishell: Error: allocation failed", 2);
-		return (NULL);
-	}
+		error_exit("minishell: Error: allocation failed");
 	while (j < size - 1)
 	{
 		if (cmd[j] == NULL)
@@ -171,7 +111,7 @@ char	*complement_cmd(char *str)
 	return (NULL);
 }
 
-void	wait_for_children(t_process_data *data, char ***envp, int *exit_code)
+void	wait_for_children(t_proc_data *data, char ***envp, int *exit_code)
 {
 	int		statloc;
 	int		i;
@@ -199,7 +139,7 @@ void	wait_for_children(t_process_data *data, char ***envp, int *exit_code)
 	}
 }
 
-void	cleanup_resources(t_process_data *data)
+void	cleanup_resources(t_proc_data *data)
 {
 	int	i;
 
@@ -233,7 +173,7 @@ void	create_pipes(int i, int cnt, int pipe_fd[2])
 	}
 }
 
-void	fork_and_execute(t_process_data *data, \
+void	fork_and_execute(t_proc_data *data, \
 						int i, int input_fd, char ***envp)
 {
 	data->pids[i] = fork();
@@ -264,7 +204,7 @@ void	fork_and_execute(t_process_data *data, \
 }
 
 void	initialize_commands(char **split, int cnt, \
-						t_redirection ***command, char ***envp)
+						t_redir ***command, char ***envp)
 {
 	int	i;
 
@@ -273,6 +213,8 @@ void	initialize_commands(char **split, int cnt, \
 	{
 		initialize_redirection(&(*command)[i]);
 		parse_redirection(split[i], (*command)[i], *envp);
+		if (sigcheck(3))
+			return ;
 		i++;
 	}
 }
@@ -399,7 +341,7 @@ char	*set_str(char *str, char **envp)
 	return (content);
 }
 
-void	initialize_process_data(t_process_data *data, char *str, char ***envp)
+void	initialize_process_data(t_proc_data *data, char *str, char ***envp)
 {
 	str = complement_cmd(str);
 	str = set_str(str, *envp);
@@ -407,13 +349,13 @@ void	initialize_process_data(t_process_data *data, char *str, char ***envp)
 	data->cnt = cnt_cmd(data->split);
 	data->pids = malloc(sizeof(pid_t) * data->cnt);
 	data->input_fd = 0;
-	data->command = (malloc(sizeof(t_redirection *) * data->cnt));
+	data->command = (malloc(sizeof(t_redir *) * data->cnt));
 	initialize_commands(data->split, data->cnt, &data->command, envp);
 	set_dollar(0, envp);
 	free(str);
 }
 
-void	handle_builtin(t_process_data *data, char ***envp, int i)
+void	handle_builtin(t_proc_data *data, char ***envp, int i)
 {
 	data->pids[i] = -1;
 	data->in = dup(0);
@@ -434,7 +376,7 @@ void	handle_builtin(t_process_data *data, char ***envp, int i)
 	dup2(data->out, 1);
 }
 
-void	handle_non_builtin(t_process_data *data, char ***envp, int i)
+void	handle_non_builtin(t_proc_data *data, char ***envp, int i)
 {
 	fork_and_execute(data, i, data->input_fd, envp);
 	if (i > 0)
@@ -447,27 +389,28 @@ void	handle_non_builtin(t_process_data *data, char ***envp, int i)
 void	process_input(char *str, char ***envp)
 {
 	static int		exit_code;
-	t_process_data	*data;
+	t_proc_data		*data;
 	int				i;
 
-	data = malloc(sizeof(t_process_data));
+	data = malloc(sizeof(t_proc_data));
 	if (!data)
-	{
-		ft_putstr_fd("minishell: Error: allocation failed", 2);
-		exit(EXIT_FAILURE);
-	}
+		error_exit("minishell: Error: allocation failed");
 	initialize_process_data(data, str, envp);
 	i = -1;
 	while (++i < data->cnt)
 	{
-		print(data->command[i]);
-		set_dollar(0, envp);
-		data->builtin_num = check_builtin_num(data->command[i]);
-		create_pipes(i, data->cnt, data->pipe_fd);
-		if (data->builtin_num)
-			handle_builtin(data, envp, i);
-		else
-			handle_non_builtin(data, envp, i);
+		if (sigcheck(3))
+			break ;
+		if (data->command[i]->executable)
+		{
+			set_dollar(0, envp);
+			data->builtin_num = check_builtin_num(data->command[i]);
+			create_pipes(i, data->cnt, data->pipe_fd);
+			if (data->builtin_num)
+				handle_builtin(data, envp, i);
+			else
+				handle_non_builtin(data, envp, i);
+		}
 	}
 	wait_for_children(data, envp, &exit_code);
 	cleanup_resources(data);
@@ -477,8 +420,10 @@ void	process_input(char *str, char ***envp)
 static void	cleanup(char *str, char **envp)
 {
 	struct termios	old;
-	int i = 0;
-	while(envp[i])
+	int				i;
+
+	i = 0;
+	while (envp[i])
 	{
 		free(envp[i]);
 		i++;

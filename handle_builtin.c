@@ -139,7 +139,7 @@ char	*set_env(char *name, int flag, char ***envp)
 	return (NULL);
 }
 
-void		print_envp(char **envp, int flag)
+void	print_envp(char **envp, int flag)
 {
 	while (*envp != NULL)
 	{
@@ -178,10 +178,9 @@ int	ft_export(char **ptr, char ***envp)
 		rax = set_env(ptr[i], env_validate(ptr[i]), envp);
 		if (flag == 0 && rax != NULL)
 		{
-			ft_putstr_fd("minishell: export: `",2);
-			ft_putstr_fd(rax,2);
-			ft_putstr_fd("': not a valid identifier\n",2);
-			//printf("minishell: export: `%s': not a valid identifier\n", rax);
+			ft_putstr_fd("minishell: export: `", 2);
+			ft_putstr_fd(rax, 2);
+			ft_putstr_fd("': not a valid identifier\n", 2);
 			flag = 1;
 		}
 		i++;
@@ -209,7 +208,7 @@ static int	ft_isspace1(int c)
 
 static long long	ft_atoll(const char *str)
 {
-	int	i;
+	int			i;
 	long long	sign;
 	long long	result;
 
@@ -235,7 +234,7 @@ static long long	ft_atoll(const char *str)
 static int	ft_count_len1(long long n)
 {
 	long long	temp;
-	int	len;
+	int			len;
 
 	if (n == 0)
 		return (1);
@@ -251,9 +250,9 @@ static int	ft_count_len1(long long n)
 
 static char	*ft_lltoa(long long n)
 {
-	char	*str;
-	int		len;
+	char			*str;
 	long long		sign;
+	int				len;
 
 	sign = 1;
 	len = ft_count_len1(n);
@@ -288,20 +287,18 @@ static int	exit_range(char *ptr)
 
 void	ft_exit(char **ptr)
 {
-	//printf("exit\n");
-	ft_putstr_fd("exit\n",2);
+	ft_putstr_fd("exit\n", 2);
 	if (ptr[1] == NULL)
 		exit(0);
 	else if (!only_digit(ptr[1]) || exit_range(ptr[1]))
 	{
-		ft_putstr_fd("minishell: exit: ",2);
-		ft_putstr_fd(ptr[1],2);
-		ft_putstr_fd(": numeric argument required\n",2);
-		//printf("minishell: exit: %s: numeric argument required\n", ptr[1]);
+		ft_putstr_fd("minishell: exit: ", 2);
+		ft_putstr_fd(ptr[1], 2);
+		ft_putstr_fd(": numeric argument required\n", 2);
 		exit(2);
 	}
 	else if (ptr[2] != NULL)
-		ft_putstr_fd("minishell: exit: too many arguments\n",2); //printf("minishell: exit: too many arguments\n");
+		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
 	else
 		exit((unsigned char)ft_atoi(ptr[1]));
 }
@@ -343,39 +340,14 @@ void	ft_echo(char *ptr, char **envp)
 	}
 	while (*ptr)
 	{
-		/*if (*ptr == '$')
-		{
-			ptr++;
-			if (*ptr == '?')
-			{
-				ptr++;
-				printf("%d", 0); // 종료상태 넣어야함
-			}
-			else
-			{
-				i = 0;
-				while (ptr[i] != ' ' && ptr[i] != '\0')
-				{
-					i++;
-					ptr++;
-				}
-				k = search_env(envp, ft_substr(ptr, 0, i), 0);
-				ptr = &ptr[i];
-				if (envp[k] != NULL)
-					printf("%s", ft_strchr(envp[k], '=') + 1);
-			}
-		}
-		else
-		{*/
-			printf("%c", *ptr);
-			ptr++;
-		//}
+		printf("%c", *ptr);
+		ptr++;
 	}
 	if (flag == 0)
 		printf("\n");
 }
 
-void	handle_cd_command(t_redirection *command, char ***envp)
+void	handle_cd_command(t_redir *command, char ***envp)
 {
 	char	*tmp_pwd;
 	char	**cd;
@@ -385,7 +357,7 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 
 	tmp_pwd = getcwd(NULL, BUFSIZ);
 	old = getcwd(NULL, BUFSIZ);
-	cd = ft_strdups(command->command->command);
+	cd = ft_strdups(command->cmd->cmd_val);
 	if (cd[1] == NULL)
 	{
 		free(tmp_pwd);
@@ -393,8 +365,8 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 	}
 	else if (cd[2] != NULL)
 	{
-		ft_putstr_fd("minishell: cd: too many arguments\n",2);//printf("minishell: cd: too many arguments\n");
-		set_dollar(1,envp);
+		ft_putstr_fd("minishell: cd: too many arguments\n", 2);
+		set_dollar(1, envp);
 	}
 	else
 	{
@@ -432,51 +404,49 @@ void	handle_cd_command(t_redirection *command, char ***envp)
 	}
 	if (chdir(tmp_pwd) == -1)
 	{
-		ft_putstr_fd("minishell: cd: ",2);
-		ft_putstr_fd(cd[1],2);
-		ft_putstr_fd(": No such file or directory\n",2);
-		//printf("minishell: cd: %s: No such file or directory\n", cd[1]);
-		set_dollar(1,envp);
+		ft_putstr_fd("minishell: cd: ", 2);
+		ft_putstr_fd(cd[1], 2);
+		ft_putstr_fd(": No such file or directory\n", 2);
+		set_dollar(1, envp);
 	}
 	else
 	{
-		set_env(ft_strjoin("OLDPWD=",old), 1, envp);// free
-		set_env(ft_strjoin("PWD=",tmp_pwd), 1, envp);// free
+		set_env(ft_strjoin("OLDPWD=", old), 1, envp); // free
+		set_env(ft_strjoin("PWD=", tmp_pwd), 1, envp); // free
 	}
 }
 
-void	handle_export_command(t_redirection *command, char ***envp)
+void	handle_export_command(t_redir *command, char ***envp)
 {
 	char	**cd;
 
-	cd = ft_strdups(command->command->command);
+	cd = ft_strdups(command->cmd->cmd_val);
 	if (cd[1] == NULL)
 	{
 		print_envp(*envp, 1);
 	}
 	else
-		set_dollar(ft_export(cd, envp),envp);
-		//*exit_code = ft_export(cd, envp);
+		set_dollar(ft_export(cd, envp), envp);
 }
 
-void	handle_env_command(t_redirection *command, char **envp)
+void	handle_env_command(t_redir *command, char **envp)
 {
 	print_envp(envp, 0);
 }
 
-void	handle_exit_command(t_redirection *command)
+void	handle_exit_command(t_redir *command)
 {
 	char	**cd;
 
-	cd = ft_split(command->full_cmd, ' ');
+	cd = ft_strdups(command->cmd->cmd_val);
 	ft_exit(cd);
 }
 
-void	handle_unset_command(t_redirection *command, char **envp)
+void	handle_unset_command(t_redir *command, char **envp)
 {
 	char	**cd;
 
-	cd = ft_strdups(command->command->command);
+	cd = ft_strdups(command->cmd->cmd_val);
 	ft_unset(cd, envp);
 }
 
@@ -489,7 +459,7 @@ void	handle_pwd_command(void)
 	free(tmp_pwd);
 }
 
-void	handle_echo_command(t_redirection *command, char **envp)
+void	handle_echo_command(t_redir *command, char **envp)
 {
 	ft_echo(command->full_cmd, envp);
 }
