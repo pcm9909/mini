@@ -27,7 +27,7 @@
 *.lib
 
 # custom
-*.dYSM
+*.dSYM
 *.out
 
 # Executables
