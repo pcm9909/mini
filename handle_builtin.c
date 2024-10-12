@@ -318,33 +318,33 @@ void	ft_unset(char **ptr, char **envp)
 	}
 }
 
-void	ft_echo(char *ptr, char **envp)
+void	ft_echo(char **ptr, char **envp)
 {
-	int		flag;
-	int		i;
-	int		k;
-	char	*tmp;
+	int	flag;
+	int	i;
 
 	i = 1;
 	flag = 0;
-	ptr = ptr + 4;
-	while (*ptr == ' ')
-		ptr++;
-	while (!ft_strncmp(ptr, "-n", 2))
+	if (ptr[i] && !ft_strncmp(ptr[i], "-n", 2))
 	{
 		flag = 1;
-		ptr += 2;
-		while (*ptr == 'n')
-			ptr++;
-		ptr++;
+		i++;
 	}
-	while (*ptr)
+	while (ptr[i])
 	{
-		printf("%c", *ptr);
-		ptr++;
+		printf("%s", ptr[i]);
+		if (ptr[i + 1])
+			printf(" ");
+		i++;
 	}
 	if (flag == 0)
 		printf("\n");
+	while (i > 0)
+	{
+		free(ptr[i]);
+		i--;
+	}
+	free(ptr);
 }
 
 void	handle_cd_command(t_redir *command, char ***envp)
@@ -461,5 +461,8 @@ void	handle_pwd_command(void)
 
 void	handle_echo_command(t_redir *command, char **envp)
 {
-	ft_echo(command->full_cmd, envp);
+	char	**cd;
+
+	cd = ft_strdups(command->cmd->cmd_val);
+	ft_echo(cd, envp);
 }

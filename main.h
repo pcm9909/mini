@@ -104,7 +104,7 @@ int		ft_export(char **ptr, char ***envp);
 int		only_digit(char *ptr);
 void	ft_exit(char **ptr);
 void	ft_unset(char **ptr, char **envp);
-void	ft_echo(char *ptr, char **envp);
+void	ft_echo(char **ptr, char **envp);
 int		is_whitespace(int c);
 char	*handle_command(const char *str, int *i, char **envp);
 
