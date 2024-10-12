@@ -73,7 +73,6 @@ char	*handle_quotes_and_join(char *command,
 	sub = ft_substr(command, start, *j - start);
 	quote_content = handle_quotes3(command, cmd, j);
 	new_content = ft_strjoin_opts(sub, quote_content, 3);
-	free(sub);
 	return (new_content);
 }
 
