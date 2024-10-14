@@ -156,5 +156,6 @@ char	**ft_splits(char const *s, char c);
 char	**ft_strdups(char	**source);
 void	error_exit(char	*str);
 void	heredoc_sig(struct termios *old);
+void	print(t_redir *cmd);
 
 #endif
