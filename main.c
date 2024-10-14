@@ -304,13 +304,42 @@ char	**ft_splits(char const *s, char c)
 	return (arr);
 }
 
-void	set_single_quotes(int *i, char *str)
+void	set_single_quotes(const char *str, char **temp, int *i)
 {
-	(*i)++;
+	char *content;
+	int start;
+
+	start =(*i)++;
 	while (str[*i] && str[*i] != '\'')
 		(*i)++;
 	if (str[*i] == '\'')
 		(*i)++;
+	content = ft_substr(str, start, *i - start);
+	*temp = ft_strjoin_opts(*temp, content, 3);
+}
+
+void	set_double_quotes(const char *str, char **temp,int *i, char **envp)
+{
+	int start;
+	char *content;
+
+	start = (*i)++;
+	while (str[*i] && str[*i] != '"')
+	{
+		if (str[*i] == '$')
+		{
+			content = ft_substr(str, start, *i - start);
+			*temp = ft_strjoin_opts(*temp, content, 3);
+			handle_dollar(i, temp, str, envp);
+			start = *i;
+		}
+		else
+			(*i)++;
+	}
+	if (str[*i] == '"')
+		(*i)++;
+	content = ft_substr(str, start, *i - start);
+	*temp = ft_strjoin_opts(*temp, content, 3);
 }
 
 void	set_heredoc_redir(int *i, char **tmp, char *str, int *start)
@@ -324,19 +353,39 @@ void	set_heredoc_redir(int *i, char **tmp, char *str, int *start)
 	*start = *i;
 }
 
+void	set_quotes(const char *str, int *i, char **temp, char **envp)
+{
+	if (str[*i] == '\'')
+	{
+		set_single_quotes(str, temp, i);
+	}
+	else if (str[*i] == '"')
+	{
+		set_double_quotes(str, temp, i, envp);
+	}
+}
+
+void	set_str_vars(int *i, int *si, char **tmp)
+{
+	*i = 0;
+	*si = 0;
+	*tmp = ft_strdup("");
+}
+
 char	*set_str(char *str, char **envp)
 {
 	char	*tmp;
 	int		i;
 	int		si;
 
-	i = 0;
-	si = 0;
-	tmp = ft_strdup("");
+	set_str_vars(&i, &si, &tmp);
 	while (str[i])
 	{
-		if (str[i] == '\'')
-			set_single_quotes(&i, str);
+		if (str[i] == '\'' || str[i] == '"')
+		{
+			set_quotes(str, &i, &tmp, envp);
+			si = i;
+		}
 		else if (str[i] == '$')
 		{
 			tmp = ft_strjoin_opts(tmp, ft_substr(str, si, i - si), 3);
@@ -348,7 +397,6 @@ char	*set_str(char *str, char **envp)
 		else
 			i++;
 	}
-	tmp = ft_strjoin_opts(tmp, ft_substr(str, si, i - si), 3);
 	free(str);
 	return (tmp);
 }
