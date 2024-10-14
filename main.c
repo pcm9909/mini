@@ -313,32 +313,44 @@ void	set_single_quotes(int *i, char *str)
 		(*i)++;
 }
 
-char	*set_str(char *str, char **envp)
+void set_heredoc_redir(int *i, char **tmp, char *str, int *start)
 {
-	int		i;
-	int		start;
-	char	*content;
+	*i += 2;
+	while (is_whitespace(str[*i]))
+		(*i)++;
+	while (!is_whitespace(str[*i]) && str[*i])
+		(*i)++;
+	*tmp = ft_strjoin_opts(*tmp, ft_substr(str, *start, *i - *start), 3);
+	*start = *i;
+}
+
+char *set_str(char *str, char **envp)
+{
+	int i;
+	int st;
+	char *temp;
 
 	i = 0;
-	start = 0;
-	content = ft_strdup("");
+	st = 0;
+	temp = ft_strdup("");
 	while (str[i])
 	{
 		if (str[i] == '\'')
 			set_single_quotes(&i, str);
 		else if (str[i] == '$')
 		{
-			content = ft_strjoin_opts(content, \
-							ft_substr(str, start, i - start), 3);
-			handle_dollar(&i, &content, str, envp);
-			start = i;
+			temp = ft_strjoin_opts(temp, ft_substr(str, st, i - st), 3);
+			handle_dollar(&i, &temp, str, envp);
+			st = i;
 		}
+		else if (str[i] && str[i + 1] && str[i] == '<' && str[i + 1] == '<')
+			set_heredoc_redir(&i, &temp, str, &st);
 		else
 			i++;
 	}
-	content = ft_strjoin_opts(content, ft_substr(str, start, i - start), 3);
+	temp = ft_strjoin_opts(temp, ft_substr(str, st, i - st), 3);
 	free(str);
-	return (content);
+	return (temp);
 }
 
 void	initialize_process_data(t_proc_data *data, char *str, char ***envp)
