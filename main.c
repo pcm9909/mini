@@ -212,7 +212,7 @@ void	initialize_commands(char **split, int cnt, \
 	while (i < cnt)
 	{
 		initialize_redirection(&(*command)[i]);
-		parse_redirection(split[i], (*command)[i], *envp);
+		parse_redir(split[i], (*command)[i], *envp);
 		if (sigcheck(3))
 			return ;
 		i++;
@@ -313,7 +313,7 @@ void	set_single_quotes(int *i, char *str)
 		(*i)++;
 }
 
-void set_heredoc_redir(int *i, char **tmp, char *str, int *start)
+void	set_heredoc_redir(int *i, char **tmp, char *str, int *start)
 {
 	*i += 2;
 	while (is_whitespace(str[*i]))
@@ -324,33 +324,33 @@ void set_heredoc_redir(int *i, char **tmp, char *str, int *start)
 	*start = *i;
 }
 
-char *set_str(char *str, char **envp)
+char	*set_str(char *str, char **envp)
 {
-	int i;
-	int st;
-	char *temp;
+	char	*tmp;
+	int		i;
+	int		si;
 
 	i = 0;
-	st = 0;
-	temp = ft_strdup("");
+	si = 0;
+	tmp = ft_strdup("");
 	while (str[i])
 	{
 		if (str[i] == '\'')
 			set_single_quotes(&i, str);
 		else if (str[i] == '$')
 		{
-			temp = ft_strjoin_opts(temp, ft_substr(str, st, i - st), 3);
-			handle_dollar(&i, &temp, str, envp);
-			st = i;
+			tmp = ft_strjoin_opts(tmp, ft_substr(str, si, i - si), 3);
+			handle_dollar(&i, &tmp, str, envp);
+			si = i;
 		}
 		else if (str[i] && str[i + 1] && str[i] == '<' && str[i + 1] == '<')
-			set_heredoc_redir(&i, &temp, str, &st);
+			set_heredoc_redir(&i, &tmp, str, &si);
 		else
 			i++;
 	}
-	temp = ft_strjoin_opts(temp, ft_substr(str, st, i - st), 3);
+	tmp = ft_strjoin_opts(tmp, ft_substr(str, si, i - si), 3);
 	free(str);
-	return (temp);
+	return (tmp);
 }
 
 void	initialize_process_data(t_proc_data *data, char *str, char ***envp)
@@ -398,17 +398,22 @@ void	handle_non_builtin(t_proc_data *data, char ***envp, int i)
 	data->input_fd = data->pipe_fd[0];
 }
 
+void	set_local(int *i, t_proc_data **data)
+{
+	*i = -1;
+	*data = malloc(sizeof(t_proc_data));
+	if (!*data)
+		error_exit("minishell: Error: allocation failed");
+}
+
 void	process_input(char *str, char ***envp)
 {
-	static int		exit_code;
-	t_proc_data		*data;
-	int				i;
+	t_proc_data	*data;
+	static int	exit_code;
+	int			i;
 
-	data = malloc(sizeof(t_proc_data));
-	if (!data)
-		error_exit("minishell: Error: allocation failed");
+	set_local(&i, &data);
 	initialize_process_data(data, str, envp);
-	i = -1;
 	while (++i < data->cnt)
 	{
 		if (sigcheck(3))

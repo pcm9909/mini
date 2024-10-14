@@ -55,8 +55,6 @@ int		open_redirection_files(t_redir *command);
 void	handle_builtin_command(t_redir *cmd, \
 								char ***envp, int builtin_num);
 
-void	print(t_redir *cmd);
-
 void	handle_dollar(int *i, char **content, const char *str, char **envp);
 char	*get_path(char **envp);
 char	*get_cmd_path(char *cmd, char *path);
@@ -114,9 +112,9 @@ void	input_sig(struct termios *old);
 void	end_sig(struct termios *old);
 void	none_sig(struct termios *old);
 
-void	parse_left_redirection(const char *str, int *i, t_redir *command, char **evnp);
-void	parse_right_redirection(char *str, int *i, char **envp, t_redir *command);
-void	parse_redirection(char *str, t_redir *command, char **envp);
+void	parse_left_redir(const char *str, int *i, t_redir *command, char **evnp);
+void	parse_right_redir(char *str, int *i, char **envp, t_redir *command);
+void	parse_redir(char *str, t_redir *command, char **envp);
 char	*set_command(t_cmd *command);
 void	set_order(t_redir *command, char *str);
 char	*ft_find_single_redirect(char *str, char c);
@@ -137,7 +135,7 @@ char	**extract_path(char *envp[]);
 int		is_whitespace(int c);
 int		cnt_cmd(char **split);
 
-void	handle_double_left_brace(t_redir *cmd, char **envp);
+void	handle_heredoc_redir(t_redir *cmd, char **envp);
 
 int		is_envp_vars(int c);
 
@@ -158,6 +156,5 @@ char	**ft_splits(char const *s, char c);
 char	**ft_strdups(char	**source);
 void	error_exit(char	*str);
 void	heredoc_sig(struct termios *old);
-void print(t_redir *cmd);
 
 #endif

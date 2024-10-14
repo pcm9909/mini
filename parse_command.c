@@ -131,7 +131,7 @@ static void	handle_single_left(t_redir *cmd, char *content)
 		append_command(&cmd->input_redir->cmd_val, content);
 }
 
-void	parse_left_redirection(const char *str, int *i,
+void	parse_left_redir(const char *str, int *i,
 							t_redir *cmd, char **envp)
 {
 	int		flag;
@@ -154,7 +154,7 @@ void	parse_left_redirection(const char *str, int *i,
 	if (flag == 1)
 	{
 		if (!handle_double_left(cmd, content, str, i))
-			handle_double_left_brace(cmd, envp);
+			handle_heredoc_redir(cmd, envp);
 	}
 	else
 		handle_single_left(cmd, content);
@@ -177,7 +177,7 @@ static void	check_flag(t_redir *command, int flag, char *content)
 	}
 }
 
-void	parse_right_redirection(char *str, int *i, \
+void	parse_right_redir(char *str, int *i, \
 				char **envp, t_redir *cmd)
 {
 	int		j;
@@ -211,11 +211,11 @@ void	handle_redirection(char *str, int *i, \
 {
 	if (str[*i] == '<')
 	{
-		parse_left_redirection(str, i, command, envp);
+		parse_left_redir(str, i, command, envp);
 	}
 	if (str[*i] == '>')
 	{
-		parse_right_redirection(str, i, envp, command);
+		parse_right_redir(str, i, envp, command);
 	}
 	while (str[*i] && is_whitespace(str[*i]))
 		(*i)++;
@@ -303,7 +303,7 @@ void	parse_command(char *str, int *i, t_redir *cmd, char **envp)
 	}
 }
 
-void	parse_redirection(char *str, t_redir *command, char **envp)
+void	parse_redir(char *str, t_redir *command, char **envp)
 {
 	int	i;
 

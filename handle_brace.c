@@ -6,14 +6,14 @@ void	print_error(char *target)
 	perror(target);
 }
 
-int		sigcheck(int type)
+int	sigcheck(int type)
 {
 	static int	flag;
 
 	if (type == 1)
 		flag = 1;
 	if (type == 0)
-	 	flag = 0;
+		flag = 0;
 	return (flag);
 }
 
@@ -55,23 +55,23 @@ char	*handle_quotes4(const char *str, \
 	return (content);
 }
 
-char	*handle_quotes3(const char *str, t_redir *command, int *j)
+char	*handle_quotes3(const char *str, t_redir *cmd, int *j)
 {
 	if (str[*j] == '"')
-		return (handle_quotes4(str, command, '"', j));
+		return (handle_quotes4(str, cmd, '"', j));
 	else
-		return (handle_quotes4(str, command, '\'', j));
+		return (handle_quotes4(str, cmd, '\'', j));
 }
 
-char	*handle_quotes_and_join(char *command,
+char	*handle_quotes_and_join(char *str,
 			t_redir *cmd, int *j, int start)
 {
 	char	*sub;
 	char	*quote_content;
 	char	*new_content;
 
-	sub = ft_substr(command, start, *j - start);
-	quote_content = handle_quotes3(command, cmd, j);
+	sub = ft_substr(str, start, *j - start);
+	quote_content = handle_quotes3(str, cmd, j);
 	new_content = ft_strjoin_opts(sub, quote_content, 3);
 	return (new_content);
 }
@@ -114,7 +114,7 @@ char	*process_command(char *command, t_redir *cmd)
 	return (content);
 }
 
-void	append_until_dollar(char **processed_read, const char *read, int *j)
+void	append_until_dollar(char **proc_read, const char *read, int *j)
 {
 	int		start;
 	char	*temp;
@@ -125,36 +125,36 @@ void	append_until_dollar(char **processed_read, const char *read, int *j)
 		(*j)++;
 	}
 	temp = ft_substr(read, start, *j - start);
-	*processed_read = ft_strjoin_opts(*processed_read, temp, 3);
+	*proc_read = ft_strjoin_opts(*proc_read, temp, 3);
 }
 
 void	proc_read_input(char *read, int pipe_fd[2], char **envp)
 {
-	char	*processed_read;
+	char	*proc_read;
 	int		j;
 
 	add_history(read);
-	processed_read = ft_strdup("");
+	proc_read = ft_strdup("");
 	j = 0;
 	while (read[j])
 	{
 		if (read[j] == '$')
-			handle_dollar(&j, &processed_read, read, envp);
+			handle_dollar(&j, &proc_read, read, envp);
 		else
-			append_until_dollar(&processed_read, read, &j);
+			append_until_dollar(&proc_read, read, &j);
 	}
-	processed_read = ft_strjoin_opts(processed_read, "\n", 1);
-	write(pipe_fd[1], processed_read, ft_strlen(processed_read));
-	free(processed_read);
+	proc_read = ft_strjoin_opts(proc_read, "\n", 1);
+	write(pipe_fd[1], proc_read, ft_strlen(proc_read));
+	free(proc_read);
 	free(read);
 }
 
 void	proc_heredoc_child(t_redir *cmd, int i, int pipe_fd[2], char **envp)
 {
-	struct termios old;
-	char	*read;
-	char	*processed_read;
-	int		j;
+	struct termios	old;
+	char			*read;
+	char			*proc;
+	int				j;
 
 	close(pipe_fd[0]);
 	while (cmd->executable)
@@ -220,7 +220,7 @@ void	handle_heredoc(t_redir *cmd, int i, int flag, char **envp)
 	}
 }
 
-void	handle_double_left_brace(t_redir *cmd, char **envp)
+void	handle_heredoc_redir(t_redir *cmd, char **envp)
 {
 	char	*read;
 	int		i;
