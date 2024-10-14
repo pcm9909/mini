@@ -32,7 +32,6 @@ char	*handle_single_quotes(const char *str, int *i, t_redir *command)
 	if (str[*i] != '\'')
 		return (print_qutoes_error(str, command, &content));
 	content = ft_substr(str, start, *i - start);
-	command->executable = false;
 	(*i)++;
 	return (content);
 }
