@@ -317,7 +317,7 @@ int	handle_double_right_brace(t_redir *cmd)
 					O_CREAT | O_APPEND | O_WRONLY, 0644);
 		if (fd == -1)
 		{
-			print_error(cmd->heredoc_redir->cmd_val[i]);
+			print_error(cmd->append_redir->cmd_val[i]);
 			return (EXIT_FAILURE);
 		}
 		if (cmd->append_redir->order == true)
