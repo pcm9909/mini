@@ -104,7 +104,7 @@ int		ft_export(char **ptr, char ***envp);
 int		only_digit(char *ptr);
 void	ft_exit(char **ptr);
 void	ft_unset(char **ptr, char **envp);
-void	ft_echo(char **ptr, char **envp);
+void	ft_echo(char **ptr);
 int		is_whitespace(int c);
 char	*handle_command(const char *str, int *i, char **envp);
 
@@ -158,5 +158,6 @@ char	**ft_splits(char const *s, char c);
 char	**ft_strdups(char	**source);
 void	error_exit(char	*str);
 void	heredoc_sig(struct termios *old);
+void print(t_redir *cmd);
 
 #endif

@@ -318,7 +318,7 @@ void	ft_unset(char **ptr, char **envp)
 	}
 }
 
-void	ft_echo(char **ptr, char **envp)
+void	ft_echo(char **ptr)
 {
 	int	flag;
 	int	i;
@@ -462,7 +462,8 @@ void	handle_pwd_command(void)
 void	handle_echo_command(t_redir *command, char **envp)
 {
 	char	**cd;
+	int i = 0;
 
 	cd = ft_strdups(command->cmd->cmd_val);
-	ft_echo(cd, envp);
+	ft_echo(cd);
 }
