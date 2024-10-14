@@ -397,7 +397,7 @@ char	*set_str(char *str, char **envp)
 		else
 			i++;
 	}
-	free(str);
+	tmp = ft_strjoin_opts(tmp, ft_substr(str, si, i - si), 3);
 	return (tmp);
 }
 
@@ -405,6 +405,7 @@ void	initialize_process_data(t_proc_data *data, char *str, char ***envp)
 {
 	str = complement_cmd(str);
 	str = set_str(str, *envp);
+	printf("str: %s\n", str);
 	data->split = ft_splits(str, '|');
 	data->cnt = cnt_cmd(data->split);
 	data->pids = malloc(sizeof(pid_t) * data->cnt);
@@ -464,6 +465,7 @@ void	process_input(char *str, char ***envp)
 	initialize_process_data(data, str, envp);
 	while (++i < data->cnt)
 	{
+		print(data->command[i]);
 		if (sigcheck(3))
 			break ;
 		if (data->command[i]->executable)
