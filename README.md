@@ -10,4 +10,4 @@ leak (미해결)
 
 파일 나누기 (미해결)
 
-echo hello >> libft segfault (미해결)
+echo hello >> libft segfault (해결)
