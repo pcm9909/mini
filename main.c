@@ -306,10 +306,10 @@ char	**ft_splits(char const *s, char c)
 
 void	set_single_quotes(const char *str, char **temp, int *i)
 {
-	char *content;
-	int start;
+	char	*content;
+	int		start;
 
-	start =(*i)++;
+	start = (*i)++;
 	while (str[*i] && str[*i] != '\'')
 		(*i)++;
 	if (str[*i] == '\'')
@@ -318,10 +318,10 @@ void	set_single_quotes(const char *str, char **temp, int *i)
 	*temp = ft_strjoin_opts(*temp, content, 3);
 }
 
-void	set_double_quotes(const char *str, char **temp,int *i, char **envp)
+void	set_double_quotes(const char *str, char **temp, int *i, char **envp)
 {
-	int start;
-	char *content;
+	char	*content;
+	int		start;
 
 	start = (*i)++;
 	while (str[*i] && str[*i] != '"')
@@ -353,7 +353,7 @@ void	set_heredoc_redir(int *i, char **tmp, char *str, int *start)
 	*start = *i;
 }
 
-void	set_quotes(const char *str, int *i, char **temp, char **envp)
+void	set_quotes_and_dollar(const char *str, int *i, char **temp, char **envp)
 {
 	if (str[*i] == '\'')
 	{
@@ -362,6 +362,10 @@ void	set_quotes(const char *str, int *i, char **temp, char **envp)
 	else if (str[*i] == '"')
 	{
 		set_double_quotes(str, temp, i, envp);
+	}
+	else if (str[*i] == '$')
+	{
+		handle_dollar(i, temp, str, envp);
 	}
 }
 
@@ -381,15 +385,10 @@ char	*set_str(char *str, char **envp)
 	set_str_vars(&i, &si, &tmp);
 	while (str[i])
 	{
-		if (str[i] == '\'' || str[i] == '"')
-		{
-			set_quotes(str, &i, &tmp, envp);
-			si = i;
-		}
-		else if (str[i] == '$')
+		if (str[i] == '\'' || str[i] == '"' || str[i] == '$')
 		{
 			tmp = ft_strjoin_opts(tmp, ft_substr(str, si, i - si), 3);
-			handle_dollar(&i, &tmp, str, envp);
+			set_quotes_and_dollar(str, &i, &tmp, envp);
 			si = i;
 		}
 		else if (str[i] && str[i + 1] && str[i] == '<' && str[i + 1] == '<')
