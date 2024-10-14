@@ -24,11 +24,11 @@ typedef struct s_cmd
 
 typedef struct s_redir
 {
-	struct s_cmd	*heredoc_redir;
-	struct s_cmd	*input_redir;
-	struct s_cmd	*cmd;
-	struct s_cmd	*output_redir;
-	struct s_cmd	*append_redir;
+	t_cmd	*heredoc_redir;
+	t_cmd	*input_redir;
+	t_cmd	*cmd;
+	t_cmd	*output_redir;
+	t_cmd	*append_redir;
 	char				*full_cmd;
 	char				*heredoc;
 	bool				executable;
