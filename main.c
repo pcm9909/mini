@@ -323,13 +323,22 @@ void	set_double_quotes(const char *str, char **temp, int *i, char **envp)
 	char	*content;
 	int		start;
 
-	start = (*i)++;
+	start = *i;
+	(*i)++;
 	while (str[*i] && str[*i] != '"')
-		(*i)++;
+	{
+		if (str[*i] == '$')
+		{
+			*temp = ft_strjoin_opts(*temp, ft_substr(str, start, *i - start), 3);
+			handle_dollar(i, temp, str, envp);
+			start = *i;
+		}
+		else
+			(*i)++;
+	}
 	if (str[*i] == '"')
 		(*i)++;
-	content = ft_substr(str, start, *i - start);
-	*temp = ft_strjoin_opts(*temp, content, 3);
+	*temp = ft_strjoin_opts(*temp, ft_substr(str, start, *i - start), 3);
 }
 
 void	set_heredoc_redir(int *i, char **tmp, char *str, int *start)
@@ -430,6 +439,7 @@ void	initialize_process_data(t_proc_data *data, char *str, char ***envp)
 {
 	str = complement_cmd(str);
 	str = set_str(str, *envp);
+	printf("str: %s\n", str);
 	data->split = ft_splits(str, '|');
 	data->cnt = cnt_cmd(data->split);
 	data->pids = malloc(sizeof(pid_t) * data->cnt);
