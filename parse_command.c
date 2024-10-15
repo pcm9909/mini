@@ -130,7 +130,6 @@ static char	*extract_content(const char *str, int *i)
 	return (content);
 }
 
-
 static int	handle_double_left(t_redir *cmd, char *content, \
 				const char *str, int *i)
 {
@@ -174,6 +173,7 @@ void	parse_left_redir(const char *str, int *i,
 	char	*content;
 
 	(*i)++;
+	flag = 0;
 	if (str[*i] == '<')
 	{
 		(*i)++;
