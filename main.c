@@ -325,17 +325,7 @@ void	set_double_quotes(const char *str, char **temp, int *i, char **envp)
 
 	start = (*i)++;
 	while (str[*i] && str[*i] != '"')
-	{
-		if (str[*i] == '$')
-		{
-			content = ft_substr(str, start, *i - start);
-			*temp = ft_strjoin_opts(*temp, content, 3);
-			handle_dollar(i, temp, str, envp);
-			start = *i;
-		}
-		else
-			(*i)++;
-	}
+		(*i)++;
 	if (str[*i] == '"')
 		(*i)++;
 	content = ft_substr(str, start, *i - start);
@@ -344,7 +334,6 @@ void	set_double_quotes(const char *str, char **temp, int *i, char **envp)
 
 void	set_heredoc_redir(int *i, char **tmp, char *str, int *start)
 {
-	*i += 2;
 	while (is_whitespace(str[*i]))
 		(*i)++;
 	while (!is_whitespace(str[*i]) && str[*i])
@@ -366,6 +355,43 @@ void	set_quotes_and_dollar(const char *str, int *i, char **temp, char **envp)
 	else if (str[*i] == '$')
 	{
 		handle_dollar(i, temp, str, envp);
+	}
+}
+
+void	set_redir(int *i, char **tmp, char *str, int *start)
+{
+	if (str[*i] == '<')
+	{
+		(*i)++;
+		if (str[*i] == '<')
+		{
+			(*i)++;
+			set_heredoc_redir(i, tmp, str, start);
+		}
+		while (str[*i] && is_whitespace(str[*i]))
+			(*i)++;
+		if (str[*i] == '$')
+		{
+			while (str[*i] && !is_whitespace(str[*i]))
+				(*i)++;
+		}
+		else
+			return ;
+	}
+	else if (str[*i] == '>')
+	{
+		(*i)++;
+		if (str[*i] == '>')
+			(*i)++;
+		while (str[*i] && is_whitespace(str[*i]))
+			(*i)++;
+		if (str[*i] == '$')
+		{
+			while (str[*i] && !is_whitespace(str[*i]))
+				(*i)++;
+		}
+		else
+			return ;
 	}
 }
 
@@ -391,8 +417,8 @@ char	*set_str(char *str, char **envp)
 			set_quotes_and_dollar(str, &i, &tmp, envp);
 			si = i;
 		}
-		else if (str[i] && str[i + 1] && str[i] == '<' && str[i + 1] == '<')
-			set_heredoc_redir(&i, &tmp, str, &si);
+		else if (str[i] == '<' || str[i] == '>')
+			set_redir(&i, &tmp, str, &si);
 		else
 			i++;
 	}
@@ -424,7 +450,7 @@ void	handle_builtin(t_proc_data *data, char ***envp, int i)
 		dup2(data->input_fd, 0);
 	if (i < data->cnt - 1)
 		dup2(data->pipe_fd[1], 1);
-	if (!open_redirection_files(data->command[i]))
+	if (!open_redirection_files(data->command[i], *envp))
 		handle_builtin_command(data->command[i], envp, data->builtin_num);
 	if (i > 0)
 		close(data->input_fd);

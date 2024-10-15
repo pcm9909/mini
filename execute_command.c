@@ -82,12 +82,12 @@ void	handle_double_left_brace_fork(t_redir *command, int pipe_fd[2])
 	}
 }
 
-int	open_redirection_files(t_redir *command)
+int	open_redirection_files(t_redir *command, char **envp)
 {
 	int	pipe_fd[2];
 
-	if (handle_left_brace(command) || handle_right_brace(command) \
-		|| handle_double_right_brace(command))
+	if (handle_left_brace(command, envp) || handle_right_brace(command, envp) \
+		|| handle_double_right_brace(command, envp))
 		return (EXIT_FAILURE);
 	if (command->heredoc_redir->exist)
 	{
@@ -152,7 +152,7 @@ void	execute_command(t_redir *cmd, char ***envp, \
 	builtin_num = check_builtin_num(cmd);
 	if (cmd->executable == true)
 	{
-		if (open_redirection_files(cmd))
+		if (open_redirection_files(cmd, *envp))
 			exit(2);
 		execute_external_command(cmd, *envp, input_fd, output_fd);
 	}

@@ -52,7 +52,7 @@ int	search_env(char **envp, char *name, int flag)
 	if (ft_strchr(name, '=') && flag == 1)
 		re = ft_substr(name, 0, ft_strchr(name, '=') - name);
 	else
-		re = name;
+		re = ft_strdup(name);
 	while (*envp)
 	{
 		if (ft_strchr(*envp, '='))

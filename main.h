@@ -51,12 +51,13 @@ typedef struct s_proc_data
 
 int		sigcheck(int type);
 int		check_builtin_num(t_redir *cmd);
-int		open_redirection_files(t_redir *command);
+int		open_redirection_files(t_redir *command, char **envp);
 void	handle_builtin_command(t_redir *cmd, \
 								char ***envp, int builtin_num);
 
 void	handle_dollar(int *i, char **content, const char *str, char **envp);
-char	*get_path(char **envp);
+int handle_dollar1(int *i, char **content, const char *str, char **envp);
+char *get_path(char **envp);
 char	*get_cmd_path(char *cmd, char *path);
 
 char	*ft_strrev(char *str);
@@ -71,9 +72,9 @@ void	handle_pwd_command(void);
 void	handle_echo_command(t_redir *command, char **envp);
 void	set_dollar(int ptr, char ***envp);
 
-int		handle_left_brace(t_redir *command);
-int		handle_right_brace(t_redir *command);
-int		handle_double_right_brace(t_redir *command);
+int		handle_left_brace(t_redir *command, char **envp);
+int		handle_right_brace(t_redir *command, char **envp);
+int		handle_double_right_brace(t_redir *command, char **envp);
 
 void	execute_command(t_redir *command, char ***envp, \
 							int input_fd, int output_fd);

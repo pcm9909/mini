@@ -82,14 +82,62 @@ static void	handle_parse_error(const char *str, int *i, t_redir *cmd)
 		(*i)++;
 }
 
-static char	*extract_content(const char *str, int *i)
+int handle_dollar1(int *i, char **content, const char *str, char **envp)
+{
+	char *temp;
+	char *envp_var;
+	char *envp_val;
+	int idx;
+	int start;
+
+	(*i)++;
+	start = (*i);
+	if (ft_isalpha(str[*i]) || str[*i] == '_')
+	{
+		while (is_envp_vars(str[*i]))
+			(*i)++;
+	}
+	else
+		(*i)++;
+	envp_var = ft_substr(str, start, (*i) - start);
+	idx = ft_strlen(envp_var) + 1;
+	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
+	if (envp_val)
+		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 0);
+	if (ft_strlen(envp_val) == 0)
+	{
+		printf("minishell: $%s: ambiguous redirect\n", envp_var);
+		free(envp_var);
+		free(envp_val);
+		return 1;
+	}
+	free(envp_var);
+	free(envp_val);
+	return 0;
+}
+
+static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 {
 	int		j;
 	char	*content;
 
 	j = *i;
+	content = ft_strdup("");
 	while (str[*i] && !is_whitespace(str[*i]) && \
-				str[*i] != '>' && str[*i] != '<')
+				str[*i] != '>' && str[*i] != '<' && str[*i] != '$')
+		(*i)++;
+	content = ft_substr(str, j, *i - j);
+	return (content);
+}
+
+static char *extract_content1(const char *str, int *i, char **envp)
+{
+	int j;
+	char *content;
+
+	j = *i;
+	while (str[*i] && !is_whitespace(str[*i]) &&
+		   str[*i] != '>' && str[*i] != '<')
 		(*i)++;
 	content = ft_substr(str, j, *i - j);
 	return (content);
@@ -150,7 +198,7 @@ void	parse_left_redir(const char *str, int *i,
 		handle_parse_error(str, i, cmd);
 		return ;
 	}
-	content = extract_content(str, i);
+	content = extract_content1(str, i, envp);
 	if (flag == 1)
 	{
 		if (!handle_double_left(cmd, content, str, i))
@@ -199,9 +247,9 @@ void	parse_right_redir(char *str, int *i, \
 	}
 	j = *i;
 	while (str[*i] && !is_whitespace(str[*i]) && \
-			str[*i] != '>' && str[*i] != '<')
+			str[*i] != '>' && str[*i] != '<' && str[*i] != '$')
 		(*i)++;
-	content = ft_substr(str, j, *i - j);
+	content = extract_content1(str, i, envp);
 	check_flag(cmd, flag, content);
 	free(content);
 }

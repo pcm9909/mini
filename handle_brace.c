@@ -87,7 +87,7 @@ char	*join_remaining_content(char *command, char *content, int start, int j)
 	return (new_content);
 }
 
-char	*process_command(char *command, t_redir *cmd)
+char	*process_command(char *command, t_redir *cmd, char **envp, int flag)
 {
 	char			*content;
 	char			*sub;
@@ -106,6 +106,12 @@ char	*process_command(char *command, t_redir *cmd)
 			sub = handle_quotes_and_join(command, cmd, &j, start);
 			content = ft_strjoin_opts(content, sub, 3);
 			start = ++j;
+		}
+		else if (command[j] == '$' && flag != 1)
+		{
+			if(handle_dollar1(&j, &content, command, envp))
+				cmd->executable = false;
+			start = j;
 		}
 		else
 			j++;
@@ -233,7 +239,7 @@ void	handle_heredoc_redir(t_redir *cmd, char **envp)
 			cmd->heredoc_redir->cmd_val[++i])
 	{
 		processed_command = \
-			process_command(cmd->heredoc_redir->cmd_val[i], cmd);
+			process_command(cmd->heredoc_redir->cmd_val[i], cmd, envp, 1);
 		free(cmd->heredoc_redir->cmd_val[i]);
 		cmd->heredoc_redir->cmd_val[i] = ft_strdup(processed_command);
 		free(processed_command);
@@ -241,7 +247,7 @@ void	handle_heredoc_redir(t_redir *cmd, char **envp)
 	}
 }
 
-int	handle_left_brace(t_redir *cmd)
+int	handle_left_brace(t_redir *cmd, char **envp)
 {
 	int		i;
 	int		fd;
@@ -250,10 +256,12 @@ int	handle_left_brace(t_redir *cmd)
 	i = -1;
 	while (cmd->input_redir->cmd_val && cmd->input_redir->cmd_val[++i])
 	{
-		processed_command = process_command(cmd->input_redir->cmd_val[i], cmd);
+		processed_command = process_command(cmd->input_redir->cmd_val[i], cmd, envp, 0);
 		free(cmd->input_redir->cmd_val[i]);
 		cmd->input_redir->cmd_val[i] = ft_strdup(processed_command);
 		free(processed_command);
+		if (cmd->executable == false)
+			break ;
 		fd = open(cmd->input_redir->cmd_val[i], O_RDONLY);
 		if (fd == -1)
 		{
@@ -270,19 +278,21 @@ int	handle_left_brace(t_redir *cmd)
 	return (EXIT_SUCCESS);
 }
 
-int	handle_right_brace(t_redir *cmd)
+int	handle_right_brace(t_redir *cmd, char **envp)
 {
 	int		i;
 	int		fd;
-	char	*processed_command;
+	char	*proc_cmd;
 
-	i = 0;
-	while (cmd->output_redir->cmd_val && cmd->output_redir->cmd_val[i])
+	i = -1;
+	while (cmd->output_redir->cmd_val && cmd->output_redir->cmd_val[++i])
 	{
-		processed_command = process_command(cmd->output_redir->cmd_val[i], cmd);
+		proc_cmd = process_command(cmd->output_redir->cmd_val[i], cmd, envp, 0);
 		free(cmd->output_redir->cmd_val[i]);
-		cmd->output_redir->cmd_val[i] = ft_strdup(processed_command);
-		free(processed_command);
+		cmd->output_redir->cmd_val[i] = ft_strdup(proc_cmd);
+		free(proc_cmd);
+		if (cmd-> executable == false)
+			break ;
 		fd = open(cmd->output_redir->cmd_val[i], \
 				O_CREAT | O_TRUNC | O_WRONLY, 0644);
 		if (fd == -1)
@@ -293,12 +303,11 @@ int	handle_right_brace(t_redir *cmd)
 		if (cmd->output_redir->order == true)
 			dup2(fd, 1);
 		close(fd);
-		i++;
 	}
 	return (EXIT_SUCCESS);
 }
 
-int	handle_double_right_brace(t_redir *cmd)
+int	handle_double_right_brace(t_redir *cmd, char **envp)
 {
 	int		i;
 	int		fd;
@@ -309,7 +318,7 @@ int	handle_double_right_brace(t_redir *cmd)
 				cmd->append_redir->cmd_val[++i])
 	{
 		proc_command = \
-			process_command(cmd->append_redir->cmd_val[i], cmd);
+			process_command(cmd->append_redir->cmd_val[i], cmd, envp, 0);
 		free(cmd->append_redir->cmd_val[i]);
 		cmd->append_redir->cmd_val[i] = ft_strdup(proc_command);
 		free(proc_command);
