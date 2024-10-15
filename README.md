@@ -12,4 +12,4 @@ leak (미해결)
 
 echo hello >> libft segfault (해결)
 
-ambigious redirection (미해결)
+ambigious redirection (미해결) -> redirection 구조 바꿔야함
