@@ -1,6 +1,6 @@
 ## 수정할 것
 
-export a (미해결)
+export a 추가안됨 (해결)
 
 '"$USER"' "'$USER'" 오류 (해결)
 
