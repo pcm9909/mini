@@ -245,11 +245,8 @@ void	parse_right_redir(char *str, int *i, \
 	{
 		handle_parse_error(str, i, cmd);
 	}
-	j = *i;
-	while (str[*i] && !is_whitespace(str[*i]) && \
-			str[*i] != '>' && str[*i] != '<' && str[*i] != '$')
-		(*i)++;
-	content = extract_content1(str, i, envp);
+	content = extract_content(str, i, envp, cmd);
+	printf("content: %s\n", content);
 	check_flag(cmd, flag, content);
 	free(content);
 }
