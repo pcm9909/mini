@@ -287,22 +287,6 @@ char	*handle_quotes(const char *str, int *i, \
 	return (temp);
 }
 
-char	*handle_quotes2(const char *str, int *i, \
-			char **envp, t_redir *command)
-{
-	char	*temp;
-
-	if (str[*i] == '"')
-	{
-		temp = handle_double_quotes2(str, i, envp, command);
-	}
-	else if (str[*i] == '\'')
-	{
-		temp = handle_single_quotes2(str, i, command);
-	}
-	return (temp);
-}
-
 char	*get_parse_value(char *str, int *i, t_redir *cmd, char **envp)
 {
 	char	*temp;

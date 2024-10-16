@@ -62,41 +62,6 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 	free(envp_var);
 }
 
-char	*handle_single_quotes2(const char *str, int *i, t_redir *command)
-{
-	int		start;
-	char	*content;
-
-	start = ++(*i);
-	content = ft_strdup("");
-	while (str[*i] && str[*i] != '\'')
-		(*i)++;
-	if (str[*i] != '\'')
-		return (print_qutoes_error(str, command, &content));
-	content = ft_substr(str, start, *i - start);
-	(*i)++;
-	return (content);
-}
-
-char	*handle_double_quotes2(const char *str, int *i, \
-							char **envp, t_redir *command)
-{
-	int		start;
-	char	*temp;
-	char	*content;
-
-	start = ++(*i);
-	content = ft_strdup("");
-	while (str[*i] && str[*i] != '"')
-		(*i)++;
-	if (str[*i] != '"')
-		return (print_qutoes_error(str, command, &content));
-	else
-		content = ft_substr(str, start, (*i) - start);
-	(*i)++;
-	return (content);
-}
-
 char	*handle_double_quotes(const char *str, int *i, \
 							char **envp, t_redir *command)
 {

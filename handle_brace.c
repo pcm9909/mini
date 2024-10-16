@@ -32,7 +32,7 @@ char	*check_input(const char *str, char **envp)
 	return (val);
 }
 
-char	*handle_quotes4(const char *str, \
+char	*get_quotes_val(const char *str, \
 						t_redir *command, char param, int *idx)
 {
 	int		start;
@@ -55,12 +55,12 @@ char	*handle_quotes4(const char *str, \
 	return (content);
 }
 
-char	*handle_quotes3(const char *str, t_redir *cmd, int *j)
+char	*get_quotes(const char *str, t_redir *cmd, int *j)
 {
 	if (str[*j] == '"')
-		return (handle_quotes4(str, cmd, '"', j));
+		return (get_quotes_val(str, cmd, '"', j));
 	else
-		return (handle_quotes4(str, cmd, '\'', j));
+		return (get_quotes_val(str, cmd, '\'', j));
 }
 
 char	*handle_quotes_and_join(char *str,
@@ -71,7 +71,7 @@ char	*handle_quotes_and_join(char *str,
 	char	*new_content;
 
 	sub = ft_substr(str, start, *j - start);
-	quote_content = handle_quotes3(str, cmd, j);
+	quote_content = get_quotes(str, cmd, j);
 	new_content = ft_strjoin_opts(sub, quote_content, 3);
 	return (new_content);
 }
