@@ -470,7 +470,6 @@ void	handle_pwd_command(void)
 void	handle_echo_command(t_redir *command, char **envp)
 {
 	char	**cd;
-	int i = 0;
 
 	cd = ft_strdups(command->cmd->cmd_val);
 	ft_echo(cd);
