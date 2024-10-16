@@ -149,6 +149,14 @@ void	proc_read_input(char *read, int pipe_fd[2], char **envp)
 	free(read);
 }
 
+void	write_heredoc_warning(char *read, char *cmd_val)
+{
+	write(2, "minishell: warning: here-document", 33);
+	write(2, " delimited by end-of-file (wanted '", 34);
+	write(2, cmd_val, ft_strlen(cmd_val));
+	write(2, "')\n", 3);
+}
+
 void	proc_heredoc_child(t_redir *cmd, int i, int pipe_fd[2], char **envp)
 {
 	struct termios	old;
@@ -166,8 +174,7 @@ void	proc_heredoc_child(t_redir *cmd, int i, int pipe_fd[2], char **envp)
 			ft_strlen(read) == ft_strlen(cmd->heredoc_redir->cmd_val[i])))
 		{
 			if (!read)
-				printf("minishell: warning: here-document \
-	delimited by end-of-file (wanted `%s')\n", cmd->heredoc_redir->cmd_val[i]);
+				write_heredoc_warning(read, cmd->heredoc_redir->cmd_val[i]);
 			free(read);
 			break ;
 		}

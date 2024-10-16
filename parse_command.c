@@ -135,13 +135,12 @@ static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 	return (content);
 }
 
-static char	*extract_content1(const char *str, int *i)
+static char	*extract_heredoc_content(const char *str, int *i)
 {
 	char	*content;
 	int		j;
 
 	j = *i;
-	content = ft_strdup("");
 	while (str[*i] && !is_whitespace(str[*i]) \
 			&& str[*i] != '>' && str[*i] != '<')
 		(*i)++;
@@ -206,7 +205,7 @@ void	parse_left_redir(const char *str, int *i,
 		content = extract_content(str, i, envp, cmd);
 	if (flag == 1)
 	{
-		content = extract_content1(str, i);
+		content = extract_heredoc_content(str, i);
 		if (!handle_double_left(cmd, content, str, i))
 			handle_heredoc_redir(cmd, envp);
 	}
