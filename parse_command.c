@@ -103,7 +103,7 @@ int handle_dollar1(int *i, char **content, const char *str, char **envp)
 	idx = ft_strlen(envp_var) + 1;
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
 	if (envp_val)
-		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 0);
+		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 1);
 	if (ft_strlen(envp_val) == 0)
 	{
 		printf("minishell: $%s: ambiguous redirect\n", envp_var);
@@ -120,6 +120,7 @@ static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 {
 	int		j;
 	char	*content;
+	char	*temp;
 
 	j = *i;
 	content = ft_strdup("");
@@ -128,10 +129,14 @@ static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 		(*i)++;
 	if (str[*i] == '$')
 	{
+		temp = ft_substr(str, j, *i -j);
+		content = ft_strjoin_opts(content, temp, 3);
 		if (handle_dollar1(i, &content, str, envp))
 			cmd->executable = false;
+		j = *i;
 	}
-	content = ft_substr(str, j, *i - j);
+	temp = ft_substr(str, j, *i -j);
+	content = ft_strjoin_opts(content, temp, 3);
 	return (content);
 }
 

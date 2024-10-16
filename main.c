@@ -500,16 +500,16 @@ void	process_input(char *str, char ***envp)
 	{
 		if (sigcheck(3))
 			break ;
-		if (data->command[i]->executable)
-		{
+		if (data->command[i]->executable == false)
+			set_dollar(1, envp);
+		else
 			set_dollar(0, envp);
-			data->builtin_num = check_builtin_num(data->command[i]);
-			create_pipes(i, data->cnt, data->pipe_fd);
-			if (data->builtin_num)
-				handle_builtin(data, envp, i);
-			else
-				handle_non_builtin(data, envp, i);
-		}
+		data->builtin_num = check_builtin_num(data->command[i]);
+		create_pipes(i, data->cnt, data->pipe_fd);
+		if (data->builtin_num)
+			handle_builtin(data, envp, i);
+		else
+			handle_non_builtin(data, envp, i);
 	}
 	wait_for_children(data, envp, &exit_code);
 	cleanup_resources(data);
