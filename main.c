@@ -474,7 +474,8 @@ void	handle_builtin(t_proc_data *data, char ***envp, int i)
 		dup2(data->input_fd, 0);
 	if (i < data->cnt - 1)
 		dup2(data->pipe_fd[1], 1);
-	if (!open_redirection_files(data->command[i], *envp))
+	if (!open_redirection_files(data->command[i], *envp) && \
+		data->command[i]->executable)
 		handle_builtin_command(data->command[i], envp, data->builtin_num);
 	if (i > 0)
 		close(data->input_fd);
@@ -519,7 +520,8 @@ void	process_input(char *str, char ***envp)
 			set_dollar(1, envp);
 		else
 			set_dollar(0, envp);
-		data->builtin_num = check_builtin_num(data->command[i]);
+		if (data->command[i]->cmd->exist == true)
+			data->builtin_num = check_builtin_num(data->command[i]);
 		create_pipes(i, data->cnt, data->pipe_fd);
 		if (data->builtin_num)
 			handle_builtin(data, envp, i);
