@@ -552,6 +552,7 @@ int	main(int argc, char **argv, char *env[])
 			add_history(str);
 		if (str)
 		{
+			sigcheck(0);
 			process_input(str, &envp);
 		}
 		else
