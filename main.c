@@ -212,6 +212,11 @@ void	initialize_commands(char **split, int cnt, \
 	while (i < cnt)
 	{
 		initialize_redirection(&(*command)[i]);
+		i++;
+	}
+	i = 0;
+	while (i < cnt)
+	{
 		parse_redir(split[i], (*command)[i], *envp);
 		if (sigcheck(3))
 			return ;
@@ -450,7 +455,6 @@ void	initialize_process_data(t_proc_data *data, char *str, char ***envp)
 {
 	str = complement_cmd(str);
 	str = set_str(str, *envp);
-	printf("str: %s\n", str);
 	data->split = ft_splits(str, '|');
 	data->cnt = cnt_cmd(data->split);
 	data->pids = malloc(sizeof(pid_t) * data->cnt);
@@ -509,6 +513,7 @@ void	process_input(char *str, char ***envp)
 	initialize_process_data(data, str, envp);
 	while (++i < data->cnt)
 	{
+		print(data->command[i]);
 		if (sigcheck(3))
 			break ;
 		if (data->command[i]->executable == false)
