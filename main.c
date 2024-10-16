@@ -329,7 +329,8 @@ void	set_double_quotes(const char *str, char **temp, int *i, char **envp)
 	{
 		if (str[*i] == '$')
 		{
-			*temp = ft_strjoin_opts(*temp, ft_substr(str, start, *i - start), 3);
+			*temp = ft_strjoin_opts(*temp, \
+				ft_substr(str, start, *i - start), 3);
 			handle_dollar(i, temp, str, envp);
 			start = *i;
 		}
@@ -367,40 +368,50 @@ void	set_quotes_and_dollar(const char *str, int *i, char **temp, char **envp)
 	}
 }
 
+void	set_left_redir(int *i, char **tmp, char *str, int *start)
+{
+	(*i)++;
+	if (str[*i] == '<')
+	{
+		(*i)++;
+		set_heredoc_redir(i, tmp, str, start);
+	}
+	while (str[*i] && is_whitespace(str[*i]))
+		(*i)++;
+	if (str[*i] == '$')
+	{
+		while (str[*i] && !is_whitespace(str[*i]))
+			(*i)++;
+	}
+	else
+		return ;
+}
+
+void	set_right_redir(int *i, char **tmp, char *str, int *start)
+{
+	(*i)++;
+	if (str[*i] == '>')
+		(*i)++;
+	while (str[*i] && is_whitespace(str[*i]))
+		(*i)++;
+	if (str[*i] == '$')
+	{
+		while (str[*i] && !is_whitespace(str[*i]))
+			(*i)++;
+	}
+	else
+		return ;
+}
+
 void	set_redir(int *i, char **tmp, char *str, int *start)
 {
 	if (str[*i] == '<')
 	{
-		(*i)++;
-		if (str[*i] == '<')
-		{
-			(*i)++;
-			set_heredoc_redir(i, tmp, str, start);
-		}
-		while (str[*i] && is_whitespace(str[*i]))
-			(*i)++;
-		if (str[*i] == '$')
-		{
-			while (str[*i] && !is_whitespace(str[*i]))
-				(*i)++;
-		}
-		else
-			return ;
+		set_left_redir(i, tmp, str, start);
 	}
 	else if (str[*i] == '>')
 	{
-		(*i)++;
-		if (str[*i] == '>')
-			(*i)++;
-		while (str[*i] && is_whitespace(str[*i]))
-			(*i)++;
-		if (str[*i] == '$')
-		{
-			while (str[*i] && !is_whitespace(str[*i]))
-				(*i)++;
-		}
-		else
-			return ;
+		set_right_redir(i, tmp, str, start);
 	}
 }
 
@@ -533,6 +544,14 @@ static void	cleanup(char *str, char **envp)
 	exit(EXIT_SUCCESS);
 }
 
+void	set_readline(char **str, char **cwd, struct termios *old, char **envp)
+{
+	*cwd = build_prompt(envp);
+	input_sig(old);
+	*str = readline(*cwd);
+	none_sig(old);
+}
+
 int	main(int argc, char **argv, char *env[])
 {
 	char			*str;
@@ -543,10 +562,7 @@ int	main(int argc, char **argv, char *env[])
 	envp = update_envp(env, 0, ft_strdup("?=0"));
 	while (1)
 	{
-		cwd = build_prompt(envp);
-		input_sig(&old);
-		str = readline(cwd);
-		none_sig(&old);
+		set_readline(&str, &cwd, &old, envp);
 		if (ft_strlen(str))
 			add_history(str);
 		if (str)

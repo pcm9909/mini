@@ -72,9 +72,9 @@ void	handle_pwd_command(void);
 void	handle_echo_command(t_redir *command, char **envp);
 void	set_dollar(int ptr, char ***envp);
 
-int		handle_left_brace(t_redir *command, char **envp);
-int		handle_right_brace(t_redir *command, char **envp);
-int		handle_double_right_brace(t_redir *command, char **envp);
+int		handle_input_redir(t_redir *command, char **envp, int i);
+int		handle_output_redir(t_redir *command, char **envp, int i);
+int		handle_append_redir(t_redir *command, char **envp, int i);
 
 void	execute_command(t_redir *command, char ***envp, \
 							int input_fd, int output_fd);

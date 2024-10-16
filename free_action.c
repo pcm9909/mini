@@ -46,7 +46,7 @@ void	free_command_list(char ***command)
 
 void	all_free(char **ptr)
 {
-	char **tmp;
+	char	**tmp;
 
 	tmp = ptr;
 	while (*ptr != NULL)

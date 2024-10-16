@@ -86,8 +86,9 @@ int	open_redirection_files(t_redir *command, char **envp)
 {
 	int	pipe_fd[2];
 
-	if (handle_left_brace(command, envp) || handle_right_brace(command, envp) \
-		|| handle_double_right_brace(command, envp))
+	if (handle_input_redir(command, envp, -1) \
+		|| handle_output_redir(command, envp, -1) \
+		|| handle_append_redir(command, envp, -1))
 		return (EXIT_FAILURE);
 	if (command->heredoc_redir->exist)
 	{

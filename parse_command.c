@@ -73,7 +73,7 @@ char	*set_command(t_cmd *command)
 
 static void	handle_parse_error(const char *str, int *i, t_redir *cmd)
 {
-	ft_putstr_fd("minishell: parse error near `", 2);
+	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
 	ft_putchar_fd(str[*i], 2);
 	ft_putstr_fd("'\n", 2);
 	cmd->executable = false;
@@ -82,22 +82,17 @@ static void	handle_parse_error(const char *str, int *i, t_redir *cmd)
 		(*i)++;
 }
 
-int handle_dollar1(int *i, char **content, const char *str, char **envp)
+int	handle_dollar1(int *i, char **content, const char *str, char **envp)
 {
-	char *temp;
-	char *envp_var;
-	char *envp_val;
-	int idx;
-	int start;
+	char	*temp;
+	char	*envp_var;
+	char	*envp_val;
+	int		idx;
+	int		start;
 
 	(*i)++;
 	start = (*i);
-	if (ft_isalpha(str[*i]) || str[*i] == '_')
-	{
-		while (is_envp_vars(str[*i]))
-			(*i)++;
-	}
-	else
+	while (str[*i] && !is_whitespace(str[*i]))
 		(*i)++;
 	envp_var = ft_substr(str, start, (*i) - start);
 	idx = ft_strlen(envp_var) + 1;
@@ -109,11 +104,11 @@ int handle_dollar1(int *i, char **content, const char *str, char **envp)
 		printf("minishell: $%s: ambiguous redirect\n", envp_var);
 		free(envp_var);
 		free(envp_val);
-		return 1;
+		return (1);
 	}
 	free(envp_var);
 	free(envp_val);
-	return 0;
+	return (0);
 }
 
 static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
@@ -129,26 +124,26 @@ static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 		(*i)++;
 	if (str[*i] == '$')
 	{
-		temp = ft_substr(str, j, *i -j);
+		temp = ft_substr(str, j, *i - j);
 		content = ft_strjoin_opts(content, temp, 3);
 		if (handle_dollar1(i, &content, str, envp))
 			cmd->executable = false;
 		j = *i;
 	}
-	temp = ft_substr(str, j, *i -j);
+	temp = ft_substr(str, j, *i - j);
 	content = ft_strjoin_opts(content, temp, 3);
 	return (content);
 }
 
-static char *extract_content1(const char *str, int *i)
+static char	*extract_content1(const char *str, int *i)
 {
-	int j;
-	char *content;
+	char	*content;
+	int		j;
 
 	j = *i;
 	content = ft_strdup("");
-	while (str[*i] && !is_whitespace(str[*i]) &&
-		   str[*i] != '>' && str[*i] != '<')
+	while (str[*i] && !is_whitespace(str[*i]) \
+			&& str[*i] != '>' && str[*i] != '<')
 		(*i)++;
 	content = ft_substr(str, j, *i - j);
 	return (content);
@@ -206,10 +201,7 @@ void	parse_left_redir(const char *str, int *i,
 	while (is_whitespace(str[*i]))
 		(*i)++;
 	if (is_upright_vars(str[*i]))
-	{
 		handle_parse_error(str, i, cmd);
-		return ;
-	}
 	if (flag == 0)
 		content = extract_content(str, i, envp, cmd);
 	if (flag == 1)
