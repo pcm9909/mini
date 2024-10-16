@@ -116,7 +116,7 @@ int handle_dollar1(int *i, char **content, const char *str, char **envp)
 	return 0;
 }
 
-static char	*extract_content(const char *str, int *i)
+static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 {
 	int		j;
 	char	*content;
@@ -124,7 +124,26 @@ static char	*extract_content(const char *str, int *i)
 	j = *i;
 	content = ft_strdup("");
 	while (str[*i] && !is_whitespace(str[*i]) && \
-				str[*i] != '>' && str[*i] != '<')
+				str[*i] != '>' && str[*i] != '<' && str[*i] != '$')
+		(*i)++;
+	if (str[*i] == '$')
+	{
+		if (handle_dollar1(i, &content, str, envp))
+			cmd->executable = false;
+	}
+	content = ft_substr(str, j, *i - j);
+	return (content);
+}
+
+static char *extract_content1(const char *str, int *i)
+{
+	int j;
+	char *content;
+
+	j = *i;
+	content = ft_strdup("");
+	while (str[*i] && !is_whitespace(str[*i]) &&
+		   str[*i] != '>' && str[*i] != '<')
 		(*i)++;
 	content = ft_substr(str, j, *i - j);
 	return (content);
@@ -186,9 +205,11 @@ void	parse_left_redir(const char *str, int *i,
 		handle_parse_error(str, i, cmd);
 		return ;
 	}
-	content = extract_content(str, i);
+	if (flag == 0)
+		content = extract_content(str, i, envp, cmd);
 	if (flag == 1)
 	{
+		content = extract_content1(str, i);
 		if (!handle_double_left(cmd, content, str, i))
 			handle_heredoc_redir(cmd, envp);
 	}
@@ -233,7 +254,7 @@ void	parse_right_redir(char *str, int *i, \
 	{
 		handle_parse_error(str, i, cmd);
 	}
-	content = extract_content(str, i);
+	content = extract_content(str, i, envp, cmd);
 	check_flag(cmd, flag, content);
 	free(content);
 }

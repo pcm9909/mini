@@ -107,12 +107,6 @@ char	*process_command(char *command, t_redir *cmd, char **envp, int flag)
 			content = ft_strjoin_opts(content, sub, 3);
 			start = ++j;
 		}
-		else if (command[j] == '$' && flag != 1)
-		{
-			if(handle_dollar1(&j, &content, command, envp))
-				cmd->executable = false;
-			start = j;
-		}
 		else
 			j++;
 	}
