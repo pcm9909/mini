@@ -446,7 +446,6 @@ void	initialize_process_data(t_proc_data *data, char *str, char ***envp)
 	data->input_fd = 0;
 	data->command = (malloc(sizeof(t_redir *) * data->cnt));
 	initialize_commands(data->split, data->cnt, &data->command, envp);
-	set_dollar(0, envp);
 	free(str);
 }
 
@@ -559,6 +558,7 @@ int	main(int argc, char **argv, char *env[])
 		{
 			cleanup(str, envp);
 		}
+		free(str);
 		free(cwd);
 	}
 	return (0);
