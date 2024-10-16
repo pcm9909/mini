@@ -59,6 +59,7 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 	if (envp_val)
 		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 1);
 	free(envp_val);
+	free(envp_var);
 }
 
 char	*handle_single_quotes2(const char *str, int *i, t_redir *command)
