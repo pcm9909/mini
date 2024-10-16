@@ -13,3 +13,7 @@ leak (미해결)
 echo hello >> libft segfault (해결)
 
 ambigious redirection (해결)
+
+"asdsadas" "asdsadasd" 이렇게 명령어 치면 leak남 (박충만)
+
+<$a 할때 leak남 (extract_content) (박충만)

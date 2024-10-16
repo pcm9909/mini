@@ -103,7 +103,7 @@ int handle_dollar1(int *i, char **content, const char *str, char **envp)
 	idx = ft_strlen(envp_var) + 1;
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
 	if (envp_val)
-		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 0);
+		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 1);
 	if (ft_strlen(envp_val) == 0)
 	{
 		printf("minishell: $%s: ambiguous redirect\n", envp_var);
