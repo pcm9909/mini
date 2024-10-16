@@ -61,6 +61,7 @@ int	search_env(char **envp, char *name, int flag)
 			tmp = ft_strdup(*envp);
 		if (!ft_strncmp(tmp, re, ft_strlen(re) + 1))
 		{
+			free(tmp);
 			break ;
 		}
 		envp++;
