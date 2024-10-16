@@ -153,7 +153,6 @@ void	proc_heredoc_child(t_redir *cmd, int i, int pipe_fd[2], char **envp)
 {
 	struct termios	old;
 	char			*read;
-	char			*proc;
 	int				j;
 
 	close(pipe_fd[0]);
@@ -162,14 +161,13 @@ void	proc_heredoc_child(t_redir *cmd, int i, int pipe_fd[2], char **envp)
 		heredoc_sig(&old);
 		read = readline(">");
 		none_sig(&old);
-		if (!read)
-
 		if (!read || (ft_strncmp(read, cmd->heredoc_redir->cmd_val[i], \
 			ft_strlen(cmd->heredoc_redir->cmd_val[i])) == 0 && \
 			ft_strlen(read) == ft_strlen(cmd->heredoc_redir->cmd_val[i])))
 		{
 			if (!read)
-				printf("minishell: warning: here-document delimited by end-of-file (wanted `%s')\n", cmd->heredoc_redir->cmd_val[i]);
+				printf("minishell: warning: here-document \
+	delimited by end-of-file (wanted `%s')\n", cmd->heredoc_redir->cmd_val[i]);
 			free(read);
 			break ;
 		}
@@ -245,19 +243,17 @@ void	handle_heredoc_redir(t_redir *cmd, char **envp)
 	}
 }
 
-int	handle_left_brace(t_redir *cmd, char **envp)
+int	handle_input_redir(t_redir *cmd, char **envp, int i)
 {
-	int		i;
 	int		fd;
-	char	*processed_command;
+	char	*proc_cmd;
 
-	i = -1;
 	while (cmd->input_redir->cmd_val && cmd->input_redir->cmd_val[++i])
 	{
-		processed_command = process_command(cmd->input_redir->cmd_val[i], cmd, envp, 0);
+		proc_cmd = process_command(cmd->input_redir->cmd_val[i], cmd, envp, 0);
 		free(cmd->input_redir->cmd_val[i]);
-		cmd->input_redir->cmd_val[i] = ft_strdup(processed_command);
-		free(processed_command);
+		cmd->input_redir->cmd_val[i] = ft_strdup(proc_cmd);
+		free(proc_cmd);
 		if (cmd->executable == false)
 			break ;
 		fd = open(cmd->input_redir->cmd_val[i], O_RDONLY);
@@ -276,13 +272,11 @@ int	handle_left_brace(t_redir *cmd, char **envp)
 	return (EXIT_SUCCESS);
 }
 
-int	handle_right_brace(t_redir *cmd, char **envp)
+int	handle_output_redir(t_redir *cmd, char **envp, int i)
 {
-	int		i;
 	int		fd;
 	char	*proc_cmd;
 
-	i = -1;
 	while (cmd->output_redir->cmd_val && cmd->output_redir->cmd_val[++i])
 	{
 		proc_cmd = process_command(cmd->output_redir->cmd_val[i], cmd, envp, 0);
@@ -305,13 +299,11 @@ int	handle_right_brace(t_redir *cmd, char **envp)
 	return (EXIT_SUCCESS);
 }
 
-int	handle_double_right_brace(t_redir *cmd, char **envp)
+int	handle_append_redir(t_redir *cmd, char **envp, int i)
 {
-	int		i;
 	int		fd;
 	char	*proc_command;
 
-	i = -1;
 	while (cmd->append_redir->cmd_val && \
 				cmd->append_redir->cmd_val[++i])
 	{
