@@ -162,10 +162,14 @@ void	proc_heredoc_child(t_redir *cmd, int i, int pipe_fd[2], char **envp)
 		heredoc_sig(&old);
 		read = readline(">");
 		none_sig(&old);
+		if (!read)
+
 		if (!read || (ft_strncmp(read, cmd->heredoc_redir->cmd_val[i], \
 			ft_strlen(cmd->heredoc_redir->cmd_val[i])) == 0 && \
 			ft_strlen(read) == ft_strlen(cmd->heredoc_redir->cmd_val[i])))
 		{
+			if (!read)
+				printf("minishell: warning: here-document delimited by end-of-file (wanted `%s')\n", cmd->heredoc_redir->cmd_val[i]);
 			free(read);
 			break ;
 		}
