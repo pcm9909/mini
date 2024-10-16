@@ -21,7 +21,6 @@ void	free_redirection(t_redir *redirection)
 		free_command(redirection->cmd);
 		free_command(redirection->input_redir);
 		free_command(redirection->output_redir);
-		free(redirection->full_cmd);
 		free(redirection->heredoc);
 		free(redirection);
 	}

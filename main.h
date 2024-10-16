@@ -29,7 +29,6 @@ typedef struct s_redir
 	t_cmd	*cmd;
 	t_cmd	*output_redir;
 	t_cmd	*append_redir;
-	char				*full_cmd;
 	char				*heredoc;
 	bool				executable;
 }				t_redir;

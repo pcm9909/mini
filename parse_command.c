@@ -47,30 +47,6 @@ void	set_order(t_redir *command, char *str)
 	free(rev);
 }
 
-char	*set_command(t_cmd *command)
-{
-	char	*result;
-	int		i;
-	int		total_length;
-
-	if (!command || !command->cmd_val)
-		return (NULL);
-	total_length = 0;
-	i = -1;
-	while (command->cmd_val[++i])
-		total_length += ft_strlen(command->cmd_val[i]) + 1;
-	result = malloc(total_length + 1);
-	result[0] = '\0';
-	i = -1;
-	while (command->cmd_val[++i])
-	{
-		ft_strlcat(result, command->cmd_val[i], total_length + 1);
-		if (command->cmd_val[i + 1])
-			ft_strlcat(result, " ", total_length + 1);
-	}
-	return (result);
-}
-
 static void	handle_parse_error(const char *str, int *i, t_redir *cmd)
 {
 	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
@@ -336,17 +312,16 @@ void	parse_command(char *str, int *i, t_redir *cmd, char **envp)
 	}
 }
 
-void	parse_redir(char *str, t_redir *command, char **envp)
+void	parse_redir(char *str, t_redir *cmd, char **envp)
 {
-	int	i;
+	int		i;
 
 	i = 0;
 	while (str[i])
 	{
-		parse_command(str, &i, command, envp);
+		parse_command(str, &i, cmd, envp);
 		while (is_whitespace(str[i]))
 			i++;
 	}
-	command->full_cmd = set_command(command->cmd);
-	set_order(command, str);
+	set_order(cmd, str);
 }

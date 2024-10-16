@@ -101,27 +101,27 @@ int	open_redirection_files(t_redir *command, char **envp)
 
 int	check_builtin_num(t_redir *cmd)
 {
-	if (cmd->full_cmd && cmd->full_cmd[0] == 'c' && \
-		cmd->full_cmd[1] == 'd' && (cmd->full_cmd[2] == ' ' || \
-		cmd->full_cmd[2] == '\0'))
+	if (cmd->cmd && cmd->cmd->cmd_val[0][0] == 'c' && \
+		cmd->cmd->cmd_val[0][1] == 'd' && (cmd->cmd->cmd_val[0][2] == ' ' || \
+		cmd->cmd->cmd_val[0][2] == '\0'))
 		return (1);
-	if (!ft_strncmp(cmd->full_cmd, "export ", 7) || \
-		!ft_strncmp(cmd->full_cmd, "export", 8))
+	if (!ft_strncmp(cmd->cmd->cmd_val[0], "export ", 7) || \
+		!ft_strncmp(cmd->cmd->cmd_val[0], "export", 8))
 		return (2);
-	if (!ft_strncmp(cmd->full_cmd, "env", 5) || \
-		!ft_strncmp(cmd->full_cmd, "env ", 4))
+	if (!ft_strncmp(cmd->cmd->cmd_val[0], "env", 5) || \
+		!ft_strncmp(cmd->cmd->cmd_val[0], "env ", 4))
 		return (3);
-	if (!ft_strncmp(cmd->full_cmd, "exit", 5) || \
-		!ft_strncmp(cmd->full_cmd, "exit ", 5))
+	if (!ft_strncmp(cmd->cmd->cmd_val[0], "exit", 5) || \
+		!ft_strncmp(cmd->cmd->cmd_val[0], "exit ", 5))
 		return (4);
-	if (!ft_strncmp(cmd->full_cmd, "unset", 6) || \
-		!ft_strncmp(cmd->full_cmd, "unset ", 6))
+	if (!ft_strncmp(cmd->cmd->cmd_val[0], "unset", 6) || \
+		!ft_strncmp(cmd->cmd->cmd_val[0], "unset ", 6))
 		return (5);
-	if (!ft_strncmp(cmd->full_cmd, "pwd", 6) || \
-		!ft_strncmp(cmd->full_cmd, "pwd ", 4))
+	if (!ft_strncmp(cmd->cmd->cmd_val[0], "pwd", 6) || \
+		!ft_strncmp(cmd->cmd->cmd_val[0], "pwd ", 4))
 		return (6);
-	if (!ft_strncmp(cmd->full_cmd, "echo", 6) || \
-		!ft_strncmp(cmd->full_cmd, "echo ", 5))
+	if (!ft_strncmp(cmd->cmd->cmd_val[0], "echo", 6) || \
+		!ft_strncmp(cmd->cmd->cmd_val[0], "echo ", 5))
 		return (7);
 	return (0);
 }
