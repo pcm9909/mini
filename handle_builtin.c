@@ -423,8 +423,8 @@ void	handle_cd_command(t_redir *command, char ***envp)
 	}
 	else
 	{
-		set_env(ft_strjoin("OLDPWD=", old), 1, envp); // free
-		set_env(ft_strjoin("PWD=", tmp_pwd), 1, envp); // free
+		set_env(ft_strjoin("OLDPWD=", old), 1, envp);
+		set_env(ft_strjoin("PWD=", tmp_pwd), 1, envp);
 	}
 	free(old);
 	free(tmp_pwd);
