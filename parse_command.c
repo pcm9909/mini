@@ -87,36 +87,39 @@ int	handle_dollar1(int *i, char **content, const char *str, char **envp)
 	return (0);
 }
 
-static char *extract_content(const char *str, int *i, char **envp, t_redir *cmd)
+void	set_extract_val(int *j, char **tmp, int *i)
 {
-	int j;
-	char *content;
-	char *temp;
+	*j = *i;
+	*tmp = ft_strdup("");
+}
 
-	j = *i;
-	content = ft_strdup("");
-	while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
+static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
+{
+	char	*tmp;
+	int		j;
+
+	set_extract_val(&j, &tmp, i);
+	while (str[*i] && !is_whitespace(str[*i]) \
+			&& str[*i] != '>' && str[*i] != '<')
 	{
 		if (str[*i] == '"' || str[*i] == '\'')
 		{
-			temp = handle_quotes(str, i, envp, cmd);
-			content = ft_strjoin_opts(content, temp, 3);
+			tmp = ft_strjoin_opts(tmp, ft_strjoin_opts(ft_substr(str, j, \
+				*i - j), handle_quotes(str, i, envp, cmd), 3), 3);
 			j = *i;
 		}
 		else if (str[*i] == '$')
 		{
-			temp = ft_substr(str, j, *i - j);
-			content = ft_strjoin_opts(content, temp, 3);
-			if (handle_dollar1(i, &content, str, envp))
+			tmp = ft_strjoin_opts(tmp, ft_substr(str, j, *i - j), 3);
+			if (handle_dollar1(i, &tmp, str, envp))
 				cmd->executable = false;
 			j = *i;
 		}
 		else
 			(*i)++;
 	}
-	temp = ft_substr(str, j, *i - j);
-	content = ft_strjoin_opts(content, temp, 3);
-	return content;
+	tmp = ft_strjoin_opts(tmp, ft_substr(str, j, *i - j), 3);
+	return (tmp);
 }
 
 static char	*extract_heredoc_content(const char *str, int *i)
@@ -298,7 +301,7 @@ char	*get_parse_value(char *str, int *i, t_redir *cmd, char **envp)
 	return (temp);
 }
 
-void	  parse_command(char *str, int *i, t_redir *cmd, char **envp)
+void	parse_command(char *str, int *i, t_redir *cmd, char **envp)
 {
 	char	*temp;
 

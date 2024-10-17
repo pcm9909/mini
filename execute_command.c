@@ -37,7 +37,7 @@ static void	exe(t_redir *command, char **cmd, char **envp)
 		exit(0);
 	if (execve(cmd_path, cmd, envp))
 	{
-		if(cmd_path != NULL)
+		if (cmd_path != NULL)
 			check_executable(cmd[0]);
 		if (cmd)
 		{
