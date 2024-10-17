@@ -38,7 +38,10 @@ char	*extract_name(char *envp[])
 		envp++;
 	}
 	tmp = (*envp);
-	return (tmp + 5);
+	if (tmp)
+		return (tmp + 5);
+	else
+		return (tmp);
 }
 
 char	*extract_location(char *envp[])
@@ -54,7 +57,10 @@ char	*extract_location(char *envp[])
 		envp++;
 	}
 	tmp = (*envp);
-	return (ft_substr(tmp, 22, ft_strchr(tmp, '.') - tmp - 22));
+	if (tmp)
+		return (ft_substr(tmp, 22, ft_strchr(tmp, '.') - tmp - 22));
+	else
+		return (NULL);
 }
 
 char	*extract_home(char *envp[])
@@ -70,16 +76,20 @@ char	*extract_home(char *envp[])
 		envp++;
 	}
 	tmp = (*envp);
-	return (tmp + 5);
+	if (tmp)
+		return (tmp + 5);
+	else
+		return (tmp);
 }
 
 char	*build_prompt(char **envp)
 {
 	char	*pwd;
 	char	*cwd;
+	static char	*front;
 
 	pwd = getcwd(NULL, BUFSIZ);
-	if (!ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp))))
+	if (extract_home(envp) && !ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp))))
 	{
 		cwd = pwd + ft_strlen(extract_home(envp));
 		cwd = ft_strjoin("~", cwd);
@@ -89,10 +99,13 @@ char	*build_prompt(char **envp)
 	{
 		cwd = pwd;
 	}
+	if (!front)
+	{
+		front = ft_strjoin_opts(extract_name(envp), "@", 0);
+		front = ft_strjoin_opts(front, extract_location(envp), 3);
+		front = ft_strjoin_opts(front, ":", 1);
+	}
+	cwd = ft_strjoin_opts(front, cwd, 2);
 	cwd = ft_strjoin_opts(cwd, "$ ", 1);
-	cwd = ft_strjoin_opts(":", cwd, 2);
-	cwd = ft_strjoin_opts(extract_location(envp), cwd, 3);
-	cwd = ft_strjoin_opts("@", cwd, 2);
-	cwd = ft_strjoin_opts(extract_name(envp), cwd, 2);
 	return (cwd);
 }

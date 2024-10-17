@@ -135,7 +135,7 @@ char	*set_env(char *name, int flag, char ***envp)
 			(*envp)[i] = name;
 		}
 		else
-			*envp = update_envp(*envp, 0, name);
+			*envp = update_envp(*envp, 1, name);
 	}
 	return (NULL);
 }
@@ -171,12 +171,14 @@ int	ft_export(char **ptr, char ***envp)
 	int		i;
 	int		flag;
 	char	*rax;
+	char	*tmp;
 
 	i = 1;
 	flag = 0;
 	while (ptr[i] != NULL)
 	{
-		rax = set_env(ft_strdup(ptr[i]), env_validate(ptr[i]), envp);
+		tmp = ft_strdup(ptr[i]);
+		rax = set_env(tmp, env_validate(ptr[i]), envp);
 		if (flag == 0 && rax != NULL)
 		{
 			ft_putstr_fd("minishell: export: `", 2);
@@ -184,6 +186,8 @@ int	ft_export(char **ptr, char ***envp)
 			ft_putstr_fd("': not a valid identifier\n", 2);
 			flag = 1;
 		}
+		if (rax != NULL)
+			free(tmp);
 		i++;
 	}
 	return (flag);
@@ -281,6 +285,8 @@ static int	exit_range(char *ptr)
 	char	*tmp;
 
 	tmp = ft_lltoa(ft_atoll(ptr));
+	if (*ptr == '+')
+		ptr++;
 	if (ft_strncmp(tmp, ptr, ft_strlen(ptr)))
 	{
 		free(tmp);
@@ -290,7 +296,7 @@ static int	exit_range(char *ptr)
 	return (0);
 }
 
-void	ft_exit(char **ptr)
+void	ft_exit(char **ptr, char ***envp)
 {
 	ft_putstr_fd("exit\n", 2);
 	if (ptr[1] == NULL)
@@ -303,7 +309,10 @@ void	ft_exit(char **ptr)
 		exit(2);
 	}
 	else if (ptr[2] != NULL)
+	{
 		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
+		set_dollar(1, envp);
+	}
 	else
 		exit((unsigned char)ft_atoi(ptr[1]));
 }
@@ -441,12 +450,13 @@ void	handle_env_command(t_redir *command, char **envp)
 	print_envp(envp, 0);
 }
 
-void	handle_exit_command(t_redir *command)
+void	handle_exit_command(t_redir *command, char ***envp)
 {
 	char	**cd;
 
 	cd = ft_strdups(command->cmd->cmd_val);
-	ft_exit(cd);
+	ft_exit(cd, envp);
+	free(cd);
 }
 
 void	handle_unset_command(t_redir *command, char **envp)
