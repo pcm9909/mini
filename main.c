@@ -523,7 +523,6 @@ void	process_input(char *str, char ***envp)
 	initialize_process_data(data, str, envp);
 	while (++i < data->cnt)
 	{
-		print(data->command[i]);
 		if (sigcheck(3))
 			break ;
 		if (data->command[i]->executable == false)
