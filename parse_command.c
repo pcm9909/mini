@@ -87,15 +87,14 @@ int	handle_dollar1(int *i, char **content, const char *str, char **envp)
 	return (0);
 }
 
-static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
+static char *extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 {
-	int		j;
-	char	*content;
-	char	*temp;
+	int j;
+	char *content;
+	char *temp;
 
 	j = *i;
 	content = ft_strdup("");
-	// 여기 고쳐야함 ㅅㅂ
 	while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
 	{
 		if (str[*i] == '"' || str[*i] == '\'')
@@ -104,7 +103,7 @@ static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 			content = ft_strjoin_opts(content, temp, 3);
 			j = *i;
 		}
-		if (str[*i] == '$')
+		else if (str[*i] == '$')
 		{
 			temp = ft_substr(str, j, *i - j);
 			content = ft_strjoin_opts(content, temp, 3);
@@ -117,7 +116,7 @@ static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 	}
 	temp = ft_substr(str, j, *i - j);
 	content = ft_strjoin_opts(content, temp, 3);
-	return (content);
+	return content;
 }
 
 static char	*extract_heredoc_content(const char *str, int *i)
