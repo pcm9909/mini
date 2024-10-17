@@ -136,7 +136,7 @@ void	handle_builtin_command(t_redir *cmd, \
 	else if ((builtin_num) == 3)
 		handle_env_command(cmd, *envp);
 	else if ((builtin_num) == 4)
-		handle_exit_command(cmd);
+		handle_exit_command(cmd, envp);
 	else if ((builtin_num) == 5)
 		handle_unset_command(cmd, *envp);
 	else if ((builtin_num) == 6)
