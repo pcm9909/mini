@@ -251,7 +251,6 @@ char	*handle_quotes(const char *str, int *i, \
 {
 	char	*temp;
 
-	temp = ft_strdup("");
 	if (str[*i] == '"')
 	{
 		temp = handle_double_quotes(str, i, envp, command);
