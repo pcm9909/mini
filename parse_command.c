@@ -68,7 +68,7 @@ int	handle_dollar1(int *i, char **content, const char *str, char **envp)
 
 	(*i)++;
 	start = (*i);
-	while (str[*i] && !is_whitespace(str[*i]))
+	while (is_envp_vars(str[*i]))
 		(*i)++;
 	envp_var = ft_substr(str, start, (*i) - start);
 	idx = ft_strlen(envp_var) + 1;
