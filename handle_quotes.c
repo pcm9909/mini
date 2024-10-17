@@ -52,6 +52,48 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 	free(envp_var);
 }
 
+void	append_env(char **envp, char *envp_var, char *envp_val, t_redir *cmd)
+{
+	char	**envp_val_split;
+	char	*temp;
+	int		idx;
+	int		j;
+
+	j = 0;
+	idx = ft_strlen(envp_var) + 1;
+	temp = ft_strdup(&envp_val[idx]);
+	envp_val_split = ft_splits(temp, ' ');
+	while (envp_val_split[j])
+	{
+		cmd->cmd->exist = true;
+		cmd->cmd->cmd_val = \
+				append_command(&cmd->cmd->cmd_val, envp_val_split[j]);
+		j++;
+	}
+	all_free(envp_val_split);
+	free(temp);
+}
+
+void	handle_dollars(int *i, const char *str, char **envp, t_redir *cmd)
+{
+	char	*envp_var;
+	char	*envp_val;
+	int		idx;
+	int		start;
+
+	(*i)++;
+	start = (*i);
+	while (is_envp_vars(str[*i]))
+		(*i)++;
+	envp_var = ft_substr(str, start, (*i) - start);
+	idx = ft_strlen(envp_var) + 1;
+	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
+	if (ft_strlen(envp_val))
+		append_env(envp, envp_var, envp_val, cmd);
+	free(envp_val);
+	free(envp_var);
+}
+
 char	*handle_double_quotes(const char *str, int *i, \
 							char **envp, t_redir *command)
 {
