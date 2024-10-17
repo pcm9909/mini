@@ -148,8 +148,7 @@ char	*handle_double_quotes2(const char *str, int *i, \
 char	*handle_quotes2(const char *str, int *i, char **envp, t_redir *command);
 char	*handle_single_quotes2(const char *str, int *i, t_redir *command);
 
-char	*print_qutoes_error(const char *str, \
-								t_redir *command, char **content);
+char	*print_qutoes_error(const char *str, t_redir *command, char *content);
 
 char	*ft_strjoin_opts(char const *s1, char const *s2, int i);
 char	**ft_splits(char const *s, char c);

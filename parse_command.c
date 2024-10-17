@@ -95,16 +95,25 @@ static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 
 	j = *i;
 	content = ft_strdup("");
-	while (str[*i] && !is_whitespace(str[*i]) && \
-				str[*i] != '>' && str[*i] != '<' && str[*i] != '$')
-		(*i)++;
-	if (str[*i] == '$')
+	// 여기 고쳐야함 ㅅㅂ
+	while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
 	{
-		temp = ft_substr(str, j, *i - j);
-		content = ft_strjoin_opts(content, temp, 3);
-		if (handle_dollar1(i, &content, str, envp))
-			cmd->executable = false;
-		j = *i;
+		if (str[*i] == '"' || str[*i] == '\'')
+		{
+			temp = handle_quotes(str, i, envp, cmd);
+			content = ft_strjoin_opts(content, temp, 3);
+			j = *i;
+		}
+		if (str[*i] == '$')
+		{
+			temp = ft_substr(str, j, *i - j);
+			content = ft_strjoin_opts(content, temp, 3);
+			if (handle_dollar1(i, &content, str, envp))
+				cmd->executable = false;
+			j = *i;
+		}
+		else
+			(*i)++;
 	}
 	temp = ft_substr(str, j, *i - j);
 	content = ft_strjoin_opts(content, temp, 3);
@@ -262,13 +271,15 @@ char	*handle_quotes(const char *str, int *i, \
 	return (temp);
 }
 
-char *get_parse_value(char *str, int *i, t_redir *cmd, char **envp)
+char	*get_parse_value(char *str, int *i, t_redir *cmd, char **envp)
 {
-	char *temp = ft_strdup("");
+	char	*temp;
+
+	temp = ft_strdup("");
 	while (str[*i] && !is_whitespace(str[*i]))
 	{
-		if (str[*i] && str[*i + 1] && ((str[*i] == '"' && str[*i + 1] == '"') || \
-			(str[*i] == '\'' && str[*i + 1] == '\'')))
+		if (str[*i] && str[*i + 1] && ((str[*i] == '"' && str[*i + 1] == '"') \
+			|| (str[*i] == '\'' && str[*i + 1] == '\'')))
 		{
 			if (is_whitespace(str[*i + 2]) || str[*i + 2] == '\0')
 			{
@@ -276,7 +287,7 @@ char *get_parse_value(char *str, int *i, t_redir *cmd, char **envp)
 				(*i) += 2;
 			}
 			else
-				(*i)+=2;
+				(*i) += 2;
 		}
 		else if (str[*i] == '<' || str[*i] == '>')
 			handle_redirection(str, i, cmd, envp);
@@ -285,10 +296,10 @@ char *get_parse_value(char *str, int *i, t_redir *cmd, char **envp)
 		else
 			temp = ft_strjoin_opts(temp, handle_command(str, i, envp), 3);
 	}
-	return temp;
+	return (temp);
 }
 
-void	parse_command(char *str, int *i, t_redir *cmd, char **envp)
+void	  parse_command(char *str, int *i, t_redir *cmd, char **envp)
 {
 	char	*temp;
 

@@ -38,14 +38,15 @@ char	*get_quotes_val(const char *str, \
 	int		start;
 	char	*content;
 
-	(*idx)++;
-	start = (*idx);
+	start = ++(*idx);
 	content = ft_strdup("");
 	while (str[(*idx)] && str[(*idx)] != param)
+	{
 		(*idx)++;
+	}
 	if (str[(*idx)] != param)
 	{
-		return (print_qutoes_error(str, command, &content));
+		return (print_qutoes_error(str, command, content));
 	}
 	else
 	{

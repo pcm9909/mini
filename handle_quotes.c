@@ -10,13 +10,11 @@ int	is_envp_vars(int c)
 		return (0);
 }
 
-char	*print_qutoes_error(const char *str, \
-								t_redir *command, char **content)
+char	*print_qutoes_error(const char *str, t_redir *command, char *content)
 {
 	write(2, "minishell: Error: Unmatched quote\n", \
 			ft_strlen("minishell: Error: Unmatched quote\n"));
 	command->executable = false;
-	free(*content);
 	return (NULL);
 }
 
@@ -26,11 +24,10 @@ char	*handle_single_quotes(const char *str, int *i, t_redir *command)
 	char	*content;
 
 	start = ++(*i);
-	content = ft_strdup("");
 	while (str[*i] && str[*i] != '\'')
 		(*i)++;
 	if (str[*i] != '\'')
-		return (print_qutoes_error(str, command, &content));
+		return (print_qutoes_error(str, command, content));
 	content = ft_substr(str, start, *i - start);
 	(*i)++;
 	return (content);
@@ -76,7 +73,7 @@ char	*handle_double_quotes(const char *str, int *i, \
 		(*i)++;
 	}
 	if (str[*i] != '"')
-		return (print_qutoes_error(str, command, &content));
+		return (print_qutoes_error(str, command, content));
 	else
 		content = ft_strjoin_opts(content, \
 					ft_substr(str, start, (*i) - start), 3);
