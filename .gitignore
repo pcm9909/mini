@@ -39,3 +39,4 @@ minishell
 .vscode
 
 *.dSYM
+.DS_Store
