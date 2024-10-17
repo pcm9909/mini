@@ -16,6 +16,6 @@ ambigious redirection (해결)
 
 <<a | <<b segfault (해결)
 
-"asdsadas" "asdsadasd" 이렇게 명령어 치면 leak남 (미해결)
+"asdsadas" "asdsadasd" 이렇게 명령어 치면 leak남 (해결)
 
-<$a 할때 leak남 (extract_content) (미해결)
+<$a 할때 leak남 (extract_content) (해결)
