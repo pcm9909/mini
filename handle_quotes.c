@@ -2,7 +2,7 @@
 
 int	is_envp_vars(int c)
 {
-	if (c && (ft_isalnum(c) || c == '_'))
+	if (c && (ft_isalnum(c) || c == '_' || c == '?'))
 		return (1);
 	else
 		return (0);
