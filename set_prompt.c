@@ -84,12 +84,13 @@ char	*extract_home(char *envp[])
 
 char	*build_prompt(char **envp)
 {
-	char	*pwd;
-	char	*cwd;
 	static char	*front;
+	char		*pwd;
+	char		*cwd;
 
 	pwd = getcwd(NULL, BUFSIZ);
-	if (extract_home(envp) && !ft_strncmp(pwd, extract_home(envp), ft_strlen(extract_home(envp))))
+	if (extract_home(envp) && !ft_strncmp(pwd, extract_home(envp), \
+		ft_strlen(extract_home(envp))))
 	{
 		cwd = pwd + ft_strlen(extract_home(envp));
 		cwd = ft_strjoin("~", cwd);

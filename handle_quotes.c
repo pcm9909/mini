@@ -2,21 +2,17 @@
 
 int	is_envp_vars(int c)
 {
-	if (!is_whitespace(c) && c && ft_isalnum(c))
-	{
+	if (c && (ft_isalnum(c) || c == '_'))
 		return (1);
-	}
 	else
 		return (0);
 }
 
-char	*print_qutoes_error(const char *str, \
-								t_redir *command, char **content)
+char	*print_qutoes_error(const char *str, t_redir *command, char *content)
 {
 	write(2, "minishell: Error: Unmatched quote\n", \
 			ft_strlen("minishell: Error: Unmatched quote\n"));
 	command->executable = false;
-	free(*content);
 	return (NULL);
 }
 
@@ -26,11 +22,10 @@ char	*handle_single_quotes(const char *str, int *i, t_redir *command)
 	char	*content;
 
 	start = ++(*i);
-	content = ft_strdup("");
 	while (str[*i] && str[*i] != '\'')
 		(*i)++;
 	if (str[*i] != '\'')
-		return (print_qutoes_error(str, command, &content));
+		return (print_qutoes_error(str, command, content));
 	content = ft_substr(str, start, *i - start);
 	(*i)++;
 	return (content);
@@ -46,12 +41,7 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 
 	(*i)++;
 	start = (*i);
-	if (ft_isalpha(str[*i]) || str[*i] == '_')
-	{
-		while (is_envp_vars(str[*i]))
-			(*i)++;
-	}
-	else
+	while (is_envp_vars(str[*i]))
 		(*i)++;
 	envp_var = ft_substr(str, start, (*i) - start);
 	idx = ft_strlen(envp_var) + 1;
@@ -76,7 +66,7 @@ char	*handle_double_quotes(const char *str, int *i, \
 		(*i)++;
 	}
 	if (str[*i] != '"')
-		return (print_qutoes_error(str, command, &content));
+		return (print_qutoes_error(str, command, content));
 	else
 		content = ft_strjoin_opts(content, \
 					ft_substr(str, start, (*i) - start), 3);

@@ -38,14 +38,15 @@ char	*get_quotes_val(const char *str, \
 	int		start;
 	char	*content;
 
-	(*idx)++;
-	start = (*idx);
+	start = ++(*idx);
 	content = ft_strdup("");
 	while (str[(*idx)] && str[(*idx)] != param)
+	{
 		(*idx)++;
+	}
 	if (str[(*idx)] != param)
 	{
-		return (print_qutoes_error(str, command, &content));
+		return (print_qutoes_error(str, command, content));
 	}
 	else
 	{
@@ -309,16 +310,18 @@ int	handle_output_redir(t_redir *cmd, char **envp, int i)
 int	handle_append_redir(t_redir *cmd, char **envp, int i)
 {
 	int		fd;
-	char	*proc_command;
+	char	*proc_cmd;
 
 	while (cmd->append_redir->cmd_val && \
 				cmd->append_redir->cmd_val[++i])
 	{
-		proc_command = \
+		proc_cmd = \
 			process_command(cmd->append_redir->cmd_val[i], cmd, envp, 0);
 		free(cmd->append_redir->cmd_val[i]);
-		cmd->append_redir->cmd_val[i] = ft_strdup(proc_command);
-		free(proc_command);
+		cmd->append_redir->cmd_val[i] = ft_strdup(proc_cmd);
+		free(proc_cmd);
+		if (cmd->executable == false)
+			break;
 		fd = open(cmd->append_redir->cmd_val[i], \
 					O_CREAT | O_APPEND | O_WRONLY, 0644);
 		if (fd == -1)

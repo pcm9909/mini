@@ -332,7 +332,8 @@ void	set_double_quotes(const char *str, char **temp, int *i, char **envp)
 	(*i)++;
 	while (str[*i] && str[*i] != '"')
 	{
-		if (str[*i] == '$' && str[*i + 1] && ft_isalpha(str[*i + 1]))
+		if (str[*i] == '$' && str[*i + 1] && \
+			(ft_isalpha(str[*i + 1]) || str[*i + 1] == '?'))
 		{
 			*temp = ft_strjoin_opts(*temp, \
 				ft_substr(str, start, *i - start), 3);
@@ -369,14 +370,14 @@ void	set_quotes_and_dollar(const char *str, int *i, char **temp, char **envp)
 	}
 	else if (str[*i] == '$')
 	{
-		if(str[*i + 1] && ft_isalpha(str[*i + 1]))
+		if (str[*i + 1] && (ft_isalpha(str[*i + 1]) || str[*i + 1] == '?'))
 		{
 			handle_dollar(i, temp, str, envp);
 		}
 		else
 		{
 			(*i)++;
-			*temp = ft_strjoin_opts( (*temp), "$", 1);
+			*temp = ft_strjoin_opts((*temp), "$", 1);
 		}
 	}
 }
@@ -463,7 +464,6 @@ void	initialize_process_data(t_proc_data *data, char *str, char ***envp)
 {
 	str = complement_cmd(str);
 	str = set_str(str, *envp);
-	printf("str = %s\n", str);
 	data->split = ft_splits(str, '|');
 	data->cnt = cnt_cmd(data->split);
 	data->pids = malloc(sizeof(pid_t) * data->cnt);
