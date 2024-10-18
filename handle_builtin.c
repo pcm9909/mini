@@ -456,7 +456,7 @@ void	handle_exit_command(t_redir *command, char ***envp)
 
 	cd = ft_strdups(command->cmd->cmd_val);
 	ft_exit(cd, envp);
-	free(cd);
+	all_free(cd);
 }
 
 void	handle_unset_command(t_redir *command, char **envp)
