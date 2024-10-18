@@ -102,6 +102,8 @@ int	open_redirection_files(t_redir *command, char **envp)
 
 int	check_builtin_num(t_redir *cmd)
 {
+	if (cmd->cmd->cmd_val == NULL)
+		return (0);
 	if (cmd->cmd && cmd->cmd->cmd_val[0][0] == 'c' && \
 		cmd->cmd->cmd_val[0][1] == 'd' && (cmd->cmd->cmd_val[0][2] == ' ' || \
 		cmd->cmd->cmd_val[0][2] == '\0'))

@@ -321,7 +321,7 @@ int	handle_append_redir(t_redir *cmd, char **envp, int i)
 		cmd->append_redir->cmd_val[i] = ft_strdup(proc_cmd);
 		free(proc_cmd);
 		if (cmd->executable == false)
-			break;
+			break ;
 		fd = open(cmd->append_redir->cmd_val[i], \
 					O_CREAT | O_APPEND | O_WRONLY, 0644);
 		if (fd == -1)

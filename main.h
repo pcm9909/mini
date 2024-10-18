@@ -156,5 +156,6 @@ char	**ft_strdups(char	**source);
 void	error_exit(char	*str);
 void	heredoc_sig(struct termios *old);
 void	print(t_redir *cmd);
+void handle_dollars(int *i, const char *str, char **envp, t_redir *cmd);
 
 #endif

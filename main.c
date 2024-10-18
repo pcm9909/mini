@@ -368,18 +368,6 @@ void	set_quotes_and_dollar(const char *str, int *i, char **temp, char **envp)
 	{
 		set_double_quotes(str, temp, i, envp);
 	}
-	else if (str[*i] == '$')
-	{
-		if (str[*i + 1] && (ft_isalpha(str[*i + 1]) || str[*i + 1] == '?'))
-		{
-			handle_dollar(i, temp, str, envp);
-		}
-		else
-		{
-			(*i)++;
-			*temp = ft_strjoin_opts((*temp), "$", 1);
-		}
-	}
 }
 
 void	set_left_redir(int *i, char **tmp, char *str, int *start)
@@ -445,7 +433,7 @@ char	*set_str(char *str, char **envp)
 	set_str_vars(&i, &si, &tmp);
 	while (str[i])
 	{
-		if (str[i] == '\'' || str[i] == '"' || str[i] == '$')
+		if (str[i] == '\'' || str[i] == '"')
 		{
 			tmp = ft_strjoin_opts(tmp, ft_substr(str, si, i - si), 3);
 			set_quotes_and_dollar(str, &i, &tmp, envp);

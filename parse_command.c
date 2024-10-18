@@ -108,7 +108,7 @@ static char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 				*i - j), handle_quotes(str, i, envp, cmd), 3), 3);
 			j = *i;
 		}
-		else if (str[*i] == '$')
+		else if (str[*i] == '$' && str[*i + 1] && !is_whitespace(str[*i + 1]))
 		{
 			tmp = ft_strjoin_opts(tmp, ft_substr(str, j, *i - j), 3);
 			if (handle_dollar1(i, &tmp, str, envp))
@@ -284,17 +284,15 @@ char	*get_parse_value(char *str, int *i, t_redir *cmd, char **envp)
 			|| (str[*i] == '\'' && str[*i + 1] == '\'')))
 		{
 			if (is_whitespace(str[*i + 2]) || str[*i + 2] == '\0')
-			{
 				cmd->cmd->cmd_val = append_command(&cmd->cmd->cmd_val, "");
-				(*i) += 2;
-			}
-			else
-				(*i) += 2;
+			(*i) += 2;
 		}
 		else if (str[*i] == '<' || str[*i] == '>')
 			handle_redirection(str, i, cmd, envp);
 		else if (str[*i] == '"' || str[*i] == '\'')
 			temp = ft_strjoin_opts(temp, handle_quotes(str, i, envp, cmd), 3);
+		else if (str[*i] == '$' && str[*i + 1] && !is_whitespace(str[*i + 1]))
+			handle_dollars(i, str, envp, cmd);
 		else
 			temp = ft_strjoin_opts(temp, handle_command(str, i, envp), 3);
 	}
