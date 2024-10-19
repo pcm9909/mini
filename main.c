@@ -69,8 +69,8 @@ int	main(int argc, char **argv, char *env[])
 	struct termios	old;
 	char			*cwd;
 
-	if (argc == 999)
-		argv[0] = NULL; // Werror 방지용
+	if (argc != 1 || argv[1] != NULL)
+		error_exit("minishell : too many arguments\n");
 	envp = update_envp(env, 0, ft_strdup("?=0"));
 	while (1)
 	{
@@ -83,9 +83,7 @@ int	main(int argc, char **argv, char *env[])
 			process_input(str, &envp);
 		}
 		else
-		{
 			cleanup(envp);
-		}
 		free(str);
 		free(cwd);
 	}
