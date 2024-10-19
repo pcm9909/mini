@@ -53,7 +53,8 @@ static void	cleanup(char **envp)
 	exit(EXIT_SUCCESS);
 }
 
-static void	set_readline(char **str, char **cwd, struct termios *old, char **envp)
+static void	set_readline(char **str, char **cwd, \
+							struct termios *old, char **envp)
 {
 	*cwd = build_prompt(envp);
 	input_sig(old);

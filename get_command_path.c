@@ -69,8 +69,8 @@ char	*get_cmd_path(char *cmd, char *path)
 {
 	char	*cmd_path;
 
-	cmd_path = check_path(cmd); // / 들어있으면 다른게 리턴 minishell null  ./minishell <- null
+	cmd_path = check_path(cmd);
 	if (cmd_path != NULL)
 		return (cmd_path);
-	return (search_path(cmd, path)); // null이면 path에서 찾아 
+	return (search_path(cmd, path));
 }
