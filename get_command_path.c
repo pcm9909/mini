@@ -4,16 +4,16 @@ static char	*check_path(char *cmd)
 {
 	if (!cmd)
 		return (NULL);
-	if (cmd[0] == '/')
+	if (cmd[0] == '.' && cmd[1] == '/')
+	{
+		return (cmd);
+	}
+	if (ft_strchr(cmd, '/'))
 	{
 		if (access(cmd, X_OK) != -1)
 			return (ft_strdup(cmd));
 		else
 			return (NULL);
-	}
-	if (cmd[0] == '.' && cmd[1] == '/')
-	{
-		return (cmd);
 	}
 	return (NULL);
 }
@@ -25,6 +25,8 @@ static char	*search_path(char *cmd, char *path)
 	char	*tmp;
 	int		i;
 
+	if (!path)
+		return (ft_strdup(cmd));
 	paths = ft_split(path, ':');
 	cmd_path = NULL;
 	i = 0;
@@ -67,8 +69,8 @@ char	*get_cmd_path(char *cmd, char *path)
 {
 	char	*cmd_path;
 
-	cmd_path = check_path(cmd);
+	cmd_path = check_path(cmd); // / 들어있으면 다른게 리턴 minishell null  ./minishell <- null
 	if (cmd_path != NULL)
 		return (cmd_path);
-	return (search_path(cmd, path));
+	return (search_path(cmd, path)); // null이면 path에서 찾아 
 }

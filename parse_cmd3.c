@@ -21,7 +21,6 @@ char *handle_double_quotes(const char *str, int *i, t_redir *command)
     char *content;
 
     start = ++(*i);
-    content = ft_strdup("");
     while (str[*i] && str[*i] != '"')
     {
         (*i)++;
@@ -29,8 +28,11 @@ char *handle_double_quotes(const char *str, int *i, t_redir *command)
     if (str[*i] != '"')
         return (print_qutoes_error(command));
     else
+	{
+		content = ft_strdup("");
         content = ft_strjoin_opts(content,
                                   ft_substr(str, start, (*i) - start), 3);
+	}
     (*i)++;
     return (content);
 }
