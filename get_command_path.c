@@ -1,14 +1,5 @@
 #include "main.h"
 
-static void	check_cmd(char *cmd_path)
-{
-	if (!cmd_path)
-	{
-		perror("command not found");
-		exit(1);
-	}
-}
-
 static char	*check_path(char *cmd)
 {
 	if (!cmd)

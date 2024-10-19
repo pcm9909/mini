@@ -1,5 +1,18 @@
 #include "main.h"
 
+void all_free(char **ptr)
+{
+	char **tmp;
+
+	tmp = ptr;
+	while (*ptr != NULL)
+	{
+		free(*ptr);
+		ptr++;
+	}
+	free(tmp);
+}
+
 void	free_command(t_cmd *cmd)
 {
 	if (cmd)
@@ -43,15 +56,23 @@ void	free_command_list(char ***command)
 	}
 }
 
-void	all_free(char **ptr)
+void cleanup_resources(t_proc_data *data)
 {
-	char	**tmp;
+	int i;
 
-	tmp = ptr;
-	while (*ptr != NULL)
+	i = 0;
+	while (i < data->cnt)
 	{
-		free(*ptr);
-		ptr++;
+		free_redirection(data->command[i]);
+		i++;
 	}
-	free(tmp);
+	i = 0;
+	while (data->split[i])
+	{
+		free(data->split[i]);
+		i++;
+	}
+	free(data->command);
+	free(data->split);
+	free(data->pids);
 }
