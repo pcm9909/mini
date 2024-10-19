@@ -1,34 +1,8 @@
 #include "main.h"
 
-char	**extract_path(char *envp[])
-{
-	char	**tmp;
-	char	**re;
-
-	tmp = NULL;
-	while (*envp)
-	{
-		if (!ft_strncmp(*envp, "PATH=", 5))
-			break ;
-		envp++;
-	}
-	if (*envp)
-	{
-		tmp = ft_split((*envp) + 5, ':');
-		re = tmp;
-		while (*re)
-		{
-			ft_strlcat(*re, "/", 999);
-			re++;
-		}
-	}
-	return (tmp);
-}
-
-char	*extract_name(char *envp[])
+static char	*extract_name(char *envp[])
 {
 	char	*tmp;
-	char	**re;
 
 	tmp = NULL;
 	while (*envp)
@@ -44,10 +18,9 @@ char	*extract_name(char *envp[])
 		return (tmp);
 }
 
-char	*extract_location(char *envp[])
+static char	*extract_location(char *envp[])
 {
 	char	*tmp;
-	char	**re;
 
 	tmp = NULL;
 	while (*envp)
@@ -61,25 +34,6 @@ char	*extract_location(char *envp[])
 		return (ft_substr(tmp, 22, ft_strchr(tmp, '.') - tmp - 22));
 	else
 		return (NULL);
-}
-
-char	*extract_home(char *envp[])
-{
-	char	*tmp;
-	char	**re;
-
-	tmp = NULL;
-	while (*envp)
-	{
-		if (!ft_strncmp(*envp, "HOME=", 5))
-			break ;
-		envp++;
-	}
-	tmp = (*envp);
-	if (tmp)
-		return (tmp + 5);
-	else
-		return (tmp);
 }
 
 char	*build_prompt(char **envp)
