@@ -2,7 +2,7 @@
 
 int	is_upright_vars(int c)
 {
-	return (c == '>' || c == '<' || c == '\0' ||
+	return (c == '>' || c == '<' || c == '\0' || \
 			c == '|' || c == '&' || c == ';');
 }
 
@@ -17,4 +17,9 @@ int	is_envp_vars(int c)
 		return (1);
 	else
 		return (0);
+}
+
+int	is_space(int c)
+{
+	return (c == ' ' || (c >= '\t' && c <= '\r'));
 }

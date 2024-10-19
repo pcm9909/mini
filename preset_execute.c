@@ -9,7 +9,7 @@ void	wait_for_children(t_proc_data *data, char ***envp)
 	while (++i < data->cnt)
 	{
 		if (data->pids[i] == -1)
-			continue;
+			continue ;
 		waitpid(data->pids[i], &statloc, 0);
 		if (WIFEXITED(statloc))
 		{

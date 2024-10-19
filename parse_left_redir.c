@@ -3,18 +3,18 @@
 static void	handle_single_left(t_redir *cmd, char *content)
 {
 	cmd->input_redir->exist = true;
-	cmd->input_redir->cmd_val =
+	cmd->input_redir->cmd_val = \
 		append_command(&cmd->input_redir->cmd_val, content);
 }
 
 static int	handle_double_left(t_redir *cmd, char *content,
-                              const char *str, int *i)
+								const char *str, int *i)
 {
 	int	j;
 	int	check;
 
 	cmd->heredoc_redir->exist = true;
-	cmd->heredoc_redir->cmd_val =
+	cmd->heredoc_redir->cmd_val = \
 		append_command(&cmd->heredoc_redir->cmd_val, content);
 	j = *i;
 	check = 0;
@@ -23,27 +23,28 @@ static int	handle_double_left(t_redir *cmd, char *content,
 		if (str[j] && str[j + 1] && str[j] == '<' && str[j + 1] == '<')
 		{
 			check = 1;
-			break;
+			break ;
 		}
 		j++;
 	}
 	return (check);
 }
 
-static char *extract_heredoc_content(const char *str, int *i)
+static char	*extract_heredoc_content(const char *str, int *i)
 {
 	char	*content;
 	int		j;
 
 	j = *i;
-	while (str[*i] && !is_whitespace(str[*i]) && str[*i] != '>' && str[*i] != '<')
+	while (str[*i] && !is_whitespace(str[*i]) && \
+			str[*i] != '>' && str[*i] != '<')
 		(*i)++;
 	content = ft_substr(str, j, *i - j);
 	return (content);
 }
 
-void parse_left_redir(const char *str, int *i,
-                      t_redir *cmd, char **envp)
+void	parse_left_redir(const char *str, int *i,
+						t_redir *cmd, char **envp)
 {
 	char	*content;
 	int		flag;
@@ -71,4 +72,3 @@ void parse_left_redir(const char *str, int *i,
 		handle_single_left(cmd, content);
 	free(content);
 }
-

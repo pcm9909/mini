@@ -69,6 +69,8 @@ int	main(int argc, char **argv, char *env[])
 	struct termios	old;
 	char			*cwd;
 
+	if (argc == 999)
+		argv[0] = NULL; // Werror 방지용
 	envp = update_envp(env, 0, ft_strdup("?=0"));
 	while (1)
 	{

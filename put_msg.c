@@ -24,14 +24,14 @@ void	handle_parse_error(const char *str, int *i, t_redir *cmd)
 	ft_putchar_fd(str[*i], 2);
 	ft_putstr_fd("'\n", 2);
 	cmd->executable = false;
-	while (str[*i] && (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' ||
-						str[*i] == '|' || str[*i] == '&' || str[*i] == ';'))
+	while (str[*i] && (str[*i] == '>' || str[*i] == '<' || str[*i] == '\0' \
+					|| str[*i] == '|' || str[*i] == '&' || str[*i] == ';'))
 		(*i)++;
 }
 
 char	*print_qutoes_error(t_redir *command)
 {
-	write(2, "minishell: Error: Unmatched quote\n",
+	write(2, "minishell: Error: Unmatched quote\n", \
 			ft_strlen("minishell: Error: Unmatched quote\n"));
 	command->executable = false;
 	return (ft_strdup(""));

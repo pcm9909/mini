@@ -1,6 +1,6 @@
 #include "main.h"
 
-static void sg(int signal)
+static void	sg(int signal)
 {
 	if (signal == SIGINT)
 	{
@@ -24,7 +24,7 @@ static void sg(int signal)
 	}
 }
 
-static void sg2(int signal)
+static void	sg2(int signal)
 {
 	if (signal == SIGINT)
 	{
@@ -43,7 +43,7 @@ static void sg2(int signal)
 	}
 }
 
-void input_sig(struct termios *old)
+void	input_sig(struct termios *old)
 {
 	tcgetattr(0, old);
 	old->c_lflag &= ~(512);
@@ -52,7 +52,7 @@ void input_sig(struct termios *old)
 	signal(SIGQUIT, sg);
 }
 
-void end_sig(struct termios *old)
+void	end_sig(struct termios *old)
 {
 	tcgetattr(0, old);
 	old->c_lflag |= (512);

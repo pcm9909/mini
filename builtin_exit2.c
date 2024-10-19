@@ -1,10 +1,5 @@
 #include "main.h"
 
-static int	ft_isspace1(int c)
-{
-	return (c == ' ' || (c >= '\t' && c <= '\r'));
-}
-
 static long long	ft_atoll(const char *str)
 {
 	int			i;
@@ -14,7 +9,7 @@ static long long	ft_atoll(const char *str)
 	i = 0;
 	sign = 1;
 	result = 0;
-	while (ft_isspace1((unsigned char)str[i]))
+	while (is_space((unsigned char)str[i]))
 		i++;
 	if (str[i] == '-' || str[i] == '+')
 	{
@@ -74,7 +69,7 @@ static char	*ft_lltoa(long long n)
 	return (str);
 }
 
-static int	exit_range(char *ptr)
+int	exit_range(char *ptr)
 {
 	char	*tmp;
 
@@ -88,47 +83,4 @@ static int	exit_range(char *ptr)
 	}
 	free(tmp);
 	return (0);
-}
-
-int	only_digit(char *ptr)
-{
-	if (*ptr == '-' || *ptr == '+')
-		ptr++;
-	while (*ptr)
-	{
-		if (!ft_isdigit(*ptr))
-			return (0);
-		ptr++;
-	}
-	return (1);
-}
-
-static void	ft_exit(char **ptr, char ***envp)
-{
-	ft_putstr_fd("exit\n", 2);
-	if (ptr[1] == NULL)
-		exit(0);
-	else if (!only_digit(ptr[1]) || exit_range(ptr[1]))
-	{
-		ft_putstr_fd("minishell: exit: ", 2);
-		ft_putstr_fd(ptr[1], 2);
-		ft_putstr_fd(": numeric argument required\n", 2);
-		exit(2);
-	}
-	else if (ptr[2] != NULL)
-	{
-		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
-		set_dollar(1, envp);
-	}
-	else
-		exit((unsigned char)ft_atoi(ptr[1]));
-}
-
-void	handle_exit_command(t_redir *command, char ***envp)
-{
-	char	**cd;
-
-	cd = ft_strdups(command->cmd->cmd_val);
-	ft_exit(cd, envp);
-	all_free(cd);
 }
