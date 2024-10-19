@@ -1,6 +1,6 @@
 #include "main.h"
 
-void	dir_err(char **cd, char ***envp)
+static void	dir_err(char **cd, char ***envp)
 {
 	ft_putstr_fd("minishell: cd: ", 2);
 	ft_putstr_fd(cd[1], 2);
@@ -8,7 +8,7 @@ void	dir_err(char **cd, char ***envp)
 	set_dollar(1, envp);
 }
 
-void	dir_move(char *old, char *tmp_pwd, char ***envp, int flag)
+static void	dir_move(char *old, char *tmp_pwd, char ***envp, int flag)
 {
 	if (flag == 1)
 	{
@@ -22,7 +22,7 @@ void	dir_move(char *old, char *tmp_pwd, char ***envp, int flag)
 	}
 }
 
-void	make_cd_path(char **cd_path, char **tmp_pwd, int i)
+static void	make_cd_path(char **cd_path, char **tmp_pwd, int i)
 {
 	if (!ft_strncmp(cd_path[i], "..", 5))
 	{
@@ -38,7 +38,7 @@ void	make_cd_path(char **cd_path, char **tmp_pwd, int i)
 	}
 }
 
-void	cd_check(char **cd, char **tmp_pwd, char ***envp)
+static void	cd_check(char **cd, char **tmp_pwd, char ***envp)
 {
 	char	**cd_path;
 	int		i;
