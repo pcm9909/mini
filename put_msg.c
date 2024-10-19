@@ -34,5 +34,5 @@ char    *print_qutoes_error(t_redir *command)
     write(2, "minishell: Error: Unmatched quote\n",
           ft_strlen("minishell: Error: Unmatched quote\n"));
     command->executable = false;
-    return (NULL);
+    return (ft_strdup(""));
 }

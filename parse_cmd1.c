@@ -91,12 +91,10 @@ static void parse_command(char *str, int *i, t_redir *cmd, char **envp)
                 cmd->cmd->cmd_val =
                     append_command(&cmd->cmd->cmd_val, temp);
             }
-            free(temp);
             while (str[*i] && is_whitespace(str[*i]))
                 (*i)++;
         }
-        else
-            free(temp);
+        free(temp);
     }
 }
 
