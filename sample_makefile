@@ -1,16 +1,25 @@
-CC = cc
-CFLAGS = -I/opt/homebrew/opt/readline/include -L/opt/homebrew/opt/readline/lib -lreadline
+CC = clang
+
+CFLAGS = -Werror -Wextra -Wall -g
+
+READLINE = -lreadline
+
 NAME = minishell
+
+LIBFT = libft/libft.a
+
 SRCS = builtin_cd.c \
 		builtin_echo.c \
 		builtin_env.c \
-		builtin_exit.c \
+		builtin_exit1.c \
+		builtin_exit2.c \
 		builtin_export.c \
 		builtin_pwd.c \
 		builtin_unset.c \
 		builtin_utils.c \
 		execute_builtin.c \
-		execute_heredoc.c \
+		execute_heredoc1.c \
+		execute_heredoc2.c \
 		execute_non_builtin.c \
 		execute_redir1.c \
 		execute_redir2.c \
@@ -26,7 +35,8 @@ SRCS = builtin_cd.c \
 		parse_right_redir.c \
 		parse_utils.c \
 		preset_execute.c \
-		preset_str.c \
+		preset_str1.c \
+		preset_str2.c \
 		put_msg.c \
 		set_proc_date.c \
 		set_prompt.c \
@@ -45,7 +55,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 			@make -C libft
-			@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) libft/libft.a
+			@$(CC) $(CFLAGS) $(READLINE) -o $(NAME) $(OBJS) $(LIBFT)
 
 clean:
 	@rm -rf $(OBJS)
@@ -56,4 +66,4 @@ fclean: clean
 re: fclean all
 
 
-.PHONY: all clean fclean re 
+.PHONY: all clean fclean re
