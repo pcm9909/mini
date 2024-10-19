@@ -1,8 +1,8 @@
 #include "main.h"
 
-void all_free(char **ptr)
+void	all_free(char **ptr)
 {
-	char **tmp;
+	char	**tmp;
 
 	tmp = ptr;
 	while (*ptr != NULL)
@@ -56,9 +56,9 @@ void	free_command_list(char ***command)
 	}
 }
 
-void cleanup_resources(t_proc_data *data)
+void	cleanup_resources(t_proc_data *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < data->cnt)

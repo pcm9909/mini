@@ -1,133 +1,133 @@
 #include "main.h"
 
-static void append_until_dollar(char **proc_read, const char *read, int *j)
+static void	append_until_dollar(char **proc_read, const char *read, int *j)
 {
-    int start;
-    char *temp;
+	char	*temp;
+	int		start;
 
-    start = *j;
-    while (read[*j] && read[*j] != '$')
-    {
-        (*j)++;
-    }
-    temp = ft_substr(read, start, *j - start);
-    *proc_read = ft_strjoin_opts(*proc_read, temp, 3);
+	start = *j;
+	while (read[*j] && read[*j] != '$')
+	{
+		(*j)++;
+	}
+	temp = ft_substr(read, start, *j - start);
+	*proc_read = ft_strjoin_opts(*proc_read, temp, 3);
 }
 
-static void proc_read_input(char *read, int pipe_fd[2], char **envp)
+static void	proc_read_input(char *read, int pipe_fd[2], char **envp)
 {
-    char *proc_read;
-    int j;
+	char	*proc_read;
+	int		j;
 
-    add_history(read);
-    proc_read = ft_strdup("");
-    j = 0;
-    while (read[j])
-    {
-        if (read[j] == '$')
-            handle_dollar(&j, &proc_read, read, envp);
-        else
-            append_until_dollar(&proc_read, read, &j);
-    }
-    proc_read = ft_strjoin_opts(proc_read, "\n", 1);
-    write(pipe_fd[1], proc_read, ft_strlen(proc_read));
-    free(proc_read);
-    free(read);
+	add_history(read);
+	proc_read = ft_strdup("");
+	j = 0;
+	while (read[j])
+	{
+		if (read[j] == '$')
+			handle_dollar(&j, &proc_read, read, envp);
+		else
+			append_until_dollar(&proc_read, read, &j);
+	}
+	proc_read = ft_strjoin_opts(proc_read, "\n", 1);
+	write(pipe_fd[1], proc_read, ft_strlen(proc_read));
+	free(proc_read);
+	free(read);
 }
 
-static void write_heredoc_warning(char *cmd_val)
+static void	write_heredoc_warning(char *cmd_val)
 {
-    write(2, "minishell: warning: here-document", 33);
-    write(2, " delimited by end-of-file (wanted '", 34);
-    write(2, cmd_val, ft_strlen(cmd_val));
-    write(2, "')\n", 3);
+	write(2, "minishell: warning: here-document", 33);
+	write(2, " delimited by end-of-file (wanted '", 34);
+	write(2, cmd_val, ft_strlen(cmd_val));
+	write(2, "')\n", 3);
 }
 
-static void proc_heredoc_child(t_redir *cmd, int i, int pipe_fd[2], char **envp)
+static void	proc_heredoc_child(t_redir *cmd, int i, int pipe_fd[2], char **envp)
 {
-    struct termios old;
-    char *read;
+	struct termios	old;
+	char			*read;
 
-    close(pipe_fd[0]);
-    while (cmd->executable)
-    {
-        heredoc_sig(&old);
-        read = readline(">");
-        none_sig();
-        if (!read || (ft_strncmp(read, cmd->heredoc_redir->cmd_val[i],
-                                 ft_strlen(cmd->heredoc_redir->cmd_val[i])) == 0 &&
-                      ft_strlen(read) == ft_strlen(cmd->heredoc_redir->cmd_val[i])))
-        {
-            if (!read)
-                write_heredoc_warning(cmd->heredoc_redir->cmd_val[i]);
-            free(read);
-            break;
-        }
-        if (cmd->heredoc_redir->cmd_val[i + 1] == NULL)
-            proc_read_input(read, pipe_fd, envp);
-    }
-    close(pipe_fd[1]);
-    exit(EXIT_SUCCESS);
+	close(pipe_fd[0]);
+	while (cmd->executable)
+	{
+		heredoc_sig(&old);
+		read = readline(">");
+		none_sig();
+		if (!read || (ft_strncmp(read, cmd->heredoc_redir->cmd_val[i], \
+				ft_strlen(cmd->heredoc_redir->cmd_val[i])) == 0 && \
+				ft_strlen(read) == ft_strlen(cmd->heredoc_redir->cmd_val[i])))
+		{
+			if (!read)
+				write_heredoc_warning(cmd->heredoc_redir->cmd_val[i]);
+			free(read);
+			break ;
+		}
+		if (cmd->heredoc_redir->cmd_val[i + 1] == NULL)
+			proc_read_input(read, pipe_fd, envp);
+	}
+	close(pipe_fd[1]);
+	exit(EXIT_SUCCESS);
 }
 
 static void proc_heredoc_parent(int pipe_fd[2], t_redir *cmd)
 {
-    char buffer[1024];
-    ssize_t bytes_read;
-    int status;
+	char	buffer[1024];
+	ssize_t	bytes_read;
+	int		status;
 
-    close(pipe_fd[1]);
-    waitpid(-1, &status, 0);
-    if (WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS)
-    {
-        bytes_read = read(pipe_fd[0], buffer, sizeof(buffer) - 1);
-        while (bytes_read > 0)
-        {
-            buffer[bytes_read] = '\0';
-            add_history(buffer);
-            cmd->heredoc = ft_strjoin_opts(cmd->heredoc, buffer, 1);
-            bytes_read = read(pipe_fd[0], buffer, sizeof(buffer) - 1);
-        }
-    }
-    else
-    {
-        cmd->executable = false;
-        sigcheck(1);
-    }
-    close(pipe_fd[0]);
+	close(pipe_fd[1]);
+	waitpid(-1, &status, 0);
+	if (WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS)
+	{
+		bytes_read = read(pipe_fd[0], buffer, sizeof(buffer) - 1);
+		while (bytes_read > 0)
+		{
+			buffer[bytes_read] = '\0';
+			add_history(buffer);
+			cmd->heredoc = ft_strjoin_opts(cmd->heredoc, buffer, 1);
+			bytes_read = read(pipe_fd[0], buffer, sizeof(buffer) - 1);
+		}
+	}
+	else
+	{
+		cmd->executable = false;
+		sigcheck(1);
+	}
+	close(pipe_fd[0]);
 }
 
-void handle_heredoc(t_redir *cmd, int i, char **envp)
+void	handle_heredoc(t_redir *cmd, int i, char **envp)
 {
-    int pipe_fd[2];
-    pid_t pid;
+	int		pipe_fd[2];
+	pid_t	pid;
 
-    pipe(pipe_fd);
-    pid = fork();
-    if (pid == 0)
-    {
-        proc_heredoc_child(cmd, i, pipe_fd, envp);
-    }
-    else
-    {
-        proc_heredoc_parent(pipe_fd, cmd);
-    }
+	pipe(pipe_fd);
+	pid = fork();
+	if (pid == 0)
+	{
+		proc_heredoc_child(cmd, i, pipe_fd, envp);
+	}
+	else
+	{
+		proc_heredoc_parent(pipe_fd, cmd);
+	}
 }
 
-void handle_heredoc_redir(t_redir *cmd, char **envp)
+void	handle_heredoc_redir(t_redir *cmd, char **envp)
 {
-    int i;
-    char *processed_command;
+	char	*processed_command;
+	int		i;
 
-    i = -1;
-    while (cmd->heredoc_redir->cmd_val &&
-           cmd->heredoc_redir->cmd_val[++i])
-    {
-        processed_command =
-            process_command(cmd->heredoc_redir->cmd_val[i], cmd);
-        free(cmd->heredoc_redir->cmd_val[i]);
-        cmd->heredoc_redir->cmd_val[i] = ft_strdup(processed_command);
-        free(processed_command);
-        handle_heredoc(cmd, i,  envp);
-    }
+	i = -1;
+	while (cmd->heredoc_redir->cmd_val && \
+			cmd->heredoc_redir->cmd_val[++i])
+	{
+		processed_command = \
+			process_command(cmd->heredoc_redir->cmd_val[i], cmd);
+		free(cmd->heredoc_redir->cmd_val[i]);
+		cmd->heredoc_redir->cmd_val[i] = ft_strdup(processed_command);
+		free(processed_command);
+		handle_heredoc(cmd, i, envp);
+	}
 }
