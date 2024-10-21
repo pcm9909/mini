@@ -14,7 +14,8 @@ SRCS = builtin_cd.c \
 		builtin_export.c \
 		builtin_pwd.c \
 		builtin_unset.c \
-		builtin_utils.c \
+		builtin_utils1.c \
+		builtin_utils2.c \
 		execute_builtin.c \
 		execute_heredoc1.c \
 		execute_heredoc2.c \
