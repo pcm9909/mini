@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 18:09:44 by chunpark          #+#    #+#             */
+/*   Updated: 2024/10/21 22:13:31 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
 static void	set_local(int *i, t_proc_data **data)
@@ -8,15 +20,40 @@ static void	set_local(int *i, t_proc_data **data)
 		error_exit("minishell: Error: allocation failed");
 }
 
-static void	process_input(char *str, char ***envp)
+void print_cmd(t_cmd *cmd, const char *label)
+{
+    int i = 0;
+    if (cmd && cmd->cmd_val)
+    {
+        while (cmd->cmd_val[i])
+        {
+            printf("[%s]\n", label);
+            printf("%s\n", cmd->cmd_val[i]);
+            i++;
+        }
+    }
+}
+
+void print(t_redir *cmd)
+{
+    print_cmd(cmd->heredoc_redir, "heredoc_redir");
+    print_cmd(cmd->input_redir, "input_redir");
+    print_cmd(cmd->cmd, "cmd");
+    print_cmd(cmd->output_redir, "output_redir");
+    print_cmd(cmd->append_redir, "append_redir");
+}
+
+static char	*process_input(char *str, char ***envp)
 {
 	t_proc_data	*data;
+	char		*tmp;
 	int			i;
 
 	set_local(&i, &data);
-	set_process_data(data, str, envp);
+	tmp = set_process_data(data, str, envp);
 	while (++i < data->cnt)
 	{
+		print(data->command[i]);
 		if (sigcheck(3))
 			break ;
 		if (data->command[i]->executable == false)
@@ -33,7 +70,7 @@ static void	process_input(char *str, char ***envp)
 	}
 	wait_for_children(data, envp);
 	cleanup_resources(data);
-	free(data);
+	return (tmp);
 }
 
 static void	cleanup(char **envp)
@@ -68,24 +105,24 @@ int	main(int argc, char **argv, char *env[])
 	char			**envp;
 	struct termios	old;
 	char			*cwd;
+	char			*tmp;
 
 	if (argc != 1 || argv[1] != NULL)
 		error_exit("minishell : too many arguments\n");
 	envp = update_envp(env, 0, ft_strdup("?=0"));
 	while (1)
 	{
+		tmp = NULL;
 		set_readline(&str, &cwd, &old, envp);
 		if (ft_strlen(str))
 			add_history(str);
 		if (str)
 		{
 			sigcheck(0);
-			process_input(str, &envp);
+			tmp = process_input(str, &envp);
 		}
 		else
 			cleanup(envp);
-		free(str);
-		free(cwd);
+		free_readline(cwd, tmp, str);
 	}
-	return (0);
 }

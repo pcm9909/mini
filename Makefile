@@ -1,7 +1,6 @@
 CC = cc
 
 CFLAGS = -Werror -Wextra -Wall -g -lreadline
-
 NAME = minishell
 
 LIBFT = libft/libft.a

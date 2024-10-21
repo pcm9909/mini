@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   set_proc_date.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 18:09:58 by chunpark          #+#    #+#             */
+/*   Updated: 2024/10/21 19:11:15 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
 static void	initialize_commands(char **split, int cnt, \
@@ -38,13 +50,14 @@ static char	*complement_cmd(char *str)
 			return (str);
 		if (str[len] == '|')
 		{
-			tmp = ft_strjoin_opts(str, readline(">"), 3);
+			str = ft_strdup(str);
+			tmp = readline(">");
+			tmp = ft_strjoin_opts(str, tmp, 3);
 			add_history(tmp);
-			str = tmp;
+			return (complement_cmd(tmp));
 		}
 		else
 			return (str);
-		return (complement_cmd(tmp));
 	}
 	return (NULL);
 }
@@ -65,15 +78,23 @@ static int	cnt_cmd(char **split)
 	return (i);
 }
 
-void	set_process_data(t_proc_data *data, char *str, char ***envp)
+char	*set_process_data(t_proc_data *data, char *str, char ***envp)
 {
-	str = complement_cmd(str);
-	str = set_str(str, *envp);
+	char	*tmp;
+	int		flag;
+
+	flag = 0;
+	tmp = complement_cmd(str);
+	if (tmp != str)
+		flag = 1;
+	str = set_str(tmp, *envp);
 	data->split = split_cmp_quotes(str, '|');
 	data->cnt = cnt_cmd(data->split);
 	data->pids = malloc(sizeof(pid_t) * data->cnt);
 	data->input_fd = 0;
 	data->command = (malloc(sizeof(t_redir *) * data->cnt));
 	initialize_commands(data->split, data->cnt, &data->command, envp);
-	free(str);
+	if (flag == 1)
+		free(tmp);
+	return (str);
 }

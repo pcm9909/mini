@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_utils.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 18:09:51 by chunpark          #+#    #+#             */
+/*   Updated: 2024/10/21 21:23:02 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
 void	set_extract_val(int *j, char **tmp, int *i)
@@ -18,7 +30,7 @@ char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 		if (str[*i] == '"' || str[*i] == '\'')
 		{
 			tmp = ft_strjoin_opts(tmp, \
-ft_strjoin_opts(ft_substr(str, j, *i - j), handle_quotes(str, i, cmd), 3), 3);
+ft_strjoin_opts(ft_substr(str, j, *i - j), handle_quotes(str, i, cmd, envp), 3), 3);
 			j = *i;
 		}
 		else if (str[*i] == '$' && str[*i + 1] && !is_whitespace(str[*i + 1]))
@@ -33,4 +45,12 @@ ft_strjoin_opts(ft_substr(str, j, *i - j), handle_quotes(str, i, cmd), 3), 3);
 	}
 	tmp = ft_strjoin_opts(tmp, ft_substr(str, j, *i - j), 3);
 	return (tmp);
+}
+
+void	free_readline(char *cwd, char *tmp, char *str)
+{
+	free(cwd);
+	if (tmp != str && tmp != NULL)
+		free(tmp);
+	free(str);
 }

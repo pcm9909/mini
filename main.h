@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.h                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
+/*   Updated: 2024/10/21 21:41:01 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MAIN_H
 # define MAIN_H
 # include "libft/libft.h"
@@ -88,14 +100,14 @@ char	*ft_strjoin_opts(char const *s1, char const *s2, int i);
 char	**ft_strdups(char **source);
 void	set_redir(int *i, char **tmp, char *str, int *start);
 void	parse_redir(char *str, t_redir *cmd, char **envp);
-char	*handle_quotes(const char *str, int *i, t_redir *command);
+char	*handle_quotes(const char *str, int *i, t_redir *command, char **envp);
 int		handle_dollar1(int *i, char **content, const char *str, char **envp);
 char	**append_command(char ***cmd, char *str);
 void	handle_redirection(char *str, int *i, t_redir *command, char **envp);
 char	*handle_single_quotes(const char *str, int *i, t_redir *command);
-char	*handle_double_quotes(const char *str, int *i, t_redir *command);
+char	*handle_double_quotes(const char *str, int *i, t_redir *command, char **envp);
 void	append_env(char *envp_var, char *envp_val, t_redir *cmd);
-void	handle_env(int *i, const char *str, char **envp, t_redir *cmd);
+char	*handle_env(int *i, const char *str, char **envp);
 char	*handle_command(const char *str, int *i);
 void	parse_left_redir(const char *str, int *i, t_redir *cmd, char **envp);
 void	parse_right_redir(char *str, int *i, char **envp, t_redir *cmd);
@@ -110,12 +122,13 @@ void	perror_exit(char *str);
 void	print_error(char *target);
 void	handle_parse_error(const char *str, int *i, t_redir *cmd);
 char	*print_qutoes_error(t_redir *command);
-void	set_process_data(t_proc_data *data, char *str, char ***envp);
+char	*set_process_data(t_proc_data *data, char *str, char ***envp);
 char	*build_prompt(char **envp);
 void	input_sig(struct termios *old);
 void	end_sig(struct termios *old);
 void	none_sig(void);
 void	heredoc_sig(struct termios *old);
+void	free_readline(char *cwd, char *tmp, char *str);
 int		sigcheck(int type);
 int		is_upright_vars(int c);
 int		is_whitespace(int c);

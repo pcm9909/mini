@@ -1,12 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_cmd2.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 18:09:46 by chunpark          #+#    #+#             */
+/*   Updated: 2024/10/21 21:08:32 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
-char	*handle_quotes(const char *str, int *i, t_redir *command)
+char	*handle_quotes(const char *str, int *i, t_redir *command, char **envp)
 {
 	char	*temp;
 
 	if (str[*i] == '"')
 	{
-		temp = handle_double_quotes(str, i, command);
+		temp = handle_double_quotes(str, i, command, envp);
 	}
 	else
 	{
@@ -25,7 +37,11 @@ int	handle_dollar1(int *i, char **content, const char *str, char **envp)
 	(*i)++;
 	start = (*i);
 	while (is_envp_vars(str[*i]))
+	{
 		(*i)++;
+		if(str[*i] == '?')
+			break;
+	}
 	envp_var = ft_substr(str, start, (*i) - start);
 	idx = ft_strlen(envp_var) + 1;
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);

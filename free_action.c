@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   free_action.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/21 18:09:38 by chunpark          #+#    #+#             */
+/*   Updated: 2024/10/21 18:09:39 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
 void	all_free(char **ptr)
@@ -75,4 +87,5 @@ void	cleanup_resources(t_proc_data *data)
 	free(data->command);
 	free(data->split);
 	free(data->pids);
+	free(data);
 }
