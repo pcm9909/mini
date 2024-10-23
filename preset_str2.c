@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:56 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 21:27:21 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 10:46:34 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,11 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 
 	(*i)++;
 	start = (*i);
-	while (is_envp_vars(str[*i]))
-	{
-		(*i)++;
-	}
-	envp_var = ft_substr(str, start, (*i) - start);
+	envp_var = extract_env_var(i, str);
 	idx = ft_strlen(envp_var) + 1;
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
-	if (envp_val)
-		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 1);
+	if (ft_strlen(envp_val))
+		(*content) = ft_strjoin((*content), &envp_val[idx]);
 	free(envp_val);
 	free(envp_var);
 }

@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:46 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 21:08:32 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 12:08:53 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,27 +27,19 @@ char	*handle_quotes(const char *str, int *i, t_redir *command, char **envp)
 	return (temp);
 }
 
-int	handle_dollar1(int *i, char **content, const char *str, char **envp)
+int	handle_redir_dollar(int *i, char **content, const char *str, char **envp)
 {
 	char	*envp_var;
 	char	*envp_val;
-	int		idx;
 	int		start;
 
-	(*i)++;
-	start = (*i);
-	while (is_envp_vars(str[*i]))
-	{
-		(*i)++;
-		if(str[*i] == '?')
-			break;
-	}
-	envp_var = ft_substr(str, start, (*i) - start);
-	idx = ft_strlen(envp_var) + 1;
+	start = ++(*i);
+	envp_var = extract_env_var(i, str);
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
-	if (envp_val)
-		(*content) = ft_strjoin_opts((*content), &envp_val[idx], 1);
-	if (ft_strlen(envp_val) == 0)
+	if (envp_val && ft_strlen(envp_val) > 0)
+		(*content) = ft_strjoin_opts((*content), \
+				&envp_val[ft_strlen(envp_var) + 1], 1);
+	else
 	{
 		printf("minishell: $%s: ambiguous redirect\n", envp_var);
 		free(envp_var);

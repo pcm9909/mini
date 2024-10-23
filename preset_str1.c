@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   preset_str1.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/23 12:05:36 by chunpark          #+#    #+#             */
+/*   Updated: 2024/10/23 12:05:39 by chunpark         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "main.h"
 
 static void	set_single_quotes(const char *str, char **temp, int *i)
@@ -21,24 +33,13 @@ static void	set_double_quotes(const char *str, char **temp, int *i, char **envp)
 	start = *i;
 	(*i)++;
 	while (str[*i] && str[*i] != '"')
-	{
-		if (str[*i] == '$' && str[*i + 1] && \
-			(ft_isalpha(str[*i + 1]) || str[*i + 1] == '?'))
-		{
-			*temp = ft_strjoin_opts(*temp, \
-									ft_substr(str, start, *i - start), 3);
-			handle_dollar(i, temp, str, envp);
-			start = *i;
-		}
-		else
-			(*i)++;
-	}
+		(*i)++;
 	if (str[*i] == '"')
 		(*i)++;
 	*temp = ft_strjoin_opts(*temp, ft_substr(str, start, *i - start), 3);
 }
 
-static void	set_quotes_and_dollar(const char *str, \
+static void	set_quotes(const char *str, \
 							int *i, char **temp, char **envp)
 {
 	if (str[*i] == '\'')
@@ -70,7 +71,7 @@ char	*set_str(char *str, char **envp)
 		if (str[i] == '\'' || str[i] == '"')
 		{
 			tmp = ft_strjoin_opts(tmp, ft_substr(str, si, i - si), 3);
-			set_quotes_and_dollar(str, &i, &tmp, envp);
+			set_quotes(str, &i, &tmp, envp);
 			si = i;
 		}
 		else if (str[i] == '<' || str[i] == '>')
