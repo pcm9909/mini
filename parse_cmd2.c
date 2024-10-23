@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:46 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 12:08:53 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:45:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,12 @@ int	handle_redir_dollar(int *i, char **content, const char *str, char **envp)
 {
 	char	*envp_var;
 	char	*envp_val;
-	int		start;
 
-	start = ++(*i);
+	++(*i);
 	envp_var = extract_env_var(i, str);
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
 	if (envp_val && ft_strlen(envp_val) > 0)
-		(*content) = ft_strjoin_opts((*content), \
+		(*content) = ft_strjoin_opt((*content), \
 				&envp_val[ft_strlen(envp_var) + 1], 1);
 	else
 	{
