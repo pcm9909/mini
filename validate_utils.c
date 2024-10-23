@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:02 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:55:19 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:43:59 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	is_whitespace(int c)
 
 int	is_envp_vars(int c)
 {
-	if (c && (ft_isalnum(c) || c == '_' || c == '?') )
+	if (c && (ft_isalnum(c) || c == '_' || c == '?'))
 		return (1);
 	else
 		return (0);

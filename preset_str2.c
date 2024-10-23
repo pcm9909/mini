@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:56 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 10:46:34 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 22:12:27 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,13 @@ void	handle_dollar(int *i, char **content, const char *str, char **envp)
 	char	*envp_var;
 	char	*envp_val;
 	int		idx;
-	int		start;
 
 	(*i)++;
-	start = (*i);
 	envp_var = extract_env_var(i, str);
 	idx = ft_strlen(envp_var) + 1;
 	envp_val = ft_strdup(envp[search_env(envp, envp_var, 1)]);
 	if (ft_strlen(envp_val))
-		(*content) = ft_strjoin((*content), &envp_val[idx]);
+		(*content) = ft_strjoin_opt((*content), &envp_val[idx], 1);
 	free(envp_val);
 	free(envp_var);
 }
@@ -36,7 +34,7 @@ static void	set_heredoc_redir(int *i, char **tmp, char *str, int *start)
 		(*i)++;
 	while (!is_whitespace(str[*i]) && str[*i])
 		(*i)++;
-	*tmp = ft_strjoin_opts(*tmp, ft_substr(str, *start, *i - *start), 3);
+	*tmp = ft_strjoin_opt(*tmp, ft_substr(str, *start, *i - *start), 3);
 	*start = *i;
 }
 

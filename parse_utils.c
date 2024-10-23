@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:51 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 10:46:24 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:46:53 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,13 @@ char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 	{
 		if (str[*i] == '"' || str[*i] == '\'')
 		{
-			tmp = ft_strjoin_opts(tmp, \
-ft_strjoin_opts(ft_substr(str, j, *i - j), handle_quotes(str, i, cmd, envp), 3), 3);
+			tmp = ft_strjoin_opt(tmp, ft_strjoin_opt(ft_substr(str, j, *i - j), \
+					handle_quotes(str, i, cmd, envp), 3), 3);
 			j = *i;
 		}
 		else if (str[*i] == '$' && str[*i + 1] && !is_whitespace(str[*i + 1]))
 		{
-			tmp = ft_strjoin_opts(tmp, ft_substr(str, j, *i - j), 3);
+			tmp = ft_strjoin_opt(tmp, ft_substr(str, j, *i - j), 3);
 			if (handle_redir_dollar(i, &tmp, str, envp))
 				cmd->executable = false;
 			j = *i;
@@ -43,7 +43,7 @@ ft_strjoin_opts(ft_substr(str, j, *i - j), handle_quotes(str, i, cmd, envp), 3),
 		else
 			(*i)++;
 	}
-	tmp = ft_strjoin_opts(tmp, ft_substr(str, j, *i - j), 3);
+	tmp = ft_strjoin_opt(tmp, ft_substr(str, j, *i - j), 3);
 	return (tmp);
 }
 
@@ -55,19 +55,19 @@ void	free_readline(char *cwd, char *tmp, char *str)
 	free(str);
 }
 
-char *extract_env_var(int *i, const char *str)
+char	*extract_env_var(int *i, const char *str)
 {
-	int start;
-	
+	int	start;
+
 	start = *i;
 	while (is_envp_vars(str[*i]))
 	{
 		if (str[*i] == '?')
 		{
 			(*i)++;
-			break;
+			break ;
 		}
 		(*i)++;
 	}
-	return ft_substr(str, start, (*i) - start);
+	return (ft_substr(str, start, (*i) - start));
 }
