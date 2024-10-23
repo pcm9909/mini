@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:44 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 09:26:38 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:47:41 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,29 +18,6 @@ static void	set_local(int *i, t_proc_data **data)
 	*data = malloc(sizeof(t_proc_data));
 	if (!*data)
 		error_exit("minishell: Error: allocation failed");
-}
-
-void print_cmd(t_cmd *cmd, const char *label)
-{
-    int i = 0;
-    if (cmd && cmd->cmd_val)
-    {
-        while (cmd->cmd_val[i])
-        {
-            printf("[%s]\n", label);
-            printf("%s\n", cmd->cmd_val[i]);
-            i++;
-        }
-    }
-}
-
-void print(t_redir *cmd)
-{
-    print_cmd(cmd->heredoc_redir, "heredoc_redir");
-    print_cmd(cmd->input_redir, "input_redir");
-    print_cmd(cmd->cmd, "cmd");
-    print_cmd(cmd->output_redir, "output_redir");
-    print_cmd(cmd->append_redir, "append_redir");
 }
 
 static char	*process_input(char *str, char ***envp)
