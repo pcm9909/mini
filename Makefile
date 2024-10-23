@@ -1,6 +1,6 @@
-CC = cc
+CC = clang
 
-CFLAGS = -Werror -Wextra -Wall -g -lreadline
+CFLAGS = -g -lreadline -fsanitize=address
 NAME = minishell
 
 LIBFT = libft/libft.a
@@ -29,6 +29,8 @@ SRCS = builtin_cd.c \
 		parse_cmd1.c \
 		parse_cmd2.c \
 		parse_cmd3.c \
+		parse_cmd4.c \
+		parse_cmd5.c \
 		parse_left_redir.c \
 		parse_right_redir.c \
 		parse_utils.c \
@@ -54,10 +56,6 @@ all: $(NAME)
 $(NAME): $(OBJS)
 		@make -C libft
 		@$(CC) $(OBJS) $(LIBFT) $(CFLAGS) -o $(NAME)
-
-mac:
-	make -C libft/
-	clang *.c libft/libft.a -lreadline -g -o minishell -g -I/opt/homebrew/opt/readline/include -L/opt/homebrew/opt/readline/lib -lreadline -fsanitize=address
 
 clean:
 	@rm -rf $(OBJS)
