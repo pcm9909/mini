@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 10:20:36 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 23:12:46 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,16 +96,18 @@ char	*get_cmd_path(char *cmd, char *path);
 void	initialize_redirection(t_redir **redirection);
 char	**split_cmp_quotes(char const *s, char c);
 char	*ft_strrev(char *str);
-char	*ft_strjoin_opts(char const *s1, char const *s2, int i);
+char	*ft_strjoin_opt(char const *s1, char const *s2, int i);
 char	**ft_strdups(char **source);
 void	set_redir(int *i, char **tmp, char *str, int *start);
 void	parse_redir(char *str, t_redir *cmd, char **envp);
 char	*handle_quotes(const char *str, int *i, t_redir *command, char **envp);
-int		handle_redir_dollar(int *i, char **content, const char *str, char **envp);
+int		handle_redir_dollar(int *i, char **content, \
+								const char *str, char **envp);
 char	**append_command(char ***cmd, char *str);
 void	handle_redirection(char *str, int *i, t_redir *command, char **envp);
 char	*handle_single_quotes(const char *str, int *i, t_redir *command);
-char	*handle_double_quotes(const char *str, int *i, t_redir *command, char **envp);
+char	*handle_double_quotes(const char *str, int *i, \
+								t_redir *command, char **envp);
 void	append_env(char *envp_var, char *envp_val, t_redir *cmd);
 char	*handle_env(int *i, const char *str, char **envp);
 char	*handle_command(const char *str, int *i);
@@ -116,7 +118,7 @@ char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd);
 void	wait_for_children(t_proc_data *data, char ***envp);
 void	create_pipes(int i, int cnt, int pipe_fd[2]);
 void	handle_dollar(int *i, char **content, const char *str, char **envp);
-char	*set_str(char *str, char **envp);
+char	*set_str(char *str);
 void	error_exit(char *str);
 void	perror_exit(char *str);
 void	print_error(char *target);
@@ -135,5 +137,8 @@ int		is_whitespace(int c);
 int		is_envp_vars(int c);
 int		is_space(int c);
 char	*extract_env_var(int *i, const char *str);
+char	*get_cmd_value(char *str, int *i);
+void	set_order(t_redir *command, char *str);
+char	*ft_find_single_redirect(char *str, char c);
 
 #endif
