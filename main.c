@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:44 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 22:13:31 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 09:26:38 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ static char	*process_input(char *str, char ***envp)
 	tmp = set_process_data(data, str, envp);
 	while (++i < data->cnt)
 	{
-		print(data->command[i]);
 		if (sigcheck(3))
 			break ;
 		if (data->command[i]->executable == false)

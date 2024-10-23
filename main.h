@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 21:41:01 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 10:20:36 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ char	**ft_strdups(char **source);
 void	set_redir(int *i, char **tmp, char *str, int *start);
 void	parse_redir(char *str, t_redir *cmd, char **envp);
 char	*handle_quotes(const char *str, int *i, t_redir *command, char **envp);
-int		handle_dollar1(int *i, char **content, const char *str, char **envp);
+int		handle_redir_dollar(int *i, char **content, const char *str, char **envp);
 char	**append_command(char ***cmd, char *str);
 void	handle_redirection(char *str, int *i, t_redir *command, char **envp);
 char	*handle_single_quotes(const char *str, int *i, t_redir *command);
@@ -134,5 +134,6 @@ int		is_upright_vars(int c);
 int		is_whitespace(int c);
 int		is_envp_vars(int c);
 int		is_space(int c);
+char	*extract_env_var(int *i, const char *str);
 
 #endif
