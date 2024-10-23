@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_redir2.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:37 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:09:38 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:45:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static char	*handle_quotes_and_join(char *str,
 
 	sub = ft_substr(str, start, *j - start);
 	quote_content = get_quotes(str, cmd, j);
-	new_content = ft_strjoin_opts(sub, quote_content, 3);
+	new_content = ft_strjoin_opt(sub, quote_content, 3);
 	return (new_content);
 }
 
@@ -64,7 +64,7 @@ static char	*join_remaining_content(char *command,
 	char	*sub;
 
 	sub = ft_substr(command, start, j - start);
-	new_content = ft_strjoin_opts(content, sub, 1);
+	new_content = ft_strjoin_opt(content, sub, 1);
 	free(sub);
 	return (new_content);
 }
@@ -86,7 +86,7 @@ char	*process_command(char *command, t_redir *cmd)
 		if (command[j] == '"' || command[j] == '\'')
 		{
 			sub = handle_quotes_and_join(command, cmd, &j, start);
-			content = ft_strjoin_opts(content, sub, 3);
+			content = ft_strjoin_opt(content, sub, 3);
 			start = ++j;
 		}
 		else

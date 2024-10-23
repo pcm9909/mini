@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:58 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 19:11:15 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 22:31:21 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ static char	*complement_cmd(char *str)
 		{
 			str = ft_strdup(str);
 			tmp = readline(">");
-			tmp = ft_strjoin_opts(str, tmp, 3);
+			tmp = ft_strjoin_opt(str, tmp, 3);
 			add_history(tmp);
 			return (complement_cmd(tmp));
 		}
@@ -87,10 +87,11 @@ char	*set_process_data(t_proc_data *data, char *str, char ***envp)
 	tmp = complement_cmd(str);
 	if (tmp != str)
 		flag = 1;
-	str = set_str(tmp, *envp);
+	str = set_str(tmp);
 	data->split = split_cmp_quotes(str, '|');
 	data->cnt = cnt_cmd(data->split);
 	data->pids = malloc(sizeof(pid_t) * data->cnt);
+	data->builtin_num = 0;
 	data->input_fd = 0;
 	data->command = (malloc(sizeof(t_redir *) * data->cnt));
 	initialize_commands(data->split, data->cnt, &data->command, envp);

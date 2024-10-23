@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:42 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 08:31:24 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:45:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ char	*ft_strrev(char *str)
 	return (rev);
 }
 
-char	*ft_strjoin_opts(char const *s1, char const *s2, int i)
+char	*ft_strjoin_opt(char const *s1, char const *s2, int i)
 {
 	char	*str;
 	size_t	len;

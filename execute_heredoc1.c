@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_heredoc1.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:32 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:09:33 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:45:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ static void	proc_heredoc_parent(int pipe_fd[2], t_redir *cmd)
 		{
 			buffer[bytes_read] = '\0';
 			add_history(buffer);
-			cmd->heredoc = ft_strjoin_opts(cmd->heredoc, buffer, 1);
+			cmd->heredoc = ft_strjoin_opt(cmd->heredoc, buffer, 1);
 			bytes_read = read(pipe_fd[0], buffer, sizeof(buffer) - 1);
 		}
 	}

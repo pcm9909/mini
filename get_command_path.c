@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_command_path.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:39 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:09:40 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:45:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static char	*search_path(char *cmd, char *path)
 	while (paths[i])
 	{
 		tmp = ft_strjoin(paths[i], "/");
-		cmd_path = ft_strjoin_opts(tmp, cmd, 1);
+		cmd_path = ft_strjoin_opt(tmp, cmd, 1);
 		if (access(cmd_path, X_OK) != -1)
 			break ;
 		free(cmd_path);

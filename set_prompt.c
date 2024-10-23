@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   set_prompt.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:59 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:10:00 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:45:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,11 @@ char	*build_prompt(char **envp)
 	}
 	if (!front)
 	{
-		front = ft_strjoin_opts(extract_name(envp), "@", 0);
-		front = ft_strjoin_opts(front, extract_location(envp), 3);
-		front = ft_strjoin_opts(front, ":", 1);
+		front = ft_strjoin_opt(extract_name(envp), "@", 0);
+		front = ft_strjoin_opt(front, extract_location(envp), 3);
+		front = ft_strjoin_opt(front, ":", 1);
 	}
-	cwd = ft_strjoin_opts(front, cwd, 2);
-	cwd = ft_strjoin_opts(cwd, "$ ", 1);
+	cwd = ft_strjoin_opt(front, cwd, 2);
+	cwd = ft_strjoin_opt(cwd, "$ ", 1);
 	return (cwd);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_utils2.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:29 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:09:30 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:45:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	set_dollar(int ptr, char ***envp)
 	char	*jo;
 
 	tmp = ft_itoa(ptr);
-	jo = ft_strjoin_opts("?=", tmp, 2);
+	jo = ft_strjoin_opt("?=", tmp, 2);
 	set_env(jo, 1, envp);
 }
 

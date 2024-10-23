@@ -6,7 +6,7 @@
 /*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:02 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:09:03 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/23 21:45:35 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,8 @@ static void	make_cd_path(char **cd_path, char **tmp_pwd, int i)
 	}
 	else
 	{
-		*tmp_pwd = ft_strjoin_opts(*tmp_pwd, "/", 1);
-		*tmp_pwd = ft_strjoin_opts(*tmp_pwd, cd_path[i], 1);
+		*tmp_pwd = ft_strjoin_opt(*tmp_pwd, "/", 1);
+		*tmp_pwd = ft_strjoin_opt(*tmp_pwd, cd_path[i], 1);
 	}
 }
 
