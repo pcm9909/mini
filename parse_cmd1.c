@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_cmd1.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:45 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 22:04:57 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/24 16:21:30 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,8 @@ static void	process_temp(char *temp, int *i, t_redir *cmd, char *str)
 			adx = 0;
 			content = get_cmd_value(cmds[idx], &adx);
 			cmd->cmd->exist = true;
-			cmd->cmd->cmd_val = append_command(&cmd->cmd->cmd_val, content);
+			if (ft_strlen(content))
+				cmd->cmd->cmd_val = append_command(&cmd->cmd->cmd_val, content);
 			free(content);
 		}
 		all_free(cmds);
@@ -90,7 +91,9 @@ static void	parse_command(char *str, int *i, t_redir *cmd, char **envp)
 		}
 		temp = get_parse_value(str, i, cmd, envp);
 		if (temp)
+		{
 			process_temp(temp, i, cmd, str);
+		}
 		free(temp);
 	}
 }

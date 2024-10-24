@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_cmd5.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 22:09:29 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 22:09:30 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/24 16:49:44 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,4 +75,19 @@ char	*handle_env(int *i, const char *str, char **envp)
 	free(envp_var);
 	free(envp_val);
 	return (temp);
+}
+
+void	handle_double_quoutes_dollar(const char *str, int *i, \
+			char **temp, char **envp)
+{
+	if (str[*i + 1] && is_envp_vars(str[*i + 1]))
+		handle_quotes_dollar_sign(i, temp, str, envp);
+	else
+	{
+		while (str[*i] && str[*i] == '$')
+		{
+			*temp = ft_strjoin_opt(*temp, "$", 1);
+			(*i)++;
+		}
+	}
 }

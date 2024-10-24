@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 23:12:46 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/24 16:50:09 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,14 @@
 # include <termios.h>
 # include <sys/types.h>
 # include <sys/stat.h>
+
+typedef struct s_split_vars
+{
+	int		in_quotes;
+	int		i;
+	int		j;
+	char	quote_char;
+}				t_split_vars;
 
 typedef struct s_cmd
 {
@@ -94,6 +102,9 @@ void	cleanup_resources(t_proc_data *data);
 char	*get_path(char **envp);
 char	*get_cmd_path(char *cmd, char *path);
 void	initialize_redirection(t_redir **redirection);
+void	set_quotes_state(char c, t_split_vars *state);
+void	set_in_quotes(const char *s, int *j, char c, t_split_vars *vars);
+int		ft_count_wordss(const char *s, char c);
 char	**split_cmp_quotes(char const *s, char c);
 char	*ft_strrev(char *str);
 char	*ft_strjoin_opt(char const *s1, char const *s2, int i);
@@ -140,5 +151,9 @@ char	*extract_env_var(int *i, const char *str);
 char	*get_cmd_value(char *str, int *i);
 void	set_order(t_redir *command, char *str);
 char	*ft_find_single_redirect(char *str, char c);
+void	handle_double_quoutes_dollar(const char *str, int *i, \
+			char **temp, char **envp);
+void	handle_quotes_dollar_sign(int *i, char **temp, \
+									const char *str, char **envp);
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_cmd3.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:47 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 23:12:19 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/24 16:49:53 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ char	*handle_single_quotes(const char *str, int *i, t_redir *command)
 	return (content);
 }
 
-static void	handle_quotes_dollar_sign(int *i, char **temp, \
+void	handle_quotes_dollar_sign(int *i, char **temp, \
 									const char *str, char **envp)
 {
 	if (str[*i + 1] && str[*i + 1] != '$' && !is_whitespace(str[*i + 1]))
@@ -58,8 +58,8 @@ char	*handle_double_quotes(const char *str, int *i, \
 		if (str[*i] == '$')
 		{
 			temp = ft_strjoin_opt(temp, \
-						ft_substr(str, start, (*i) - start), 3);
-			handle_quotes_dollar_sign(i, &temp, str, envp);
+							ft_substr(str, start, (*i) - start), 3);
+			handle_double_quoutes_dollar(str, i, &temp, envp);
 			start = *i;
 		}
 		else

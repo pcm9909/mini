@@ -1,6 +1,6 @@
-CC = clang
+CC = cc
 
-CFLAGS = -g -lreadline -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -g -lreadline -fsanitize=address
 NAME = minishell
 
 LIBFT = libft/libft.a
@@ -26,6 +26,7 @@ SRCS = builtin_cd.c \
 		init_redir.c \
 		libft_expans1.c \
 		libft_expans2.c \
+		libft_expans3.c	\
 		parse_cmd1.c \
 		parse_cmd2.c \
 		parse_cmd3.c \
