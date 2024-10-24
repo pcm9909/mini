@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:44 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/24 19:58:11 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 01:49:03 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ static char	*process_input(char *str, char ***envp)
 			set_dollar(0, envp);
 		if (data->command[i]->cmd->exist == true)
 			data->builtin_num = check_builtin_num(data->command[i]);
-		create_pipes(i, data->cnt, data->pipe_fd);
 		if (data->builtin_num)
 			handle_builtin(data, envp, i);
 		else

@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:54 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/24 19:53:23 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 01:49:12 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ void	wait_for_children(t_proc_data *data, char ***envp)
 		if (data->pids[i] == -1)
 			continue ;
 		waitpid(data->pids[i], &statloc, 0);
+		//close(data->pipe_fd[i][0]);
+		//close(data->pipe_fd[i + 1][1]);
 		if (WIFEXITED(statloc))
 		{
 			set_dollar(WEXITSTATUS(statloc), envp);
@@ -38,15 +40,16 @@ void	wait_for_children(t_proc_data *data, char ***envp)
 	}
 }
 
-void	create_pipes(int i, int cnt, int pipe_fd[2])
+void	create_pipes(int i, int cnt, int **pipe_fd)
 {
-	if (i < cnt - 1)
+	while (i <= cnt)
 	{
-		pipe(pipe_fd);
-	}
-	else
-	{
-		pipe_fd[0] = 0;
-		pipe_fd[1] = 1;
+		pipe(pipe_fd[i]);
+		i++;
 	}
 }
+
+
+// 입력 파이프는 무조건 [i][0]
+//출력 파이프는 [i+1][0]
+

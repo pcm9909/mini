@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:51 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 21:46:53 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/25 01:49:10 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd)
 	{
 		if (str[*i] == '"' || str[*i] == '\'')
 		{
-			tmp = ft_strjoin_opt(tmp, ft_strjoin_opt(ft_substr(str, j, *i - j), \
-					handle_quotes(str, i, cmd, envp), 3), 3);
+			tmp = ft_strjoin_opt(tmp, ft_substr(str, j, *i - j), 3);
+			tmp = ft_strjoin_opt(tmp, handle_quotes(str, i, cmd, envp), 3);
 			j = *i;
 		}
 		else if (str[*i] == '$' && str[*i + 1] && !is_whitespace(str[*i + 1]))

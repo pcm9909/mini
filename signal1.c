@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signal1.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:00 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:10:00 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/25 00:34:35 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,4 +71,5 @@ void	end_sig(struct termios *old)
 	tcsetattr(0, TCSANOW, old);
 	signal(SIGINT, sg2);
 	signal(SIGQUIT, sg2);
+	//signal(SIGPIPE, sg2);
 }

@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/24 16:50:09 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 01:49:08 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ typedef struct s_proc_data
 	t_redir			**command;
 	pid_t			*pids;
 	char			**split;
-	int				pipe_fd[2];
+	int				**pipe_fd;
 	int				cnt;
 	int				input_fd;
 	int				builtin_num;
@@ -127,7 +127,7 @@ void	parse_right_redir(char *str, int *i, char **envp, t_redir *cmd);
 void	set_extract_val(int *j, char **tmp, int *i);
 char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd);
 void	wait_for_children(t_proc_data *data, char ***envp);
-void	create_pipes(int i, int cnt, int pipe_fd[2]);
+void	create_pipes(int i, int cnt, int **pipe_fd);
 void	handle_dollar(int *i, char **content, const char *str, char **envp);
 char	*set_str(char *str);
 void	error_exit(char *str);

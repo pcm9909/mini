@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:58 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/24 16:31:05 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 01:49:15 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,16 @@ char	*set_process_data(t_proc_data *data, char *str, char ***envp)
 	data->builtin_num = 0;
 	data->input_fd = 0;
 	data->command = (malloc(sizeof(t_redir *) * data->cnt));
+	data->pipe_fd = (int **)malloc(sizeof(int *) * (data->cnt + 2));
+	int i = 0;
+	while (i <= data->cnt +1)
+	{
+		data->pipe_fd[i] = (int *)malloc(sizeof(int) * 2);
+		i++;
+	}
+	create_pipes(0, data->cnt, data->pipe_fd);
+	//data->pipe_fd[0][0] = 0;
+	//data->pipe_fd[data->cnt][1] = 1;
 	initialize_commands(data->split, data->cnt, &data->command, envp);
 	if (flag == 1)
 		free(tmp);

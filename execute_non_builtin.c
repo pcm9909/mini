@@ -6,28 +6,30 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:35 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/24 19:53:38 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 01:49:05 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
 
 static void	fork_and_execute(t_proc_data *data,
-					int i, int input_fd, char ***envp)
+					int i, char ***envp)
 {
 	data->pids[i] = fork();
 	if (data->pids[i] == 0)
 	{
 		end_sig(&data->old);
+		if (open_redirection_files(data->command[i]))
+			exit(2);
 		if (i > 0)
 		{
-			dup2(input_fd, 0);
-			close(input_fd);
+			dup2(data->pipe_fd[i][0], 0);
+			close(data->pipe_fd[i][1]);
 		}
 		if (i < data->cnt - 1)
 		{
-			dup2(data->pipe_fd[1], 1);
-			close(data->pipe_fd[1]);
+			dup2(data->pipe_fd[i + 1][1], 1);
+			close(data->pipe_fd[i + 1][0]);
 		}
 		execute_command(data->command[i], envp);
 		exit(EXIT_SUCCESS);
@@ -35,29 +37,22 @@ static void	fork_and_execute(t_proc_data *data,
 	else
 	{
 		if (i > 0)
-			close(input_fd);
+			close(data->pipe_fd[i][1]);
 		if (i < data->cnt - 1)
-			close(data->pipe_fd[1]);
-		input_fd = data->pipe_fd[0];
+			close(data->pipe_fd[i + 1][0]);
 	}
 }
 
 void	handle_non_builtin(t_proc_data *data, char ***envp, int i)
 {
-	fork_and_execute(data, i, data->input_fd, envp);
-	if (i > 0)
-		close(data->input_fd);
-	if (i < data->cnt - 1)
-		close(data->pipe_fd[1]);
-	data->input_fd = data->pipe_fd[0];
+	fork_and_execute(data, i, envp);
 }
 
 void	execute_command(t_redir *cmd, char ***envp)
 {
 	if (cmd->executable == true)
 	{
-		if (open_redirection_files(cmd))
-			exit(2);
+
 		execute_external_command(cmd, cmd->cmd->cmd_val, *envp);
 	}
 	else

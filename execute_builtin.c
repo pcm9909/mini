@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_builtin.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:31 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/23 21:26:32 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/25 00:39:02 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,22 +61,22 @@ void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num)
 
 void	handle_builtin(t_proc_data *data, char ***envp, int i)
 {
+	int flag;
+
+	flag = 0;
 	data->pids[i] = -1;
 	data->in = dup(0);
 	data->out = dup(1);
 	end_sig(&data->old);
-	if (i > 0)
-		dup2(data->input_fd, 0);
-	if (i < data->cnt - 1)
-		dup2(data->pipe_fd[1], 1);
 	if (!open_redirection_files(data->command[i])
 		&& data->command[i]->executable)
-		handle_builtin_command(data->command[i], envp, data->builtin_num);
+		flag = 1;
 	if (i > 0)
-		close(data->input_fd);
+		dup2(data->pipe_fd[i][0], 0);
 	if (i < data->cnt - 1)
-		close(data->pipe_fd[1]);
-	data->input_fd = data->pipe_fd[0];
+		dup2(data->pipe_fd[i + 1][1], 1);
+	if (flag)
+		handle_builtin_command(data->command[i], envp, data->builtin_num);
 	dup2(data->in, 0);
 	dup2(data->out, 1);
 }
