@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 01:49:08 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 06:20:01 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void	parse_left_redir(const char *str, int *i, t_redir *cmd, char **envp);
 void	parse_right_redir(char *str, int *i, char **envp, t_redir *cmd);
 void	set_extract_val(int *j, char **tmp, int *i);
 char	*extract_content(const char *str, int *i, char **envp, t_redir *cmd);
-void	wait_for_children(t_proc_data *data, char ***envp);
+int		wait_for_children(t_proc_data *data, char ***envp);
 void	create_pipes(int i, int cnt, int **pipe_fd);
 void	handle_dollar(int *i, char **content, const char *str, char **envp);
 char	*set_str(char *str);

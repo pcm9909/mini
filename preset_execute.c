@@ -3,19 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   preset_execute.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:54 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 01:49:12 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 05:33:14 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
 
-void	wait_for_children(t_proc_data *data, char ***envp)
+int	wait_for_children(t_proc_data *data, char ***envp)
 {
 	int	statloc;
 	int	i;
+	int exit_status;
 
 	i = -1;
 	while (++i < data->cnt)
@@ -27,10 +28,12 @@ void	wait_for_children(t_proc_data *data, char ***envp)
 		//close(data->pipe_fd[i + 1][1]);
 		if (WIFEXITED(statloc))
 		{
+			exit_status = WEXITSTATUS(statloc);
 			set_dollar(WEXITSTATUS(statloc), envp);
 		}
 		if (WIFSIGNALED(statloc))
 		{
+			exit_status = 128 + WTERMSIG(statloc);
 			set_dollar(128 + WTERMSIG(statloc), envp);
 			if (WTERMSIG(statloc) == 2)
 				printf("\n");
@@ -38,6 +41,7 @@ void	wait_for_children(t_proc_data *data, char ***envp)
 				ft_putstr_fd("Quit (core dumped)\n", 2);
 		}
 	}
+	return (exit_status);
 }
 
 void	create_pipes(int i, int cnt, int **pipe_fd)

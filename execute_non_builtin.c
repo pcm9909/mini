@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_non_builtin.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:35 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 01:49:05 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 05:30:07 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@ void	execute_command(t_redir *cmd, char ***envp)
 {
 	if (cmd->executable == true)
 	{
-
 		execute_external_command(cmd, cmd->cmd->cmd_val, *envp);
 	}
 	else

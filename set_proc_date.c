@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   set_proc_date.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:58 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 01:49:15 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 09:59:14 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,10 @@ char	*set_process_data(t_proc_data *data, char *str, char ***envp)
 {
 	char	*tmp;
 	int		flag;
+	int		i;
 
 	flag = 0;
+	i = -1;
 	tmp = complement_cmd(str);
 	if (tmp != str)
 		flag = 1;
@@ -95,15 +97,8 @@ char	*set_process_data(t_proc_data *data, char *str, char ***envp)
 	data->input_fd = 0;
 	data->command = (malloc(sizeof(t_redir *) * data->cnt));
 	data->pipe_fd = (int **)malloc(sizeof(int *) * (data->cnt + 2));
-	int i = 0;
-	while (i <= data->cnt +1)
-	{
+	while (++i <= data->cnt + 1)
 		data->pipe_fd[i] = (int *)malloc(sizeof(int) * 2);
-		i++;
-	}
-	create_pipes(0, data->cnt, data->pipe_fd);
-	//data->pipe_fd[0][0] = 0;
-	//data->pipe_fd[data->cnt][1] = 1;
 	initialize_commands(data->split, data->cnt, &data->command, envp);
 	if (flag == 1)
 		free(tmp);
