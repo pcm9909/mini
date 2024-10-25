@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 06:20:01 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/25 19:07:32 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	handle_cd_command(t_redir *command, char ***envp);
 void	handle_echo_command(t_redir *command);
 void	handle_env_command(char **envp);
 int		exit_range(char *ptr);
-void	handle_exit_command(t_redir *command, char ***envp);
+void	handle_exit_command(t_redir *command, char ***envp, int cnt);
 void	handle_export_command(t_redir *command, char ***envp);
 void	handle_pwd_command(void);
 void	handle_unset_command(t_redir *command, char **envp);
@@ -83,7 +83,7 @@ char	*extract_home(char *envp[]);
 char	*set_env(char *name, int flag, char ***envp);
 void	print_envp(char **envp, int flag);
 int		check_builtin_num(t_redir *cmd);
-void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num);
+void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num, int cnt);
 void	handle_builtin(t_proc_data *data, char ***envp, int i);
 void	append_until_dollar(char **proc_read, const char *read, int *j);
 void	proc_read_input(char *read, int pipe_fd[2], char **envp);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:44 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 09:57:25 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/25 19:29:58 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ static int process_commands(t_proc_data *data, char ***envp)
 	int i;
 	int exit_status = 0;
 
-	i = -1;
-	while (++i < data->cnt)
+	i = data->cnt;
+	while (--i >= 0)
 	{
 		if (sigcheck(3))
 			break;
@@ -42,7 +42,7 @@ static int process_commands(t_proc_data *data, char ***envp)
 	}
 	exit_status = wait_for_children(data, envp);
 	cleanup_resources(data);
-	return exit_status;
+	return (exit_status);
 }
 
 void	proc_child(t_proc_data *data, char ***envp)

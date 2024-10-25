@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:31 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 00:39:02 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 19:28:00 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int	check_builtin_num(t_redir *cmd)
 	return (0);
 }
 
-void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num)
+void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num, int cnt)
 {
 	if ((builtin_num) == 1)
 		handle_cd_command(cmd, envp);
@@ -50,7 +50,7 @@ void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num)
 	else if ((builtin_num) == 3)
 		handle_env_command(*envp);
 	else if ((builtin_num) == 4)
-		handle_exit_command(cmd, envp);
+		handle_exit_command(cmd, envp, cnt);
 	else if ((builtin_num) == 5)
 		handle_unset_command(cmd, *envp);
 	else if ((builtin_num) == 6)
@@ -71,12 +71,14 @@ void	handle_builtin(t_proc_data *data, char ***envp, int i)
 	if (!open_redirection_files(data->command[i])
 		&& data->command[i]->executable)
 		flag = 1;
-	if (i > 0)
-		dup2(data->pipe_fd[i][0], 0);
+	close(data->pipe_fd[i][0]);
+	close(data->pipe_fd[i][1]);
 	if (i < data->cnt - 1)
 		dup2(data->pipe_fd[i + 1][1], 1);
 	if (flag)
-		handle_builtin_command(data->command[i], envp, data->builtin_num);
+		handle_builtin_command(data->command[i], envp, data->builtin_num, data->cnt);
+	close(data->pipe_fd[i + 1][0]);
+	close(data->pipe_fd[i + 1][1]);
 	dup2(data->in, 0);
 	dup2(data->out, 1);
 }

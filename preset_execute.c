@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   preset_execute.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:54 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 05:33:14 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/25 19:25:15 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@ int	wait_for_children(t_proc_data *data, char ***envp)
 	int	i;
 	int exit_status;
 
-	i = -1;
-	while (++i < data->cnt)
+	i = data->cnt;
+	while (--i >= 0)
 	{
 		if (data->pids[i] == -1)
 			continue ;
 		waitpid(data->pids[i], &statloc, 0);
-		//close(data->pipe_fd[i][0]);
-		//close(data->pipe_fd[i + 1][1]);
+		close(data->pipe_fd[i][1]);
+		close(data->pipe_fd[i][0]);
 		if (WIFEXITED(statloc))
 		{
 			exit_status = WEXITSTATUS(statloc);
@@ -52,8 +52,3 @@ void	create_pipes(int i, int cnt, int **pipe_fd)
 		i++;
 	}
 }
-
-
-// 입력 파이프는 무조건 [i][0]
-//출력 파이프는 [i+1][0]
-
