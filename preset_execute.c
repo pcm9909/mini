@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:54 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 19:25:15 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 20:50:54 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,14 @@ int	wait_for_children(t_proc_data *data, char ***envp)
 		close(data->pipe_fd[i][0]);
 		if (WIFEXITED(statloc))
 		{
-			exit_status = WEXITSTATUS(statloc);
+			if (i == data->cnt-1)
+				exit_status = WEXITSTATUS(statloc);
 			set_dollar(WEXITSTATUS(statloc), envp);
 		}
-		if (WIFSIGNALED(statloc))
+		else if (WIFSIGNALED(statloc))
 		{
-			exit_status = 128 + WTERMSIG(statloc);
+			if (i == data->cnt-1)
+				exit_status = 128 + WTERMSIG(statloc);
 			set_dollar(128 + WTERMSIG(statloc), envp);
 			if (WTERMSIG(statloc) == 2)
 				printf("\n");

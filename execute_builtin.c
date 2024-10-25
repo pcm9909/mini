@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:31 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 19:28:00 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 21:28:37 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,17 +68,55 @@ void	handle_builtin(t_proc_data *data, char ***envp, int i)
 	data->in = dup(0);
 	data->out = dup(1);
 	end_sig(&data->old);
-	if (!open_redirection_files(data->command[i])
-		&& data->command[i]->executable)
-		flag = 1;
 	close(data->pipe_fd[i][0]);
 	close(data->pipe_fd[i][1]);
 	if (i < data->cnt - 1)
+	{
 		dup2(data->pipe_fd[i + 1][1], 1);
+	}
+	if (!open_redirection_files(data->command[i])
+		&& data->command[i]->executable)
+		flag = 1;
 	if (flag)
 		handle_builtin_command(data->command[i], envp, data->builtin_num, data->cnt);
-	close(data->pipe_fd[i + 1][0]);
-	close(data->pipe_fd[i + 1][1]);
 	dup2(data->in, 0);
 	dup2(data->out, 1);
+	close(data->pipe_fd[i + 1][0]);
+	close(data->pipe_fd[i + 1][1]);
+}
+
+void	handle_builtin2(t_proc_data *data, char ***envp, int i)
+{
+	int flag;
+
+	flag = 0;
+	data->pids[i] = fork();
+	if (data->pids[i] == 0)
+	{
+		if (i > 0)
+		{
+			dup2(data->pipe_fd[i][0], 0);
+			//close(data->pipe_fd[i][1]);
+		}
+		else
+			close(data->pipe_fd[i][0]);
+		close(data->pipe_fd[i][1]);
+		if (i < data->cnt - 1)
+		{
+			dup2(data->pipe_fd[i + 1][1], 1);
+			//close(data->pipe_fd[i + 1][0]);
+		}
+		else
+			close(data->pipe_fd[i + 1][1]);
+		close(data->pipe_fd[i + 1][0]);
+		if (open_redirection_files(data->command[i]))
+			exit(1);
+		handle_builtin_command(data->command[i], envp, data->builtin_num, data->cnt);
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		close(data->pipe_fd[i + 1][0]);
+		close(data->pipe_fd[i + 1][1]);
+	}
 }

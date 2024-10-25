@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 19:07:32 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 21:31:32 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,5 +155,6 @@ void	handle_double_quoutes_dollar(const char *str, int *i, \
 			char **temp, char **envp);
 void	handle_quotes_dollar_sign(int *i, char **temp, \
 									const char *str, char **envp);
+void	handle_builtin2(t_proc_data *data, char ***envp, int i);
 
 #endif

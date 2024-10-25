@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:35 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 19:02:07 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 20:44:45 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@ static void	fork_and_execute(t_proc_data *data,
 	if (data->pids[i] == 0)
 	{
 		end_sig(&data->old);
-		if (open_redirection_files(data->command[i]))
-			exit(2);
 		if (i > 0)
 		{
 			dup2(data->pipe_fd[i][0], 0);
@@ -37,6 +35,8 @@ static void	fork_and_execute(t_proc_data *data,
 		else
 			close(data->pipe_fd[i + 1][1]);
 		close(data->pipe_fd[i + 1][0]);
+		if (open_redirection_files(data->command[i]))
+			exit(1);
 		execute_command(data->command[i], envp);
 		exit(EXIT_SUCCESS);
 	}

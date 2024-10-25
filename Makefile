@@ -1,6 +1,6 @@
-CC = cc
+CC = clang
 
-CFLAGS = -Wall -Wextra -Werror -g -lreadline
+CFLAGS = -g -lreadline #-fsanitize=address
 NAME = minishell
 
 LIBFT = libft/libft.a

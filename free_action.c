@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_action.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:38 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:09:39 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/25 19:53:51 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	cleanup_resources(t_proc_data *data)
 		i++;
 	}
 	i = 0;
-	while (data->split[i])
+	while (data->split && data->split[i])
 	{
 		free(data->split[i]);
 		i++;

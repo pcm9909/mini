@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 12:05:36 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/24 16:24:39 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 19:52:50 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ char	*set_str(char *str)
 	int		si;
 
 	set_str_vars(&i, &si, &tmp);
-	while (str[i])
+	while (str && str[i])
 	{
 		if (str[i] == '\'' || str[i] == '"')
 		{

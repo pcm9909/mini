@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:44 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 19:29:58 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 21:44:41 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,12 @@ static int process_commands(t_proc_data *data, char ***envp)
 		if (data->command[i]->cmd->exist == true)
 			data->builtin_num = check_builtin_num(data->command[i]);
 		if (data->builtin_num)
-			handle_builtin(data, envp, i);
+		{
+			if (data->cnt > 1)
+				handle_builtin2(data, envp, i);
+			else
+				handle_builtin(data, envp, i);
+		}
 		else
 			handle_non_builtin(data, envp, i);
 	}
