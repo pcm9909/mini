@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init_redir.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chunpark <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:40 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/21 18:09:40 by chunpark         ###   ########.fr       */
+/*   Updated: 2024/10/25 23:42:47 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,4 +35,30 @@ void	initialize_redirection(t_redir **redirection)
 	(*redirection)->output_redir = create_command();
 	(*redirection)->executable = true;
 	(*redirection)->heredoc = ft_strdup("");
+}
+
+void	cleanup(char **envp)
+{
+	struct termios	old;
+	int				i;
+
+	i = 0;
+	while (envp[i])
+	{
+		free(envp[i]);
+		i++;
+	}
+	free(envp);
+	end_sig(&old);
+	ft_putstr_fd("exit\n", 2);
+	exit(EXIT_SUCCESS);
+}
+
+void	set_readline(char **str, char **cwd,
+							struct termios *old, char **envp)
+{
+	*cwd = build_prompt(envp);
+	input_sig(old);
+	*str = readline(*cwd);
+	none_sig();
 }

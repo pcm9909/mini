@@ -3,32 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:44 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 22:17:39 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 23:42:14 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
 
-static void	set_local(t_proc_data **data)
+static int	process_commands(t_proc_data *data, char ***envp)
 {
-	*data = malloc(sizeof(t_proc_data));
-	if (!*data)
-		error_exit("minishell: Error: allocation failed");
-}
-
-static int process_commands(t_proc_data *data, char ***envp)
-{
-	int i;
-	int exit_status = 0;
+	int	i;
 
 	i = data->cnt;
 	while (--i >= 0)
 	{
 		if (sigcheck(3))
-			break;
+			break ;
 		if (data->command[i]->executable == false)
 			set_dollar(1, envp);
 		else
@@ -38,21 +30,20 @@ static int process_commands(t_proc_data *data, char ***envp)
 		if (data->builtin_num)
 		{
 			if (data->cnt > 1)
-				handle_builtin2(data, envp, i);
+				handle_builtin_fork(data, envp, i);
 			else
 				handle_builtin(data, envp, i);
 		}
 		else
 			handle_non_builtin(data, envp, i);
 	}
-	exit_status = wait_for_children(data, envp);
-	return (exit_status);
+	return (wait_for_children(data, envp));
 }
 
 void	proc_child(t_proc_data *data, char ***envp)
 {
-	int status;
-	
+	int	status;
+
 	create_pipes(0, data->cnt, data->pipe_fd);
 	status = process_commands(data, envp);
 	exit(status);
@@ -60,7 +51,7 @@ void	proc_child(t_proc_data *data, char ***envp)
 
 void	proc_parent(pid_t pid, char ***envp)
 {
-	int status;
+	int	status;
 
 	waitpid(pid, &status, 0);
 	if (WIFEXITED(status))
@@ -70,13 +61,15 @@ void	proc_parent(pid_t pid, char ***envp)
 	}
 }
 
-static char *process_input(char *str, char ***envp)
+static char	*process_input(char *str, char ***envp)
 {
 	t_proc_data		*data;
 	char			*tmp;
 	pid_t			pid;
 
-	set_local(&data);
+	data = malloc(sizeof(t_proc_data));
+	if (!data)
+		error_exit("minishell: Error: allocation failed");
 	tmp = set_process_data(data, str, envp);
 	if (data->cnt > 1)
 	{
@@ -94,39 +87,13 @@ static char *process_input(char *str, char ***envp)
 	return (tmp);
 }
 
-static void cleanup(char **envp)
+int	main(int argc, char **argv, char *env[])
 {
-	struct termios old;
-	int i;
-
-	i = 0;
-	while (envp[i])
-	{
-		free(envp[i]);
-		i++;
-	}
-	free(envp);
-	end_sig(&old);
-	ft_putstr_fd("exit\n", 2);
-	exit(EXIT_SUCCESS);
-}
-
-static void set_readline(char **str, char **cwd,
-						 struct termios *old, char **envp)
-{
-	*cwd = build_prompt(envp);
-	input_sig(old);
-	*str = readline(*cwd);
-	none_sig();
-}
-
-int main(int argc, char **argv, char *env[])
-{
-	char *str;
-	char **envp;
-	struct termios old;
-	char *cwd;
-	char *tmp;
+	struct termios	old;
+	char			*str;
+	char			**envp;
+	char			*cwd;
+	char			*tmp;
 
 	if (argc != 1 || argv[1] != NULL)
 		error_exit("minishell : too many arguments\n");

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   set_proc_date.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:58 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 22:26:08 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 23:43:22 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,15 +50,8 @@ static char	*complement_cmd(char *str)
 			return (str);
 		if (str[len] == '|')
 		{
-			tmp = readline(">");
-			if (tmp == NULL)
-			{
-				free(str);
+			if (!append_str(&tmp, str))
 				return (NULL);
-			}
-			tmp = ft_strjoin_opt(str, tmp, 3);
-			if (tmp != NULL)
-				add_history(tmp);
 			return (complement_cmd(tmp));
 		}
 		else
@@ -84,14 +77,21 @@ static int	cnt_cmd(char **split)
 	return (i);
 }
 
+static void	set_vars(int *flag, int *i, int *num, int *fd)
+{
+	*flag = 0;
+	*i = -1;
+	*num = 0;
+	*fd = 0;
+}
+
 char	*set_process_data(t_proc_data *data, char *str, char ***envp)
 {
 	char	*tmp;
 	int		flag;
 	int		i;
 
-	flag = 0;
-	i = -1;
+	set_vars(&flag, &i, &data->builtin_num, &data->input_fd);
 	tmp = complement_cmd(ft_strdup(str));
 	if (tmp != str)
 		flag = 1;
@@ -99,8 +99,6 @@ char	*set_process_data(t_proc_data *data, char *str, char ***envp)
 	data->split = split_cmp_quotes(str, '|');
 	data->cnt = cnt_cmd(data->split);
 	data->pids = malloc(sizeof(pid_t) * data->cnt);
-	data->builtin_num = 0;
-	data->input_fd = 0;
 	data->command = (malloc(sizeof(t_redir *) * data->cnt));
 	data->pipe_fd = (int **)malloc(sizeof(int *) * (data->cnt + 2));
 	while (++i <= data->cnt + 1)

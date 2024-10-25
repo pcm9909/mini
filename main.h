@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:10:21 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 21:31:32 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 23:43:58 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,8 @@ char	*extract_home(char *envp[]);
 char	*set_env(char *name, int flag, char ***envp);
 void	print_envp(char **envp, int flag);
 int		check_builtin_num(t_redir *cmd);
-void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num, int cnt);
+void	handle_builtin_command(t_redir *cmd, char ***envp, \
+								int builtin_num, int cnt);
 void	handle_builtin(t_proc_data *data, char ***envp, int i);
 void	append_until_dollar(char **proc_read, const char *read, int *j);
 void	proc_read_input(char *read, int pipe_fd[2], char **envp);
@@ -155,6 +156,10 @@ void	handle_double_quoutes_dollar(const char *str, int *i, \
 			char **temp, char **envp);
 void	handle_quotes_dollar_sign(int *i, char **temp, \
 									const char *str, char **envp);
-void	handle_builtin2(t_proc_data *data, char ***envp, int i);
-
+void	handle_builtin_fork(t_proc_data *data, char ***envp, int i);
+void	handle_pipe_set(int i, t_proc_data *data);
+void	cleanup(char **envp);
+void	set_readline(char **str, char **cwd,
+			struct termios *old, char **envp);
+int		append_str(char **tmp, char *str);
 #endif

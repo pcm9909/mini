@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_non_builtin.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:35 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 20:44:45 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 23:25:21 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,22 +19,7 @@ static void	fork_and_execute(t_proc_data *data,
 	if (data->pids[i] == 0)
 	{
 		end_sig(&data->old);
-		if (i > 0)
-		{
-			dup2(data->pipe_fd[i][0], 0);
-			//close(data->pipe_fd[i][1]);
-		}
-		else
-			close(data->pipe_fd[i][0]);
-		close(data->pipe_fd[i][1]);
-		if (i < data->cnt - 1)
-		{
-			dup2(data->pipe_fd[i + 1][1], 1);
-			//close(data->pipe_fd[i + 1][0]);
-		}
-		else
-			close(data->pipe_fd[i + 1][1]);
-		close(data->pipe_fd[i + 1][0]);
+		handle_pipe_set(i, data);
 		if (open_redirection_files(data->command[i]))
 			exit(1);
 		execute_command(data->command[i], envp);

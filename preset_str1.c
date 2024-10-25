@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   preset_str1.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 12:05:36 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 22:24:11 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 23:22:27 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ char	*set_str(char *str)
 	char	*tmp;
 	int		i;
 	int		si;
+	char	*re;
 
 	set_str_vars(&i, &si, &tmp);
 	while (str && str[i])
@@ -79,6 +80,7 @@ char	*set_str(char *str)
 		else
 			i++;
 	}
-	tmp = ft_strjoin_opt(tmp, ft_substr(str, si, i - si), 3);
-	return (tmp);
+	re = ft_strjoin_opt(tmp, ft_substr(str, si, i - si), 2);
+	free(tmp);
+	return (re);
 }

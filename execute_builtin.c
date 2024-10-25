@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execute_builtin.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:31 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 21:28:37 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 23:45:03 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ int	check_builtin_num(t_redir *cmd)
 	return (0);
 }
 
-void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num, int cnt)
+void	handle_builtin_command(t_redir *cmd, char ***envp, \
+									int builtin_num, int cnt)
 {
 	if ((builtin_num) == 1)
 		handle_cd_command(cmd, envp);
@@ -61,7 +62,7 @@ void	handle_builtin_command(t_redir *cmd, char ***envp, int builtin_num, int cnt
 
 void	handle_builtin(t_proc_data *data, char ***envp, int i)
 {
-	int flag;
+	int	flag;
 
 	flag = 0;
 	data->pids[i] = -1;
@@ -78,40 +79,38 @@ void	handle_builtin(t_proc_data *data, char ***envp, int i)
 		&& data->command[i]->executable)
 		flag = 1;
 	if (flag)
-		handle_builtin_command(data->command[i], envp, data->builtin_num, data->cnt);
+		handle_builtin_command(data->command[i], envp, \
+								data->builtin_num, data->cnt);
 	dup2(data->in, 0);
 	dup2(data->out, 1);
 	close(data->pipe_fd[i + 1][0]);
 	close(data->pipe_fd[i + 1][1]);
 }
 
-void	handle_builtin2(t_proc_data *data, char ***envp, int i)
+void	handle_pipe_set(int i, t_proc_data *data)
 {
-	int flag;
+	if (i > 0)
+		dup2(data->pipe_fd[i][0], 0);
+	else
+		close(data->pipe_fd[i][0]);
+	close(data->pipe_fd[i][1]);
+	if (i < data->cnt - 1)
+		dup2(data->pipe_fd[i + 1][1], 1);
+	else
+		close(data->pipe_fd[i + 1][1]);
+	close(data->pipe_fd[i + 1][0]);
+}
 
-	flag = 0;
+void	handle_builtin_fork(t_proc_data *data, char ***envp, int i)
+{
 	data->pids[i] = fork();
 	if (data->pids[i] == 0)
 	{
-		if (i > 0)
-		{
-			dup2(data->pipe_fd[i][0], 0);
-			//close(data->pipe_fd[i][1]);
-		}
-		else
-			close(data->pipe_fd[i][0]);
-		close(data->pipe_fd[i][1]);
-		if (i < data->cnt - 1)
-		{
-			dup2(data->pipe_fd[i + 1][1], 1);
-			//close(data->pipe_fd[i + 1][0]);
-		}
-		else
-			close(data->pipe_fd[i + 1][1]);
-		close(data->pipe_fd[i + 1][0]);
+		handle_pipe_set(i, data);
 		if (open_redirection_files(data->command[i]))
 			exit(1);
-		handle_builtin_command(data->command[i], envp, data->builtin_num, data->cnt);
+		handle_builtin_command(data->command[i], envp, \
+								data->builtin_num, data->cnt);
 		exit(EXIT_SUCCESS);
 	}
 	else

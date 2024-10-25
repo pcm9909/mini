@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: chunpark <chunpark@student.42gyeongsan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:51 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 22:17:29 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 23:43:36 by chunpark         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,4 +70,18 @@ char	*extract_env_var(int *i, const char *str)
 		(*i)++;
 	}
 	return (ft_substr(str, start, (*i) - start));
+}
+
+int	append_str(char **tmp, char *str)
+{
+	*tmp = readline(">");
+	if (*tmp == NULL)
+	{
+		free(str);
+		return (0);
+	}
+	*tmp = ft_strjoin_opt(str, *tmp, 3);
+	if (*tmp != NULL)
+		add_history(*tmp);
+	return (1);
 }
