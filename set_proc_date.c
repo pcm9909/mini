@@ -6,7 +6,7 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:58 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 20:22:19 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 22:26:08 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,15 +50,21 @@ static char	*complement_cmd(char *str)
 			return (str);
 		if (str[len] == '|')
 		{
-			str = ft_strdup(str);
 			tmp = readline(">");
+			if (tmp == NULL)
+			{
+				free(str);
+				return (NULL);
+			}
 			tmp = ft_strjoin_opt(str, tmp, 3);
-			add_history(tmp);
+			if (tmp != NULL)
+				add_history(tmp);
 			return (complement_cmd(tmp));
 		}
 		else
 			return (str);
 	}
+	free(str);
 	return (NULL);
 }
 
@@ -86,7 +92,7 @@ char	*set_process_data(t_proc_data *data, char *str, char ***envp)
 
 	flag = 0;
 	i = -1;
-	tmp = complement_cmd(str);
+	tmp = complement_cmd(ft_strdup(str));
 	if (tmp != str)
 		flag = 1;
 	str = set_str(tmp);

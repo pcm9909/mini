@@ -6,13 +6,13 @@
 /*   By: jakim <jakim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 18:09:44 by chunpark          #+#    #+#             */
-/*   Updated: 2024/10/25 21:44:41 by jakim            ###   ########.fr       */
+/*   Updated: 2024/10/25 22:17:39 by jakim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
 
-static void set_local(t_proc_data **data)
+static void	set_local(t_proc_data **data)
 {
 	*data = malloc(sizeof(t_proc_data));
 	if (!*data)
@@ -46,7 +46,6 @@ static int process_commands(t_proc_data *data, char ***envp)
 			handle_non_builtin(data, envp, i);
 	}
 	exit_status = wait_for_children(data, envp);
-	cleanup_resources(data);
 	return (exit_status);
 }
 
@@ -91,6 +90,7 @@ static char *process_input(char *str, char ***envp)
 	}
 	else
 		process_commands(data, envp);
+	cleanup_resources(data);
 	return (tmp);
 }
 
